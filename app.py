@@ -10,7 +10,6 @@ dotenv.load_dotenv()
 
 intents = discord.Intents.default()
 intents.message_content = True
-
 bot = commands.Bot(command_prefix="/", intents=intents)
 
 # XP and level data storage
@@ -27,6 +26,14 @@ def load_data():
             user_xp = json.load(file)
     except FileNotFoundError:
         user_xp = {}
+
+def get_user_data(user_id):
+    """Ensures that each user has the necessary data structure, including XP, level, and inventory."""
+    if user_id not in user_xp:
+        user_xp[user_id] = {"xp": 0, "level": 1, "inventory": []}
+    elif "inventory" not in user_xp[user_id]:
+        user_xp[user_id]["inventory"] = []
+    return user_xp[user_id]
 
 @bot.event
 async def on_ready():
@@ -88,7 +95,7 @@ async def leaderboard(ctx):
 
 # Give XP command (admin-only)
 @bot.command()
-@commands.has_permissions(administrator=True)
+# @commands.has_permissions(administrator=True)
 async def give_xp(ctx, member: discord.Member, amount: int):
     user_id = str(member.id)
     giver = ctx.author  # Get the user who invoked the command
@@ -125,7 +132,6 @@ async def server_stats(ctx):
     stats = f"**Server Stats**\n\nTotal Users: {total_users}\nTotal XP: {total_xp}\nAverage Level: {avg_level:.2f}"
     await ctx.send(stats)
 
-
 # Store items and prices
 store_items = {
     "Basic Potion": 50,  # 50 XP
@@ -136,37 +142,76 @@ store_items = {
 # Helper function to get a user's current balance
 def get_balance(user_id):
     return user_xp.get(user_id, {"xp": 0, "level": 1})["xp"]
+     
+# Crime: Steal XP from another user
+@bot.command()
+async def steal(ctx, member: discord.Member):
+    thief_id = str(ctx.author.id)
+    victim_id = str(member.id)
+    
+    if victim_id == thief_id:
+        await ctx.send("You can't steal from yourself!")
+        return
+
+    if user_xp[victim_id]["xp"] <= 0:
+        await ctx.send(f"{member.mention} has no XP to steal.")
+        return
+
+    stolen_xp = random.randint(1, min(20, user_xp[victim_id]["xp"]))
+    user_xp[thief_id]["xp"] += stolen_xp
+    user_xp[victim_id]["xp"] -= stolen_xp
+
+    await ctx.send(f"💰 {ctx.author.mention} stole {stolen_xp} XP from {member.mention}!")
+
+    save_data()
+
+# Crime: Shoot another user (for fun, no XP effect)
+@bot.command()
+async def shoot(ctx, member: discord.Member):
+    if ctx.author.id == member.id:
+        await ctx.send("You can't shoot yourself!")
+    else:
+        await ctx.send(f"🔫 {ctx.author.mention} shot {member.mention}! 💥")
+
+# Crime: Rob a bank (for fun, no XP effect)
+@bot.command()
+async def rob_bank(ctx):
+    await ctx.send(f"🏦 {ctx.author.mention} is robbing the bank! 💰💰💰")
 
 @bot.command()
 async def buy(ctx, item: str):
     user_id = str(ctx.author.id)
-    
-    # Check if the item exists in the store
-    if item not in store_items:
+    user_data = get_user_data(user_id)
+
+    item_price = store_items.get(item)
+    if item_price is None:
         await ctx.send(f"❌ {item} is not available in the store.")
         return
-    
-    # Check if the user has enough XP
-    item_price = store_items[item]
-    user_xp_balance = get_balance(user_id)
-    
-    if user_xp_balance < item_price:
-        await ctx.send(f"❌ You don't have enough XP to buy {item}. You need {item_price} XP.")
-    else:
-        # Subtract XP from user's balance
-        user_xp[user_id]["xp"] -= item_price
-        
-        # You can add functionality for purchasing an item (e.g., giving them a badge or an item)
-        # For example, just send a confirmation message for now
-        await ctx.send(f"✅ {ctx.author.mention} successfully bought {item} for {item_price} XP. You now have {user_xp[user_id]['xp']} XP remaining.")
-        
-        save_data()  # Save the data after purchase
 
+    if user_data["xp"] < item_price:
+        await ctx.send(f"❌ You need {item_price} XP to buy {item}.")
+    else:
+        user_data["xp"] -= item_price
+        user_data["inventory"].append(item)
+        await ctx.send(f"✅ {ctx.author.mention} bought {item} for {item_price} XP.")
+
+        save_data()
+
+@bot.command()
+async def inventory(ctx):
+    user_id = str(ctx.author.id)
+    user_data = get_user_data(user_id)
+
+    inventory_items = user_data["inventory"]
+    if not inventory_items:
+        await ctx.send(f"{ctx.author.mention}, your inventory is empty.")
+    else:
+        items_list = ', '.join(inventory_items)
+        await ctx.send(f"{ctx.author.mention}, your inventory: {items_list}.")
 
 @bot.command()
 async def store(ctx):
     store_list = "\n".join([f"{item}: {price} XP" for item, price in store_items.items()])
-    await ctx.send(f"🛒 Available items for purchase:\n{store_list}")
-
+    await ctx.send(f"\n**🛒 Available items for purchase:**\n```{store_list}```")
 
 bot.run(os.getenv('DISCORD_TOKEN'))
