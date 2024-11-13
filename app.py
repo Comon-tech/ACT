@@ -63,12 +63,12 @@ async def on_message(message):
 
 # Show user's current XP and level
 @bot.command()
-async def tact_rewards(ctx):
+async def level(ctx):
     user_id = str(ctx.author.id)
     if user_id in user_xp:
-        level = user_xp[user_id]["level"]
+        user_level = user_xp[user_id]["level"]
         xp = user_xp[user_id]["xp"]
-        xp_needed = get_xp_needed(level)
+        xp_needed = get_xp_needed(user_level)
 
         await ctx.send(f"{ctx.author.mention}, you are level {level} with {xp}/{xp_needed} XP.")
     else:
@@ -124,5 +124,49 @@ async def server_stats(ctx):
 
     stats = f"**Server Stats**\n\nTotal Users: {total_users}\nTotal XP: {total_xp}\nAverage Level: {avg_level:.2f}"
     await ctx.send(stats)
+
+
+# Store items and prices
+store_items = {
+    "Basic Potion": 50,  # 50 XP
+    "Advanced Potion": 150,  # 150 XP
+    "Special Badge": 200,  # 200 XP
+}
+
+# Helper function to get a user's current balance
+def get_balance(user_id):
+    return user_xp.get(user_id, {"xp": 0, "level": 1})["xp"]
+
+@bot.command()
+async def buy(ctx, item: str):
+    user_id = str(ctx.author.id)
+    
+    # Check if the item exists in the store
+    if item not in store_items:
+        await ctx.send(f"❌ {item} is not available in the store.")
+        return
+    
+    # Check if the user has enough XP
+    item_price = store_items[item]
+    user_xp_balance = get_balance(user_id)
+    
+    if user_xp_balance < item_price:
+        await ctx.send(f"❌ You don't have enough XP to buy {item}. You need {item_price} XP.")
+    else:
+        # Subtract XP from user's balance
+        user_xp[user_id]["xp"] -= item_price
+        
+        # You can add functionality for purchasing an item (e.g., giving them a badge or an item)
+        # For example, just send a confirmation message for now
+        await ctx.send(f"✅ {ctx.author.mention} successfully bought {item} for {item_price} XP. You now have {user_xp[user_id]['xp']} XP remaining.")
+        
+        save_data()  # Save the data after purchase
+
+
+@bot.command()
+async def store(ctx):
+    store_list = "\n".join([f"{item}: {price} XP" for item, price in store_items.items()])
+    await ctx.send(f"🛒 Available items for purchase:\n{store_list}")
+
 
 bot.run(os.getenv('DISCORD_TOKEN'))
