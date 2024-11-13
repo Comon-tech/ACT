@@ -8,14 +8,10 @@ import json
 
 dotenv.load_dotenv()
 
-# intents = discord.Intents.default()
-# intents.message_content = True
 intents = discord.Intents.default()
-intents.typing = False
-intents.presences = True
-intents.members = True
-# bot = commands.Bot(command_prefix="/", intents=intents)
-bot = commands.Bot(command_prefix='/', intents=intents)
+intents.message_content = True
+
+bot = commands.Bot(command_prefix="/", intents=intents)
 
 # XP and level data storage
 user_xp = {}
@@ -66,7 +62,7 @@ async def on_message(message):
     await bot.process_commands(message)  # Ensure other commands can still run
 
 
-@bot.slash_command(name="tact_rewards", description="Get the rewards that you have earned.")
+@bot.command()
 async def tact_rewards(ctx):
     user_id = str(ctx.author.id)
     if user_id in user_xp:
@@ -74,13 +70,10 @@ async def tact_rewards(ctx):
         xp = user_xp[user_id]["xp"]
         xp_needed = get_xp_needed(level)
 
-        embed = Embed(title="TACT Bank Rewards", description=f"{ctx.author.mention}, you are level {level} with {xp}/{xp_needed} XP." , color=discord.Color.blue())
-        # await ctx.send(f"{ctx.author.mention}, you are level {level} with {xp}/{xp_needed} XP.")
-        await ctx.respond(embed=embed)
+        await ctx.send(f"{ctx.author.mention}, you are level {level} with {xp}/{xp_needed} XP.")
+
     else:
-        embed = Embed(title="TACT Bank Rewards", description=f"{ctx.author.mention}, you haven't earned any XP yet. Start chatting to level up!" , color=discord.Color.blue())
-        await ctx.respond(embed=embed)
-        # await ctx.send(f"{ctx.author.mention}, you haven't earned any XP yet. Start chatting to level up!")
+        await ctx.send(f"{ctx.author.mention}, you haven't earned any XP yet. Start chatting to level up!")
 
     
 
