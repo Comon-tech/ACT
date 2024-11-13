@@ -1,8 +1,8 @@
-import discord # type: ignore
-from discord.ext import commands # type: ignore
-from discord import Embed # type: ignore
-import dotenv # type: ignore
-import os # type: ignore
+import discord  # type: ignore
+from discord.ext import commands  # type: ignore
+from discord import Embed  # type: ignore
+import dotenv  # type: ignore
+import os  # type: ignore
 import random
 import json
 
@@ -61,7 +61,7 @@ async def on_message(message):
     save_data()  # Save XP data
     await bot.process_commands(message)  # Ensure other commands can still run
 
-
+# Show user's current XP and level
 @bot.command()
 async def tact_rewards(ctx):
     user_id = str(ctx.author.id)
@@ -71,34 +71,58 @@ async def tact_rewards(ctx):
         xp_needed = get_xp_needed(level)
 
         await ctx.send(f"{ctx.author.mention}, you are level {level} with {xp}/{xp_needed} XP.")
-
     else:
         await ctx.send(f"{ctx.author.mention}, you haven't earned any XP yet. Start chatting to level up!")
 
+# Leaderboard command
+@bot.command()
+async def leaderboard(ctx):
+    sorted_users = sorted(user_xp.items(), key=lambda x: x[1]['level'], reverse=True)
+    leaderboard_text = "**Leaderboard**\n\n"
     
+    for i, (user_id, data) in enumerate(sorted_users[:10]):  # Top 10 users
+        user = await bot.fetch_user(user_id)
+        leaderboard_text += f"{i+1}. {user.name} - Level {data['level']} ({data['xp']} XP)\n"
+    
+    await ctx.send(leaderboard_text)
+
+# Give XP command (admin-only)
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def give_xp(ctx, member: discord.Member, amount: int):
+    user_id = str(member.id)
+    giver = ctx.author  # Get the user who invoked the command
+    
+    if user_id not in user_xp:
+        user_xp[user_id] = {"xp": 0, "level": 1}
+    
+    user_xp[user_id]["xp"] += amount
+    await ctx.send(f"✅ {giver.mention} has given {amount} XP to {member.mention}. {member.mention} now has {user_xp[user_id]['xp']} XP.")
+
+    save_data()  # Save the data
+
+# Reset XP command (admin-only)
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def reset_xp(ctx, member: discord.Member):
+    user_id = str(member.id)
+    if user_id in user_xp:
+        user_xp[user_id] = {"xp": 0, "level": 1}
+        await ctx.send(f"✅ {member.mention}'s XP has been reset.")
+    else:
+        await ctx.send(f"{member.mention} has no XP data to reset.")
+
+    save_data()  # Save the data
+
+# Server stats command (admin-only)
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def server_stats(ctx):
+    total_users = len(user_xp)
+    total_xp = sum(user['xp'] for user in user_xp.values())
+    avg_level = sum(user['level'] for user in user_xp.values()) / total_users if total_users > 0 else 0
+
+    stats = f"**Server Stats**\n\nTotal Users: {total_users}\nTotal XP: {total_xp}\nAverage Level: {avg_level:.2f}"
+    await ctx.send(stats)
 
 bot.run(os.getenv('DISCORD_TOKEN'))
-
-
-
-
-# import discord # type: ignore
-# import dotenv # type: ignore
-# import os # type: ignore
-
-# dotenv.load_dotenv()
-
-# class MyClient(discord.Client):
-#     async def on_ready(self):
-#         print('Logged on as', self.user)
-
-#     async def on_message(self, message):
-#         print(f'Message from {message.author}: {message.content}')
-
-# intents = discord.Intents.default()
-# intents.message_content = True
-
-# client = MyClient(intents=intents)
-# client.run(os.getenv('DISCORD_TOKEN'))
-
-
