@@ -15,6 +15,9 @@ bot = commands.Bot(command_prefix="/", intents=intents)
 # XP and level data storage
 user_xp = {}
 
+# Temporary storage for last bumper
+last_bumper = None
+
 def save_data():
     with open("xp_data.json", "w") as file:
         json.dump(user_xp, file)
@@ -46,9 +49,48 @@ def get_xp_needed(level):
 
 @bot.event
 async def on_message(message):
-    if message.author.bot:
-        return  # Ignore messages from bots
+    # Skip if the message is from your bot or other bots except Arcane and Disboard
+    if message.author.bot and message.author.name != "Arcane" and message.author.id != 302050872383242240:
+        await bot.process_commands(message)  # Allow other commands to process
+        return
 
+    # Detect if the user issued the "/bump" command
+    if message.content.lower() == "/bump":
+        await message.channel.send(f"{message.author} has bumped the server!")
+        last_bumper = message.author.id  # Store the bumper's ID temporarily
+
+    # Check if Disboard confirms the bump
+    elif message.author.id == 302050872383242240 and "Bump done!" in message.content:  # Disboard bot's ID
+        if last_bumper:
+            bumper_id = str(last_bumper)
+            bumper_data = get_user_data(bumper_id)
+
+            bump_xp = 50  # Customize XP amount for a bump
+            bumper_data["xp"] += bump_xp
+
+            bumper_user = await bot.fetch_user(bumper_id)
+            await message.channel.send(f"✅ {bumper_user.mention} has received {bump_xp} XP for bumping the server!")
+            
+            last_bumper = None  # Reset after awarding XP
+            save_data()  # Save XP data
+
+    # Check for Arcane's level-up announcement in Arcane's message
+    if message.author.name == "Arcane" and "leveled up to level" in message.content:
+        # Parse the user mention from the message
+        user_mention = message.mentions[0] if message.mentions else None
+        if user_mention:
+            user_id = str(user_mention.id)
+
+            # Award XP for leveling up
+            xp_award = 50  # Set the amount of XP to award on level up with Arcane
+            if user_id not in user_xp:
+                user_xp[user_id] = {"xp": 0, "level": 1, "inventory": []}
+
+            user_xp[user_id]["xp"] += xp_award
+            await message.channel.send(f"✅ {user_mention.mention} earned {xp_award} XP for leveling up!")
+
+            save_data()  # Save XP data
+    
     user_id = str(message.author.id)
     if user_id not in user_xp:
         user_xp[user_id] = {"xp": 0, "level": 1}
@@ -62,7 +104,7 @@ async def on_message(message):
     xp_needed = get_xp_needed(current_level)
     if user_xp[user_id]["xp"] >= xp_needed:
         user_xp[user_id]["level"] += 1
-        user_xp[user_id]["xp"] = 0  # Reset XP after level up
+        user_xp[user_id]["xp"] -= xp_needed  # Subtract the XP needed to level up, rather than resetting to zero
         await message.channel.send(f"🎉 {message.author.mention} leveled up to level {user_xp[user_id]['level']}!")
 
     save_data()  # Save XP data
@@ -77,7 +119,7 @@ async def level(ctx):
         xp = user_xp[user_id]["xp"]
         xp_needed = get_xp_needed(user_level)
 
-        await ctx.send(f"{ctx.author.mention}, you are level {level} with {xp}/{xp_needed} XP.")
+        await ctx.send(f"{ctx.author.mention}, you are in level `{user_level}` with `{xp}`/`{xp_needed}` XP.")
     else:
         await ctx.send(f"{ctx.author.mention}, you haven't earned any XP yet. Start chatting to level up!")
 
@@ -142,7 +184,14 @@ store_items = {
 # Helper function to get a user's current balance
 def get_balance(user_id):
     return user_xp.get(user_id, {"xp": 0, "level": 1})["xp"]
-     
+
+#get user's current balance
+@bot.command()
+async def balance(ctx):
+    user_id = str(ctx.author.id)
+    balance = get_balance(user_id)
+    await ctx.send(f"{ctx.author.mention}, your current balance is `{balance}` XP.")
+
 # Crime: Steal XP from another user
 @bot.command()
 async def steal(ctx, member: discord.Member):
@@ -207,7 +256,7 @@ async def inventory(ctx):
         await ctx.send(f"{ctx.author.mention}, your inventory is empty.")
     else:
         items_list = ', '.join(inventory_items)
-        await ctx.send(f"{ctx.author.mention}, your inventory: {items_list}.")
+        await ctx.send(f"{ctx.author.mention}, your inventory:\n ```{items_list}```")
 
 @bot.command()
 async def store(ctx):
