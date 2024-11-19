@@ -77,7 +77,6 @@ commands_manual = """
 ```
 """
 
-
 @bot.tree.command(name="help", description="Get help")
 async def help(interaction:discord.Interaction):
     await interaction.response.send_message(f"hey {interaction.user.mention} here is the commands manual \n {commands_manual}")
