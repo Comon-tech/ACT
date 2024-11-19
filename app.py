@@ -49,10 +49,38 @@ async def on_ready():
     except Exception as e:
         print(e)
 
-@bot.tree.command(name="hello", description="This is an hello command")
-async def hello(interaction:discord.Interaction):
-    await interaction.response.send_message(f"hey {interaction.user.mention} this is a slash command",
-                                             ephemeral=True)
+commands_manual = """
+```md
+# Commands Manual
+
+## Leveling
+- /level: Get your TACT level
+- /leaderboard: Get the TACT leaderboard
+- /give_xp: Give XP to a user
+- /reset_xp: Reset a user's XP (admin-only)
+- /server_stats: Get server stats (admin-only)
+
+## Crime
+- /steal: Steal XP from a user
+- /shoot: Shoot a user
+- /rob_bank: Rob a bank
+
+## Shop
+- /balance: Get your TACT balance
+- /buy: Buy items from the shop
+- /inventory: Check the items in your inventory
+- /store: Check out the store
+
+## Fun
+- /help: Get help
+- /say: Say something
+```
+"""
+
+
+@bot.tree.command(name="help", description="Get help")
+async def help(interaction:discord.Interaction):
+    await interaction.response.send_message(f"hey {interaction.user.mention} here is the commands manual \n {commands_manual}")
 
 @bot.tree.command(name="say")
 @app_commands.describe(thing_to_say="Say something")
