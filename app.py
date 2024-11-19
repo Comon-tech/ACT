@@ -1,4 +1,5 @@
 import discord  # type: ignore
+from discord import app_commands
 from discord.ext import commands  # type: ignore
 from discord import Embed  # type: ignore
 import dotenv  # type: ignore
@@ -42,6 +43,21 @@ def get_user_data(user_id):
 async def on_ready():
     load_data()
     print(f"Rewards Bot is ready! Logged in as {bot.user}")
+    try:
+        synced = await bot.tree.sync()
+        print(f"synced {len(synced)} command(s)")
+    except Exception as e:
+        print(e)
+
+@bot.tree.command(name="hello", description="This is an hello command")
+async def hello(interaction:discord.Interaction):
+    await interaction.response.send_message(f"hey {interaction.user.mention} this is a slash command",
+                                             ephemeral=True)
+
+@bot.tree.command(name="say")
+@app_commands.describe(thing_to_say="Say something")
+async def say(interaction:discord.Interaction, thing_to_say:str):
+    await interaction.response.send_message(f"{interaction.user.name} said: `{thing_to_say}`")
 
 # Set XP required to level up
 def get_xp_needed(level):
@@ -111,21 +127,21 @@ async def on_message(message):
     await bot.process_commands(message)  # Ensure other commands can still run
 
 # Show user's current XP and level
-@bot.command()
-async def level(ctx):
-    user_id = str(ctx.author.id)
+@bot.tree.command(name="level", description="Get your TACT level")
+async def level(interaction: discord.Interaction ):
+    user_id = str(interaction.user.id)
     if user_id in user_xp:
         user_level = user_xp[user_id]["level"]
         xp = user_xp[user_id]["xp"]
         xp_needed = get_xp_needed(user_level)
 
-        await ctx.send(f"{ctx.author.mention}, you are in level `{user_level}` with `{xp}`/`{xp_needed}` XP.")
+        await interaction.response.send_message(f"{interaction.user.mention}, you are in level `{user_level}` with `{xp}`/`{xp_needed}` XP.")
     else:
-        await ctx.send(f"{ctx.author.mention}, you haven't earned any XP yet. Start chatting to level up!")
+        await interaction.response.send_message(f"{interaction.user.mention}, you haven't earned any XP yet. Start chatting to level up!")
 
 # Leaderboard command
-@bot.command()
-async def leaderboard(ctx):
+@bot.tree.command(name="leaderboard", description="Get the TACT leaderboard")
+async def leaderboard(interaction: discord.Interaction):
     sorted_users = sorted(user_xp.items(), key=lambda x: x[1]['level'], reverse=True)
     leaderboard_text = "**Leaderboard**\n\n"
     
@@ -133,20 +149,20 @@ async def leaderboard(ctx):
         user = await bot.fetch_user(user_id)
         leaderboard_text += f"{i+1}. {user.name} - Level {data['level']} ({data['xp']} XP)\n"
     
-    await ctx.send(leaderboard_text)
+    await interaction.response.send_message(leaderboard_text)
 
-# Give XP command (admin-only)
-@bot.command()
-# @commands.has_permissions(administrator=True)
-async def give_xp(ctx, member: discord.Member, amount: int):
+# Give XP command
+@bot.tree.command(name="give_xp", description="Give XP to a user")
+@app_commands.describe(member="User to give XP", amount="Amount of XP to give")
+async def give_xp(interaction: discord.Interaction, member: discord.Member, amount: int):
     user_id = str(member.id)
-    giver = ctx.author  # Get the user who invoked the command
+    giver = interaction.user  # Get the user who invoked the command
     
     if user_id not in user_xp:
         user_xp[user_id] = {"xp": 0, "level": 1}
     
     user_xp[user_id]["xp"] += amount
-    await ctx.send(f"✅ {giver.mention} has given {amount} XP to {member.mention}. {member.mention} now has {user_xp[user_id]['xp']} XP.")
+    await interaction.response.send_message(f"✅ {giver.mention} has given {amount} XP to {member.mention}. {member.mention} now has {user_xp[user_id]['xp']} XP.")
 
     save_data()  # Save the data
 
@@ -186,81 +202,81 @@ def get_balance(user_id):
     return user_xp.get(user_id, {"xp": 0, "level": 1})["xp"]
 
 #get user's current balance
-@bot.command()
-async def balance(ctx):
-    user_id = str(ctx.author.id)
+@bot.tree.command(name="balance", description="Get your TACT balance")
+async def balance(interaction: discord.Interaction):
+    user_id = str(interaction.user.id)
     balance = get_balance(user_id)
-    await ctx.send(f"{ctx.author.mention}, your current balance is `{balance}` XP.")
+    await interaction.response.send_message(f"{interaction.user.mention}, your current balance is `{balance}` XP.")
 
 # Crime: Steal XP from another user
-@bot.command()
-async def steal(ctx, member: discord.Member):
-    thief_id = str(ctx.author.id)
+@bot.tree.command(name="steal", description="Steal xp from user! (risky)")
+async def steal(interaction: discord.Interaction, member: discord.Member):
+    thief_id = str(interaction.user.id)
     victim_id = str(member.id)
     
     if victim_id == thief_id:
-        await ctx.send("You can't steal from yourself!")
+        await interaction.response.send_message("You can't steal from yourself!")
         return
 
     if user_xp[victim_id]["xp"] <= 0:
-        await ctx.send(f"{member.mention} has no XP to steal.")
+        await interaction.response.send_message(f"{member.mention} has no XP to steal.")
         return
 
     stolen_xp = random.randint(1, min(20, user_xp[victim_id]["xp"]))
     user_xp[thief_id]["xp"] += stolen_xp
     user_xp[victim_id]["xp"] -= stolen_xp
 
-    await ctx.send(f"💰 {ctx.author.mention} stole {stolen_xp} XP from {member.mention}!")
+    await interaction.response.send_message(f"💰 {interaction.user.mention} stole {stolen_xp} XP from {member.mention}!")
 
     save_data()
 
 # Crime: Shoot another user (for fun, no XP effect)
-@bot.command()
-async def shoot(ctx, member: discord.Member):
-    if ctx.author.id == member.id:
-        await ctx.send("You can't shoot yourself!")
+@bot.tree.command(name="shoot", description="Shoot a user!")
+async def shoot(interaction: discord.Interaction, member: discord.Member):
+    if interaction.user.id == member.id:
+        await interaction.response.send_message("You can't shoot yourself!")
     else:
-        await ctx.send(f"🔫 {ctx.author.mention} shot {member.mention}! 💥")
+        await interaction.response.send_message(f"🔫 {interaction.user.mention} shot {member.mention}! 💥")
 
 # Crime: Rob a bank (for fun, no XP effect)
-@bot.command()
-async def rob_bank(ctx):
-    await ctx.send(f"🏦 {ctx.author.mention} is robbing the bank! 💰💰💰")
+@bot.tree.command(name="rob_bank", description="Rob a bank! (riscky)")
+async def rob_bank(interaction: discord.Interaction):
+    await interaction.response.send_message(f"🏦 {interaction.user.mention} is robbing the bank! 💰💰💰")
 
-@bot.command()
-async def buy(ctx, item: str):
-    user_id = str(ctx.author.id)
+@bot.tree.command(name="buy", description="Buy itesm from the shop")
+async def buy(interaction: discord.Interaction, item: str):
+    user_id = str(interaction.user.id)
     user_data = get_user_data(user_id)
 
     item_price = store_items.get(item)
     if item_price is None:
-        await ctx.send(f"❌ {item} is not available in the store.")
+        await interaction.response.send_message(f"❌ {item} is not available in the store.")
         return
 
     if user_data["xp"] < item_price:
-        await ctx.send(f"❌ You need {item_price} XP to buy {item}.")
+        await interaction.response.send_message(f"❌ You need {item_price} XP to buy {item}.")
     else:
         user_data["xp"] -= item_price
         user_data["inventory"].append(item)
-        await ctx.send(f"✅ {ctx.author.mention} bought {item} for {item_price} XP.")
+        await interaction.response.send_message(f"✅ {interaction.user.mention} bought {item} for {item_price} XP.")
 
         save_data()
 
-@bot.command()
-async def inventory(ctx):
-    user_id = str(ctx.author.id)
+@bot.tree.command(name="inventory", description="Check the items in your inventory")
+async def inventory(interaction: discord.Interaction):
+    user_id = str(interaction.user.id)
     user_data = get_user_data(user_id)
 
     inventory_items = user_data["inventory"]
     if not inventory_items:
-        await ctx.send(f"{ctx.author.mention}, your inventory is empty.")
+        await interaction.response.send_message(f"{interaction.user.mention}, your inventory is empty.")
     else:
         items_list = ', '.join(inventory_items)
-        await ctx.send(f"{ctx.author.mention}, your inventory:\n ```{items_list}```")
+        await interaction.response.send_message(f"{interaction.user.mention}, your inventory:\n ```{items_list}```")
 
-@bot.command()
-async def store(ctx):
+@bot.tree.command(name="store", description="Checkout the store")
+async def store(interaction: discord.Interaction):
     store_list = "\n".join([f"{item}: {price} XP" for item, price in store_items.items()])
-    await ctx.send(f"\n**🛒 Available items for purchase:**\n```{store_list}```")
+    await interaction.response.send_message(f"\n**🛒 Available items for purchase:**\n```{store_list}```")
 
 bot.run(os.getenv('DISCORD_TOKEN'))
