@@ -13,12 +13,13 @@ from datetime import datetime, timedelta
 
 dotenv.load_dotenv()
 
-
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="/", intents=intents)
 
+# Cooldown tracker
 shoot_cooldowns = {}
+rob_cooldowns = {}
 
 def get_user_data(user_id):
     user_data = user_collection.find_one({"user_id": user_id})
@@ -45,7 +46,6 @@ def award_xp(user_id, xp):
     save_user_data(user_id, user_data)
     return user_data
 
-
 @bot.event
 async def on_ready():
     # load_data()
@@ -62,6 +62,36 @@ def get_xp_needed(level):
 
 @bot.event
 async def on_message(message):
+    # Ignore bot messages
+    if message.author.bot:
+        return
+
+    # Check for Disboard bump command
+    if message.content.lower() == "!d bump":
+        user_id = str(message.author.id)
+        reward = 100  # Set the reward amount
+
+        # Retrieve user data from the database
+        user_data = get_user_data(user_id)
+
+        if not user_data:
+            # If user is not registered, create an entry with default balance
+            user_data = {"user_id": user_id, "balance": 0}
+
+        # Add the reward to the user's balance
+        user_data["balance"] += reward
+        save_user_data(user_id, user_data)
+
+        # Send a confirmation message
+        embed = discord.Embed(
+            title="🎉 Bump Reward",
+            description=f"Thank you for bumping the server, {message.author.mention}!\nYou have been rewarded **{reward} coins**!",
+            color=discord.Color.blue()
+        )
+        embed.set_thumbnail(url=message.author.display_avatar.url)
+
+        await message.channel.send(embed=embed)
+
     user_id = str(message.author.id)
     user_data = get_user_data(user_id)
 
@@ -76,41 +106,135 @@ async def on_message(message):
 @bot.tree.command(name="leaderboard", description="Get the TACT leaderboard")
 async def leaderboard(interaction: discord.Interaction):
     sorted_users = sorted(user_collection.find(), key=lambda x: x['level'], reverse=True)
-    leaderboard_text = "**Leaderboard**\n\n"
     
     for i, user_data in enumerate(sorted_users[:10]):  # Top 10 users
         user = await bot.fetch_user(user_data['user_id'])
-        leaderboard_text += f"{i+1}. {user.name} - Level {user_data['level']} ({user_data['xp']} XP)\n"
-    
-    await interaction.response.send_message(leaderboard_text)
+        
+        embed = discord.Embed(
+            title="**Leaderboard**\n",
+            description=f"**{i+1}. {user.name} - Level {user_data['level']} ({user_data['xp']} XP)**",
+            color=discord.Color.blue()
+        )
+        embed.set_thumbnail(url=user.display_avatar.url)
+
+        await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="level", description="Get your TACT level")
-async def level(interaction: discord.Interaction):
+async def level(interaction: discord.Interaction, user: discord.Member = None):
+    user = user or interaction.user
+
     user_id = str(interaction.user.id)
     user_data = get_user_data(user_id)
 
     user_level = user_data["level"]
+    user_xp = user_data["xp"]
     xp_needed = get_xp_needed(user_level)
+    # Send a confirmation message
+    embed = discord.Embed(
+            title="**User Level**\n",
+            description=f"**{user.display_name}, your levvel is {user_level} with {user_xp}/ {xp_needed}**!",
+            color=discord.Color.blue()
+        )
+    embed.set_thumbnail(url=user.display_avatar.url)
 
-    await interaction.response.send_message(f"{interaction.user.mention}, you are in level `{user_level}` with `{user_data['xp']}`/`{xp_needed}` XP.")
+    await interaction.response.send_message(embed=embed)
 
+@bot.command(name="give_xp")
+@commands.has_permissions(administrator=True)
+async def give_xp(ctx, member: discord.Member, xp: int):
+    if xp <= 0:
+        await ctx.send("XP must be a positive number.")
+        return
 
-# Give XP command
-@bot.tree.command(name="give_xp", description="Give XP to a user")
-@app_commands.describe(member="User to give XP", amount="Amount of XP to give")
-async def give_xp(interaction: discord.Interaction, member: discord.Member, amount: int):
     user_id = str(member.id)
-    giver = interaction.user  # Get the user who invoked the command
-
-    user_data = user_data(user_id)
     
-    if user_id not in user_data:
-        user_data[user_id] = {"xp": 0, "level": 1}
-    
-    user_data[user_id]["xp"] += amount
-    await interaction.response.send_message(f"✅ {giver.mention} has given {amount} XP to {member.mention}. {member.mention} now has {user_data[user_id]['xp']} XP.")
+    # Retrieve user data
+    user_data = get_user_data(user_id)
+    if not user_data:
+        user_data = {"user_id": user_id, "balance": 0, "xp": 0, "level": 1}
 
-    save_user_data(user_id, user_data)  # Save the data
+    # Add XP and update user data
+    user_data["xp"] = user_data.get("xp", 0) + xp
+    save_user_data(user_id, user_data)
+
+    # Respond with confirmation
+    embed = discord.Embed(
+        title="✅ XP Awarded",
+        description=(
+            f"{ctx.author.mention} has awarded **{xp} XP** to {member.mention}!\n"
+            f"**{member.display_name}** now has **{user_data['xp']} XP**."
+        ),
+        color=discord.Color.green()
+    )
+    await ctx.send(embed=embed)
+
+@give_xp.error
+async def give_xp_error(ctx, error):
+    if isinstance(error, commands.MissingPermissions):
+        await ctx.send("❌ You don't have permission to use this command.")
+    elif isinstance(error, commands.BadArgument):
+        await ctx.send("❌ Invalid arguments. Usage: `!give_xp @User amount`")
+    else:
+        await ctx.send("❌ An error occurred while processing the command.")
+
+
+@bot.tree.command(name="gift", description="Gift an item to another user.")
+async def gift(interaction: discord.Interaction , recipient: discord.Member, *, item_name: str):
+    giver_id = str(interaction.user.id)
+    recipient_id = str(recipient.id)
+    
+    if giver_id == recipient_id:
+        await interaction.response.send_message("❌ You can't gift items to yourself.")
+        return
+    
+    # Fetch giver and recipient data
+    giver_data = get_user_data(giver_id)
+    recipient_data = get_user_data(recipient_id)
+
+    if not giver_data:
+        await interaction.response.send_message("❌ You don't have an inventory to gift from.")
+        return
+    
+    if not recipient_data:
+        recipient_data = {"user_id": recipient_id, "balance": 0, "xp": 0, "level": 1, "inventory": []}
+    
+    inventory = giver_data.get("inventory", [])
+    
+    # Check if the giver owns the item
+    if item_name not in inventory:
+        await interaction.response.send_message(f"❌ You don't own an item called **{item_name}**.")
+        return
+    
+    # Remove item from giver's inventory
+    inventory.remove(item_name)
+    giver_data["inventory"] = inventory
+    save_user_data(giver_id, giver_data)
+    
+    # Add item to recipient's inventory
+    recipient_inventory = recipient_data.get("inventory", [])
+    recipient_inventory.append(item_name)
+    recipient_data["inventory"] = recipient_inventory
+    save_user_data(recipient_id, recipient_data)
+    
+    # Confirm the gift
+    embed = discord.Embed(
+        title="🎁 Gift Successful!",
+        description=(
+            f"{interaction.user.mention} has gifted **{item_name}** to {recipient.mention}!\n"
+            f"Check your inventory to see the updated items."
+        ),
+        color=discord.Color.green()
+    )
+    await interaction.response.send_message(embed=embed)
+
+@gift.error
+async def gift_error(ctx, error):
+    if isinstance(error, commands.BadArgument):
+        await ctx.send("❌ Invalid arguments. Usage: `!gift @User item_name`")
+    else:
+        await ctx.send("❌ An error occurred while processing the gift.")
+
+
 
 # Reset XP command (admin-only)
 @bot.command()
@@ -155,7 +279,6 @@ async def balance(interaction: discord.Interaction, user: discord.Member = None)
     # Send the response
     await interaction.response.send_message(embed=embed)
 
-
 @bot.tree.command(name="inventory", description="Check the items in your inventory")
 async def inventory(interaction: discord.Interaction, user: discord.Member = None):
     
@@ -178,10 +301,6 @@ async def inventory(interaction: discord.Interaction, user: discord.Member = Non
         embed.set_thumbnail(url=user.display_avatar.url)
 
         await interaction.response.send_message(embed=embed)
-
-
-# Cooldown tracker
-rob_cooldowns = {}
 
 @bot.tree.command(name="rob_bank", description="Attempt to rob a bank! High risk, high reward.")
 async def rob_bank(interaction: discord.Interaction):
@@ -410,6 +529,5 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
 async def store(interaction: discord.Interaction):
     store_list = "\n".join([f"{item['item_name']}: {item['item_price']} XP" for item in store_collection.find()])
     await interaction.response.send_message(f"\n**🛒 Available items for purchase:**\n```{store_list}```")
-
 
 bot.run(os.getenv('DISCORD_TOKEN'))
