@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 import time
 import discord  # type: ignore
 from discord import app_commands
@@ -75,11 +75,11 @@ async def on_message(message):
         user_data = get_user_data(user_id)
 
         if not user_data:
-            # If user is not registered, create an entry with default balance
-            user_data = {"user_id": user_id, "balance": 0}
+            # If user is not registered, create an entry with default xp
+            user_data = {"user_id": user_id, "last_steal": None}
 
-        # Add the reward to the user's balance
-        user_data["balance"] += reward
+        # Add the reward to the user's xp
+        user_data["xp"] += reward
         save_user_data(user_id, user_data)
 
         # Send a confirmation message
@@ -151,7 +151,7 @@ async def give_xp(ctx, member: discord.Member, xp: int):
     # Retrieve user data
     user_data = get_user_data(user_id)
     if not user_data:
-        user_data = {"user_id": user_id, "balance": 0, "xp": 0, "level": 1}
+        user_data = {"user_id": user_id, "xp": 0, "level": 1}
 
     # Add XP and update user data
     user_data["xp"] = user_data.get("xp", 0) + xp
@@ -168,23 +168,19 @@ async def give_xp(ctx, member: discord.Member, xp: int):
     )
     await ctx.send(embed=embed)
 
-@give_xp.error
-async def give_xp_error(ctx, error):
-    if isinstance(error, commands.MissingPermissions):
-        await ctx.send("❌ You don't have permission to use this command.")
-    elif isinstance(error, commands.BadArgument):
-        await ctx.send("❌ Invalid arguments. Usage: `!give_xp @User amount`")
-    else:
-        await ctx.send("❌ An error occurred while processing the command.")
-
-
 @bot.tree.command(name="gift", description="Gift an item to another user.")
 async def gift(interaction: discord.Interaction , recipient: discord.Member, *, item_name: str):
     giver_id = str(interaction.user.id)
     recipient_id = str(recipient.id)
     
     if giver_id == recipient_id:
-        await interaction.response.send_message("❌ You can't gift items to yourself.")
+        embed = discord.Embed(
+        title=f"Gift {recipient.display_name}",
+        description=f"**❌ You can't gift items to yourself.**",
+        color=discord.Color.gold()
+        )
+        embed.set_thumbnail(url=recipient.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
         return
     
     # Fetch giver and recipient data
@@ -192,7 +188,13 @@ async def gift(interaction: discord.Interaction , recipient: discord.Member, *, 
     recipient_data = get_user_data(recipient_id)
 
     if not giver_data:
-        await interaction.response.send_message("❌ You don't have an inventory to gift from.")
+        embed = discord.Embed(
+        title=f"Gift {recipient.display_name}",
+        description=f"**❌ You don't have an inventory to gift from.**",
+        color=discord.Color.gold()
+        )
+        embed.set_thumbnail(url=recipient.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
         return
     
     if not recipient_data:
@@ -202,7 +204,13 @@ async def gift(interaction: discord.Interaction , recipient: discord.Member, *, 
     
     # Check if the giver owns the item
     if item_name not in inventory:
-        await interaction.response.send_message(f"❌ You don't own an item called **{item_name}**.")
+        embed = discord.Embed(
+        title=f"Gift {recipient.display_name}",
+        description=f"**❌ You don't own an item called {item_name}.**",
+        color=discord.Color.gold()
+        )
+        embed.set_thumbnail(url=recipient.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
         return
     
     # Remove item from giver's inventory
@@ -230,11 +238,21 @@ async def gift(interaction: discord.Interaction , recipient: discord.Member, *, 
 @gift.error
 async def gift_error(ctx, error):
     if isinstance(error, commands.BadArgument):
-        await ctx.send("❌ Invalid arguments. Usage: `!gift @User item_name`")
+        embed = discord.Embed(
+        title=f"Gift error",
+        description=f"**❌ Invalid arguments. Usage: `/gift @User item_name`**",
+        color=discord.Color.gold()
+        )
+        embed.set_thumbnail(url=ctx.author.display_avatar.url)
+        await ctx.send(embed=embed)
     else:
-        await ctx.send("❌ An error occurred while processing the gift.")
-
-
+        embed = discord.Embed(
+        title=f"Gift error",
+        description=f"**❌ An error occurred while processing the gift.**",
+        color=discord.Color.gold()
+        )
+        embed.set_thumbnail(url=ctx.author.display_avatar.url)
+        await ctx.send(embed=embed)
 
 # Reset XP command (admin-only)
 @bot.command()
@@ -262,11 +280,11 @@ async def balance(interaction: discord.Interaction, user: discord.Member = None)
 
     # Ensure the user exists in the database
     if not user_data:
-        user_data = {"balance": 0}  # Default balance if user is not yet in the database
+        user_data = {"xp": 0}  # Default xp if user is not yet in the database
         save_user_data(user_id, user_data)  # Optionally initialize the user in the database
 
-    # Fetch balance
-    balance = user_data.get("balance", 0)
+    # Fetch xp
+    balance = user_data.get("xp", 0)
 
     # Create response
     embed = discord.Embed(
@@ -309,13 +327,13 @@ async def rob_bank(interaction: discord.Interaction):
 
     # Ensure the user exists in the database
     if not user_data:
-        user_data = {"balance": 0, "last_rob": None}
+        user_data = {"xp": 0, "last_rob": None}
         save_user_data(user_id, user_data)
 
     # Check cooldown
     now = datetime.utcnow()
     last_rob = user_data.get("last_rob")
-    cooldown_time = datetime.timedelta(hours=1)  # Set cooldown to 1 hour
+    cooldown_time = timedelta(hours=1)  # Set cooldown to 1 hour
 
     if last_rob and now - last_rob < cooldown_time:
         remaining_time = cooldown_time - (now - last_rob)
@@ -333,15 +351,15 @@ async def rob_bank(interaction: discord.Interaction):
     # Attempt robbery
     if random.random() < success_chance:
         # Success: Add coins
-        user_data["balance"] += success_amount
+        user_data["xp"] += success_amount
         result_message = f"🎉 Success! You managed to rob the bank and got **{success_amount} coins**!"
     else:
         # Failure: Deduct coins
-        if user_data["balance"] >= failure_penalty:
-            user_data["balance"] -= failure_penalty
+        if user_data["xp"] >= failure_penalty:
+            user_data["xp"] -= failure_penalty
         else:
-            failure_penalty = user_data["balance"]
-            user_data["balance"] = 0
+            failure_penalty = user_data["xp"]
+            user_data["xp"] = 0
         result_message = (
             f"🚨 You got caught trying to rob the bank and lost **{failure_penalty} coins**. Better luck next time!"
         )
@@ -388,7 +406,13 @@ async def steal(interaction: discord.Interaction, target: discord.Member):
 
     # Ensure thief isn't targeting themselves
     if thief_id == victim_id:
-        await interaction.response.send_message("You can't steal from yourself!", ephemeral=True)
+        embed = discord.Embed(
+        title="🔫 Steal Results",
+        description="🔫 You can't steal from yourself",
+        color=discord.Color.red()
+        )
+        embed.set_thumbnail(url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     # Fetch thief and victim data
@@ -402,6 +426,12 @@ async def steal(interaction: discord.Interaction, target: discord.Member):
     
     if time_since_last_steal < cooldown:
         remaining_time = cooldown - time_since_last_steal
+        embed = discord.Embed(
+        title="🔫 Steal Results",
+        description=f"⏳ You need to wait {remaining_time // 60} minutes before stealing again!",
+        color=discord.Color.red()
+        )
+        embed.set_thumbnail(url=interaction.user.display_avatar.url)
         await interaction.response.send_message(
             f"⏳ You need to wait {remaining_time // 60} minutes before stealing again!",
             ephemeral=True
@@ -415,25 +445,30 @@ async def steal(interaction: discord.Interaction, target: discord.Member):
     if success:
         # Calculate stolen amount
         stolen_amount = random.randint(50, 200)  # Steal between 50 and 200 coins
-        stolen_amount = min(stolen_amount, victim["balance"])  # Can't steal more than the victim's balance
+        stolen_amount = min(stolen_amount, victim["xp"])  # Can't steal more than the victim's balance
 
         # Update balances
-        thief["balance"] += stolen_amount
-        victim["balance"] -= stolen_amount
+        thief["xp"] += stolen_amount
+        victim["xp"] -= stolen_amount
 
         # Update timestamps and save
         thief["last_steal"] = current_time
         save_user_data(thief_id, thief)
         save_user_data(victim_id, victim)
 
-        await interaction.response.send_message(
-            f"🎉 You successfully stole `{stolen_amount}` coins from {target.mention}!"
+        embed = discord.Embed(
+        title="🔫 Steal Results",
+        description=f"🎉 You successfully stole `{stolen_amount}` coins from {target.mention}!",
+        color=discord.Color.red()
         )
+        embed.set_thumbnail(url=interaction.user.display_avatar.url)
+
+        await interaction.response.send_message(embed=embed)
     else:
         # Failed attempt penalty
         penalty = random.randint(20, 100)  # Lose between 20 and 100 coins
-        thief["balance"] -= penalty
-        thief["balance"] = max(thief["balance"], 0)  # Prevent negative balance
+        thief["xp"] -= penalty
+        thief["xp"] = max(thief["xp"], 0)  # Prevent negative xp
 
         # Update timestamps and save
         thief["last_steal"] = current_time
@@ -450,9 +485,13 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
 
     # Prevent self-targeting
     if interaction.user == target:
-        await interaction.response.send_message(
-            "🔫 You can't shoot yourself!", ephemeral=True
+        embed = discord.Embed(
+        title="🔫 Shoot Results",
+        description="🔫 You can't shoot yourself",
+        color=discord.Color.red()
         )
+        embed.set_thumbnail(url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     # Retrieve attacker and target data
@@ -460,9 +499,13 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
     target_data = get_user_data(target_id)
 
     if not attacker_data or not target_data:
-        await interaction.response.send_message(
-            "🔍 Both users must be registered to participate!", ephemeral=True
+        embed = discord.Embed(
+        title="🔫 Shoot Results",
+        description="🔍 Both users must be registered to participate!",
+        color=discord.Color.red()
         )
+        embed.set_thumbnail(url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     # Check cooldown
@@ -472,10 +515,14 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
 
     if last_shoot and now - last_shoot < cooldown_time:
         remaining_time = cooldown_time - (now - last_shoot)
-        await interaction.response.send_message(
-            f"⏳ You need to wait {remaining_time.seconds} seconds before shooting again!",
-            ephemeral=True
+        embed = discord.Embed(
+        title="🔫 Shoot Results",
+        description=f"⏳ You need to wait {remaining_time.seconds} seconds before shooting again!",
+        color=discord.Color.red()
         )
+        embed.set_thumbnail(url=interaction.user.display_avatar.url)
+
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
     # Set success chance, rewards, and penalties
@@ -486,23 +533,23 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
     # Attempt to shoot
     if random.random() < success_chance:
         # Success: Attacker steals coins from the target
-        if target_data["balance"] >= reward:
-            target_data["balance"] -= reward
+        if target_data["xp"] >= reward:
+            target_data["xp"] -= reward
         else:
-            reward = target_data["balance"]
-            target_data["balance"] = 0
+            reward = target_data["xp"]
+            target_data["xp"] = 0
 
-        attacker_data["balance"] += reward
+        attacker_data["xp"] += reward
         result_message = (
             f"🎯 {interaction.user.mention} successfully shot {target.mention} and stole **{reward} coins**!"
         )
     else:
         # Failure: Attacker loses coins
-        if attacker_data["balance"] >= penalty:
-            attacker_data["balance"] -= penalty
+        if attacker_data["xp"] >= penalty:
+            attacker_data["xp"] -= penalty
         else:
-            penalty = attacker_data["balance"]
-            attacker_data["balance"] = 0
+            penalty = attacker_data["xp"]
+            attacker_data["xp"] = 0
 
         result_message = (
             f"❌ {interaction.user.mention} missed their shot and lost **{penalty} coins**!"
@@ -526,8 +573,38 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="store", description="Checkout the store")
-async def store(interaction: discord.Interaction):
+async def store(interaction: discord.Interaction, user: discord.Member = None):
+    user = user or interaction.user
     store_list = "\n".join([f"{item['item_name']}: {item['item_price']} XP" for item in store_collection.find()])
-    await interaction.response.send_message(f"\n**🛒 Available items for purchase:**\n```{store_list}```")
+    embed = discord.Embed(
+        title="Welcome to the 🛒 store! Items available for purchase:",
+        description=store_list,
+        color=discord.Color.blue()
+    )
+    embed.set_thumbnail(url=user.display_avatar.url)
+
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="help", description="Get help with the commands")
+async def help(interaction: discord.Interaction):
+    embed = discord.Embed(
+        title="📚 TACT Bot Help",
+        description=(
+            "Welcome to the TACT Bot! Here are some of the available commands:\n"
+            "**/balance**: Check your balance\n"
+            "**/leaderboard**: View the top users\n"
+            "**/level**: Check your level\n"
+            "**/steal**: Attempt to steal from another user\n"
+            "**/shoot**: Shoot another user for a chance to win coins\n"
+            "**/rob_bank**: Attempt to rob a bank\n"
+            "**/store**: View items available for purchase\n"
+            "**/buy**: Buy items from the store\n"
+            "**/gift**: Gift an item to another user\n"
+
+        ),
+        color=discord.Color.blue()
+    )
+    embed.set_thumbnail(url=interaction.user.display_avatar.url)
+    await interaction.response.send_message(embed=embed)
 
 bot.run(os.getenv('DISCORD_TOKEN'))
