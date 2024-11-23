@@ -1,6 +1,5 @@
 import time
 import discord  # type: ignore
-from discord import app_commands
 from discord.ext import commands  # type: ignore
 import dotenv  # type: ignore
 import os  # type: ignore
@@ -34,17 +33,6 @@ def save_user_data(user_id, data):
 
     print(f"User {user_id} data saved: {data}\n\n")
 
-# def award_xp(user_id, xp):
-#     user_data = get_user_data(user_id)
-#     user_data["xp"] += xp
-#     xp_needed = get_xp_needed(user_data["level"])
-#     while user_data["xp"] >= xp_needed:
-#         user_data["level"] += 1
-#         user_data["xp"] -= xp_needed
-#         xp_needed = get_xp_needed(user_data["level"])
-#     save_user_data(user_id, user_data)
-#     return user_data
-
 def award_xp(user_id, xp):
     user_data = get_user_data(user_id)
     user_data["xp"] += xp
@@ -56,10 +44,8 @@ def award_xp(user_id, xp):
     
     print(f"User {user_id} leveled up to {user_data['level']}!, with {user_data['xp']} XP remaining.\n\n")
 
-
     save_user_data(user_id, user_data)
     return user_data
-
 
 @bot.event
 async def on_ready():
@@ -71,14 +57,9 @@ async def on_ready():
     except Exception as e:
         print(e)
 
-# Set XP required to level up
-# def get_xp_needed(level):
-    # return 5 * (level ** 2) + 50 * level + 100
-
 def get_xp_needed(level):
     # Example formula: Quadratic scaling for XP
     return 5 * (level ** 2) + 50 * level + 100
-
 
 @bot.event
 async def on_message(message):
@@ -134,7 +115,6 @@ async def leaderboard(interaction: discord.Interaction):
     # Send the embed
     await interaction.followup.send(embed=embed)
 
-
 @bot.tree.command(name="level", description="Get a user's TACT level")
 async def level(interaction: discord.Interaction, user: discord.Member = None):
     # Use the mentioned user if provided, otherwise default to the command invoker
@@ -157,34 +137,39 @@ async def level(interaction: discord.Interaction, user: discord.Member = None):
     # Send the response
     await interaction.response.send_message(embed=embed)
 
-@bot.command(name="give_xp")
-@commands.has_permissions(administrator=True)
-async def give_xp(ctx, member: discord.Member, xp: int):
+@bot.tree.command(name="give_xp", description="Give some XPs to your friends!")
+async def give_xp(interaction: discord.Interaction, member: discord.Member, xp: int):
+
+    interaction.response.defer()
+    # Validate input
     if xp <= 0:
-        await ctx.send("XP must be a positive number.")
+        await interaction.response.send_message("XP must be a positive number.")
         return
 
-    user_id = str(member.id)
-    
     # Retrieve user data
+    user_id = str(member.id)
     user_data = get_user_data(user_id)
     if not user_data:
-        user_data = {"user_id": user_id, "xp": 0, "level": 1}
+        await interaction.response.send_message("User not found!")
+        return
 
     # Add XP and update user data
     user_data["xp"] = user_data.get("xp", 0) + xp
     save_user_data(user_id, user_data)
 
-    # Respond with confirmation
+    # Create the response embed
     embed = discord.Embed(
         title="✅ XP Awarded",
         description=(
-            f"{ctx.author.mention} has awarded **{xp} XP** to {member.mention}!\n"
+            f"{interaction.user.mention} has awarded **{xp} XP** to {member.mention}!\n"
             f"**{member.display_name}** now has **{user_data['xp']} XP**."
         ),
         color=discord.Color.green()
     )
-    await ctx.send(embed=embed)
+    embed.set_thumbnail(url=member.display_avatar.url)
+
+    # Respond with confirmation
+    await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="gift", description="Gift an item to another user.")
 async def gift(interaction: discord.Interaction, recipient: discord.Member, *, item_name: str):
@@ -278,10 +263,6 @@ async def gift_error(ctx, error):
         embed.set_thumbnail(url=ctx.author.display_avatar.url)
         await ctx.send(embed=embed)
 
-# Reset XP command (admin-only)
-@bot.command()
-@commands.has_permissions(administrator=True)
-async def reset_xp(ctx, member: discord.Member):
     user_id = str(member.id)
     user_data = get_user_data(user_id)
 
