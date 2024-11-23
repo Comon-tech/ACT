@@ -99,19 +99,41 @@ async def on_message(message):
 # Leaderboard command
 @bot.tree.command(name="leaderboard", description="Get the TACT leaderboard")
 async def leaderboard(interaction: discord.Interaction):
-    sorted_users = sorted(user_collection.find(), key=lambda x: x['level'], reverse=True)
-    
-    for i, user_data in enumerate(sorted_users[:10]):  # Top 10 users
-        user = await bot.fetch_user(user_data['user_id'])
-        
-        embed = discord.Embed(
-            title="**Leaderboard**\n",
-            description=f"**{i+1}. {user.name} - Level {user_data['level']} ({user_data['xp']} XP)**",
-            color=discord.Color.blue()
-        )
-        embed.set_thumbnail(url=user.display_avatar.url)
+    # Acknowledge the interaction
+    await interaction.response.defer()  # Keeps the interaction alive
 
-        await interaction.response.send_message(embed=embed)
+    # Fetch users sorted by level (descending) and XP (descending) for tiebreaker
+    sorted_users = list(user_collection.find().sort([("level", -1), ("xp", -1)]))
+    
+    if not sorted_users:
+        await interaction.followup.send("No users found in the leaderboard.")
+        return
+
+    # Create an embed for the leaderboard
+    embed = discord.Embed(
+        title="🏆 TACT Leaderboard",
+        color=discord.Color.gold()
+    )
+
+    for i, user_data in enumerate(sorted_users[:10]):  # Top 10 users
+        try:
+            # Fetch the user's Discord info
+            user = await bot.fetch_user(int(user_data["user_id"]))
+            user_display = user.name
+        except Exception:
+            # If the user is not found (e.g., left the server), use their ID
+            user_display = f"Unknown User ({user_data['user_id']})"
+        
+        # Add the user to the leaderboard
+        embed.add_field(
+            name=f"{i+1}. {user_display}",
+            value=f"Level: {user_data['level']} | XP: {user_data['xp']}",
+            inline=False
+        )
+
+    # Send the embed
+    await interaction.followup.send(embed=embed)
+
 
 @bot.tree.command(name="level", description="Get your TACT level")
 async def level(interaction: discord.Interaction, user: discord.Member = None):
