@@ -1,11 +1,14 @@
 import time
 import discord  # type: ignore
+from discord import app_commands  # type: ignore
 from discord.ext import commands  # type: ignore
 import dotenv  # type: ignore
 import os  # type: ignore
 import random
 from db import user_collection, store_collection
 from datetime import datetime, timedelta
+from discord.ui import View, Button
+from math import ceil
 
 dotenv.load_dotenv()
 
@@ -322,7 +325,7 @@ async def inventory(interaction: discord.Interaction, user: discord.Member = Non
 
     embed = discord.Embed(
         title=f"{user.display_name}'s Inventory:",
-        description=f"**{items_list}**",
+        description=f"**{items_list}** \n",
         color=discord.Color.gold()
     )
     embed.set_thumbnail(url=user.display_avatar.url)
@@ -386,25 +389,54 @@ async def rob_bank(interaction: discord.Interaction):
     embed.set_thumbnail(url=interaction.user.display_avatar.url)
 
     await interaction.response.send_message(embed=embed)
-    
-@bot.tree.command(name="buy", description="Buy itesm from the shop")
+
+# Function to provide autocomplete options
+async def item_autocomplete(interaction: discord.Interaction, current: str):
+    # Fetch item names from the database and filter based on the user's input
+    all_items = [item["item_name"] for item in store_collection.find()]
+    matching_items = [app_commands.Choice(name=item, value=item) for item in all_items if current.lower() in item.lower()]
+    return matching_items[:25]  # Return up to 25 matches (Discord's limit)
+
+# Buy command with autocomplete
+@bot.tree.command(name="buy", description="Buy items from the shop")
+@app_commands.describe(item="The item you want to purchase")
+@app_commands.autocomplete(item=item_autocomplete)
 async def buy(interaction: discord.Interaction, item: str):
     user_id = str(interaction.user.id)
     user_data = get_user_data(user_id)
 
-    store_items = {item["item_name"]: item["item_price"] for item in store_collection.find()}
+    store_items = {item_data["item_name"]: item_data["item_price"] for item_data in store_collection.find()}
 
     item_price = store_items.get(item)
     if item_price is None:
-        await interaction.response.send_message(f"❌ {item} is not available in the store.")
+        embed = discord.Embed(
+            title="🛒 Purchase Unsuccessful !!",
+            description=f"❌ {item} is not available in the store.",
+            color=discord.Color.red()
+            )
+        embed.set_thumbnail(url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
         return
 
     if user_data["xp"] < int(item_price):
-        await interaction.response.send_message(f"❌ You need {item_price} XP to buy {item}.")
+        embed = discord.Embed(
+            title="🛒 Purchase Unsuccessful !!",
+            description=f"❌ You need {item_price} XP to buy {item}.",
+            color=discord.Color.red()
+            )
+        embed.set_thumbnail(url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
     else:
         user_data["xp"] -= int(item_price)
         user_data["inventory"].append(item)
-        await interaction.response.send_message(f"✅ {interaction.user.mention} bought {item} for {item_price} XP.")
+        embed = discord.Embed(
+            title="🛒 Purchase Successful",
+            description=f"✅ {interaction.user.mention} bought {item} for {item_price} XP.",
+            color=discord.Color.green()
+            )
+        embed.set_thumbnail(url=interaction.user.display_avatar.url)
+
+        await interaction.response.send_message(embed=embed)
 
     save_user_data(user_id, user_data)
 
@@ -581,18 +613,66 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
 
     await interaction.response.send_message(embed=embed)
 
-@bot.tree.command(name="store", description="Checkout the store")
-async def store(interaction: discord.Interaction, user: discord.Member = None):
-    user = user or interaction.user
-    store_list = "\n".join([f"{item['item_name']}: {item['item_price']} XP" for item in store_collection.find()])
-    embed = discord.Embed(
-        title="Welcome to the 🛒 store! Items available for purchase:",
-        description=store_list,
-        color=discord.Color.blue()
-    )
-    embed.set_thumbnail(url=user.display_avatar.url)
+class StoreView(View):
+    def __init__(self, items, user, per_page=10):
+        super().__init__()
+        self.items = items
+        self.user = user
+        self.per_page = per_page
+        self.page = 0
+        self.max_pages = ceil(len(items) / per_page)
+        self.embed = None
+        self.update_embed()
 
-    await interaction.response.send_message(embed=embed)
+        # Add buttons
+        self.previous_button = Button(label="Previous", style=discord.ButtonStyle.primary, disabled=True)
+        self.previous_button.callback = self.previous_callback
+        self.add_item(self.previous_button)
+
+        self.next_button = Button(label="Next", style=discord.ButtonStyle.primary, disabled=(self.max_pages <= 1))
+        self.next_button.callback = self.next_callback
+        self.add_item(self.next_button)
+
+    def update_embed(self):
+        start = self.page * self.per_page
+        end = start + self.per_page
+        items_on_page = self.items[start:end]
+
+        store_list = "\n".join([f"** {item['item_name']}: {item['item_price']} XP ** \n {item['description']}" for item in items_on_page])
+
+        self.embed = discord.Embed(
+            title=f"**Welcome to the 🛒 Store! (Page {self.page + 1}/{self.max_pages})**",
+            description=store_list,
+            color=discord.Color.blue()
+        )
+        self.embed.set_thumbnail(url=self.user.display_avatar.url)
+
+    async def update_message(self, interaction):
+        self.update_embed()
+        await interaction.response.edit_message(embed=self.embed, view=self)
+
+    async def previous_callback(self, interaction: discord.Interaction):
+        self.page -= 1
+        self.previous_button.disabled = (self.page == 0)
+        self.next_button.disabled = False
+        await self.update_message(interaction)
+
+    async def next_callback(self, interaction: discord.Interaction):
+        self.page += 1
+        self.next_button.disabled = (self.page == self.max_pages - 1)
+        self.previous_button.disabled = False
+        await self.update_message(interaction)
+
+@bot.tree.command(name="store", description="Checkout the store")
+async def store(interaction: discord.Interaction):
+    interaction.response.defer()
+    items = list(store_collection.find())
+    if not items:
+        await interaction.response.send_message("The store is currently empty!")
+        return
+
+    view = StoreView(items=items, user=interaction.user)
+    await interaction.response.send_message(embed=view.embed, view=view)
 
 @bot.tree.command(name="help", description="Get help with the commands")
 async def help(interaction: discord.Interaction):
