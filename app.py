@@ -135,24 +135,26 @@ async def leaderboard(interaction: discord.Interaction):
     await interaction.followup.send(embed=embed)
 
 
-@bot.tree.command(name="level", description="Get your TACT level")
+@bot.tree.command(name="level", description="Get a user's TACT level")
 async def level(interaction: discord.Interaction, user: discord.Member = None):
+    # Use the mentioned user if provided, otherwise default to the command invoker
     user = user or interaction.user
-
-    user_id = str(interaction.user.id)
+    user_id = str(user.id)
+    
+    # Fetch the user's data from the database
     user_data = get_user_data(user_id)
+    level = user_data.get("level", 1)
+    xp = user_data.get("xp", 0)
 
-    user_level = user_data["level"]
-    user_xp = user_data["xp"]
-    xp_needed = get_xp_needed(user_level)
-    # Send a confirmation message
+    # Build an embed with the level information
     embed = discord.Embed(
-            title="**User Level**\n",
-            description=f"**{user.display_name}, your level is {user_level} with {user_xp}/ {xp_needed}**!",
-            color=discord.Color.blue()
-        )
+        title=f"{user.display_name}'s Level",
+        description=f"**Level:** {level}\n**XP:** {xp}",
+        color=discord.Color.blue()
+    )
     embed.set_thumbnail(url=user.display_avatar.url)
 
+    # Send the response
     await interaction.response.send_message(embed=embed)
 
 @bot.command(name="give_xp")
