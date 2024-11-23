@@ -9,13 +9,22 @@ from db import user_collection, store_collection
 from datetime import datetime, timedelta
 from discord.ui import View, Button
 from math import ceil
-from collections import Counter
+from collections import Counter, defaultdict
 
 dotenv.load_dotenv()
 
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="/", intents=intents)
+
+# List of offensive words
+offensive_words = ["fuck", "motherfucker", "fucker", "mother fucker", "shit", "whore", "asshole", "bitch", "ass"]
+# Store user offenses count
+user_offenses = defaultdict(int)
+
+# Penalty system (e.g., lose 50 coins or XP after 5 offenses)
+PENALTY_THRESHOLD = 5
+PENALTY_AMOUNT = 50  # Amount of coins or XP to be deducted
 
 # Cooldown tracker
 shoot_cooldowns = {}
@@ -72,11 +81,58 @@ def get_xp_needed(level):
     # Example formula: Quadratic scaling for XP
     return 5 * (level ** 2) + 50 * level + 100
 
+# Replace offensive words with grayed-out versions
+def censor_message(message):
+    words = message.split()
+    censored_words = [
+        f"`{word}`" if word.lower() in offensive_words else word
+        for word in words
+    ]
+    return " ".join(censored_words)
+
+# Function to deduct coins or XP
+async def apply_penalty(user):
+    user_id = str(user.id)
+    user_data = get_user_data(user_id)  # Fetch user data from database
+
+    if not user_data:
+        return
+
+    # Deduct the penalty amount
+    user_data["xp"] -= PENALTY_AMOUNT  # Or replace 'xp' with 'coins' if you use coins
+    save_user_data(user_id, user_data)  # Save the updated user data
+
+    # Notify the user about the penalty
+    await user.send(f"🚨 ***You have used offensive words too many times. You have been penalized `{PENALTY_AMOUNT}` XP!***")
+
 @bot.event
 async def on_message(message):
     # Ignore bot messages
     if message.author.bot:
         return
+    
+    # Check for offensive words
+    if any(word.lower() in message.content.lower() for word in offensive_words):
+        # Censor the message
+        censored_content = censor_message(message.content)
+
+        # Delete the original message
+        await message.delete()
+
+        # Send the censored version
+        await message.channel.send(
+            f"🛑 {message.author.mention}: {censored_content}"
+        )
+        # Increase the offense count
+        user_offenses[message.author.id] += 1
+
+        # Check if the user has reached the penalty threshold
+        if user_offenses[message.author.id] >= PENALTY_THRESHOLD:
+            await apply_penalty(message.author)  # Apply the penalty (e.g., lose XP)
+            await message.channel.send(f"🚨 {message.author.mention}  ***has been penalized `{PENALTY_AMOUNT}` XPs for using offensive words too many times!!.***")
+
+            # Reset the offense count after penalty
+            user_offenses[message.author.id] = 0
 
     user_id = str(message.author.id)
     user_data = get_user_data(user_id)
@@ -324,10 +380,17 @@ async def inventory(interaction: discord.Interaction, user: discord.Member = Non
     user_data = get_user_data(user_id)  # Fetch the correct user's data
 
     if not user_data or "inventory" not in user_data or not user_data["inventory"]:
-        await interaction.response.send_message(
-            f"{user.mention}, their inventory is empty." if user != interaction.user else
-            f"{user.mention}, your inventory is empty."
+        embed = discord.Embed(
+            title="🎒 Inventory"
+            description=(
+                f"{user.mention}, their inventory is empty." if user != interaction.user else
+                f"{user.mention}, your inventory is empty."
+            ),
+            color=discord.Color.gold()
         )
+        embed.set_thumbnail(url=user.display_avatar.url)
+
+        await interaction.response.send_message(embed=embed)
         return
 
     inventory_items = user_data["inventory"]
@@ -620,7 +683,6 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
     embed.set_thumbnail(url=interaction.user.display_avatar.url)
 
     await interaction.response.send_message(embed=embed)
-
 class StoreView(View):
     def __init__(self, items, user, per_page=10):
         super().__init__()
