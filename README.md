@@ -14,11 +14,6 @@ TACT is a feature-rich, open-source Discord bot designed to gamify and enhance s
 
 ## Installation
 
-### Prerequisites
-
-- [Docker](https://www.docker.com/)
-- A PostgreSQL database (included in the Docker setup below)
-
 ### Quick Start
 
 1. **Clone the Repository**:
@@ -34,9 +29,9 @@ TACT is a feature-rich, open-source Discord bot designed to gamify and enhance s
    DATABASE_URL=postgresql://bot_user:bot_password@db:5432/bot_db
    ```
 
-3. **Build and Run**:
-   ```bash
-   docker-compose up --build
+3. **Run**:
+   ```py
+   python app.py
    ```
 
 ## Commands
