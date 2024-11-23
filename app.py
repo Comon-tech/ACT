@@ -9,6 +9,7 @@ from db import user_collection, store_collection
 from datetime import datetime, timedelta
 from discord.ui import View, Button
 from math import ceil
+from collections import Counter
 
 dotenv.load_dotenv()
 
@@ -50,6 +51,13 @@ def award_xp(user_id, xp):
     save_user_data(user_id, user_data)
     return user_data
 
+# Function to provide autocomplete options
+async def item_autocomplete(interaction: discord.Interaction, current: str):
+    # Fetch item names from the database and filter based on the user's input
+    all_items = [item["item_name"] for item in store_collection.find()]
+    matching_items = [app_commands.Choice(name=item, value=item) for item in all_items if current.lower() in item.lower()]
+    return matching_items[:25]  # Return up to 25 matches (Discord's limit)
+    
 @bot.event
 async def on_ready():
     # load_data()
@@ -175,7 +183,9 @@ async def give_xp(interaction: discord.Interaction, member: discord.Member, xp: 
     await interaction.response.send_message(embed=embed)
 
 @bot.tree.command(name="gift", description="Gift an item to another user.")
-async def gift(interaction: discord.Interaction, recipient: discord.Member, *, item_name: str):
+@app_commands.describe(item="The item you want to purchase")
+@app_commands.autocomplete(item=item_autocomplete)
+async def gift(interaction: discord.Interaction, recipient: discord.Member, *, item: str):
     giver_id = str(interaction.user.id)
     recipient_id = str(recipient.id)
 
@@ -212,10 +222,10 @@ async def gift(interaction: discord.Interaction, recipient: discord.Member, *, i
     giver_inventory = giver_data.get("inventory", [])
 
     # Check if the giver owns the item
-    if item_name not in giver_inventory:
+    if item not in giver_inventory:
         embed = discord.Embed(
             title=f"Gift {recipient.display_name}",
-            description=f"**❌ You don't own an item called {item_name}.**",
+            description=f"**❌ You don't own an item called {item}.**",
             color=discord.Color.gold()
         )
         embed.set_thumbnail(url=recipient.display_avatar.url)
@@ -223,12 +233,12 @@ async def gift(interaction: discord.Interaction, recipient: discord.Member, *, i
         return
 
     # Update giver's inventory
-    giver_inventory.remove(item_name)
+    giver_inventory.remove(item)
     giver_data["inventory"] = giver_inventory
 
     # Update recipient's inventory
     recipient_inventory = recipient_data.get("inventory", [])
-    recipient_inventory.append(item_name)
+    recipient_inventory.append(item)
     recipient_data["inventory"] = recipient_inventory
 
     # Save data to database
@@ -239,7 +249,7 @@ async def gift(interaction: discord.Interaction, recipient: discord.Member, *, i
     embed = discord.Embed(
         title="🎁 Gift Successful!",
         description=(
-            f"{interaction.user.mention} has gifted **{item_name}** to {recipient.mention}!\n"
+            f"{interaction.user.mention} has gifted **{item}** to {recipient.mention}!\n"
             f"Check your inventory to see the updated items."
         ),
         color=discord.Color.green()
@@ -321,11 +331,16 @@ async def inventory(interaction: discord.Interaction, user: discord.Member = Non
         return
 
     inventory_items = user_data["inventory"]
-    items_list = ', '.join(inventory_items)
+    item_counts = Counter(inventory_items)  # Count occurrences of each item
+
+    # Format the inventory to show "Item XCount"
+    formatted_inventory = "\n".join(
+        f"{item} x{count}" for item, count in item_counts.items()
+    )
 
     embed = discord.Embed(
         title=f"{user.display_name}'s Inventory:",
-        description=f"**{items_list}** \n",
+        description=f"**{formatted_inventory}**",
         color=discord.Color.gold()
     )
     embed.set_thumbnail(url=user.display_avatar.url)
@@ -389,13 +404,6 @@ async def rob_bank(interaction: discord.Interaction):
     embed.set_thumbnail(url=interaction.user.display_avatar.url)
 
     await interaction.response.send_message(embed=embed)
-
-# Function to provide autocomplete options
-async def item_autocomplete(interaction: discord.Interaction, current: str):
-    # Fetch item names from the database and filter based on the user's input
-    all_items = [item["item_name"] for item in store_collection.find()]
-    matching_items = [app_commands.Choice(name=item, value=item) for item in all_items if current.lower() in item.lower()]
-    return matching_items[:25]  # Return up to 25 matches (Discord's limit)
 
 # Buy command with autocomplete
 @bot.tree.command(name="buy", description="Buy items from the shop")
