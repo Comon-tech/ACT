@@ -299,3 +299,742 @@ Traceback (most recent call last):
 discord.app_commands.errors.CommandInvokeError: Command 'leaderboard' raised an exception: InteractionResponded: This interaction has already been responded to before
 [2024-11-22 13:01:50] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session aec54611947434b5f192102b9cf42cbc.
 [2024-11-22 13:05:42] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session aec54611947434b5f192102b9cf42cbc.
+[2024-11-23 22:03:26] [INFO    ] discord.client: logging in using static token
+[2024-11-23 22:03:27] [INFO    ] discord.gateway: Shard ID None has connected to Gateway (Session ID: 183c2dd60f81a49af14835e7fccbe8fa).
+/home/ubuntu/TACT/app.py:676: RuntimeWarning: coroutine 'InteractionResponse.defer' was never awaited
+  interaction.response.defer()
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback
+[2024-11-24 01:13:22] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 183c2dd60f81a49af14835e7fccbe8fa.
+[2024-11-24 02:00:01] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 183c2dd60f81a49af14835e7fccbe8fa.
+[2024-11-24 02:50:35] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 183c2dd60f81a49af14835e7fccbe8fa.
+[2024-11-24 04:31:09] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 183c2dd60f81a49af14835e7fccbe8fa.
+[2024-11-24 05:09:33] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 183c2dd60f81a49af14835e7fccbe8fa.
+[2024-11-24 05:32:52] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 183c2dd60f81a49af14835e7fccbe8fa.
+Rewards Bot is ready! Logged in as TACT#1679
+synced 12 command(s)
+User 998345861585186836 leveled up to 11!, with 588 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 588, 'level': 11, 'inventory': [], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732398738}
+
+
+User 998345861585186836 leveled up to 11!, with 596 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 596, 'level': 11, 'inventory': [], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732398738}
+
+
+User 304721494276308992 leveled up to 3!, with 84 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 84, 'level': 3, 'inventory': [], 'balance': 0}
+
+
+User 304721494276308992 leveled up to 3!, with 93 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 93, 'level': 3, 'inventory': [], 'balance': 0}
+
+
+User 304721494276308992 leveled up to 3!, with 99 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 99, 'level': 3, 'inventory': [], 'balance': 0}
+
+
+User 1184356402274246781 leveled up to 19!, with 939 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 939, 'level': 19, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732279580, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 4, 546000)}
+
+
+User 304721494276308992 leveled up to 3!, with 106 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 106, 'level': 3, 'inventory': [], 'balance': 0}
+
+
+User 304721494276308992 leveled up to 3!, with 116 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 116, 'level': 3, 'inventory': [], 'balance': 0}
+
+
+User 1184356402274246781 leveled up to 19!, with 945 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 945, 'level': 19, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732279580, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 4, 546000)}
+
+
+User 1184356402274246781 leveled up to 19!, with 951 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 951, 'level': 19, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732279580, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 4, 546000)}
+
+
+User 883879177021972531 leveled up to 13!, with 74 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 74, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 304721494276308992 leveled up to 3!, with 124 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 124, 'level': 3, 'inventory': [], 'balance': 0}
+
+
+User 1184356402274246781 leveled up to 19!, with 961 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 961, 'level': 19, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732279580, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 4, 546000)}
+
+
+User 1184356402274246781 leveled up to 19!, with 966 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 966, 'level': 19, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732279580, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 4, 546000)}
+
+
+User 1184356402274246781 leveled up to 19!, with 973 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 973, 'level': 19, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732279580, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 4, 546000)}
+
+
+User 883879177021972531 leveled up to 13!, with 82 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 82, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 89 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 89, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 304721494276308992 leveled up to 3!, with 132 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 132, 'level': 3, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 601 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 601, 'level': 11, 'inventory': [], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732398738}
+
+
+User 998345861585186836 leveled up to 11!, with 608 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 608, 'level': 11, 'inventory': [], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732398738}
+
+
+User 998345861585186836 leveled up to 11!, with 616 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 616, 'level': 11, 'inventory': [], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732398738}
+
+
+User 998345861585186836 leveled up to 11!, with 624 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 624, 'level': 11, 'inventory': [], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732398738}
+
+
+User 998345861585186836 leveled up to 11!, with 633 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 633, 'level': 11, 'inventory': [], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732398738}
+
+
+User 734472005029462026 leveled up to 1!, with 10 XP remaining.
+
+
+User 734472005029462026 data saved: {'_id': ObjectId('6742bd4d095bbab04e1f781b'), 'user_id': '734472005029462026', 'xp': 10, 'level': 1, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 642 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 642, 'level': 11, 'inventory': [], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732398738}
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 492, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732398738}
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 581, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 0, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 589 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 589, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 998345861585186836 leveled up to 11!, with 596 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 596, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 998345861585186836 leveled up to 11!, with 601 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 601, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 883879177021972531 leveled up to 13!, with 6 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 6, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 609 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 609, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 998345861585186836 leveled up to 11!, with 617 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 617, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 883879177021972531 leveled up to 13!, with 14 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 14, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 24 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 24, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 622 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 622, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 998345861585186836 leveled up to 11!, with 631 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 631, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 998345861585186836 leveled up to 11!, with 638 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 638, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 883879177021972531 leveled up to 13!, with 29 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 29, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 39 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 39, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 47 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 47, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 643 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 643, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 883879177021972531 leveled up to 13!, with 56 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 56, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 62 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 62, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 653 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 653, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 998345861585186836 leveled up to 11!, with 661 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 661, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 883879177021972531 leveled up to 13!, with 71 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 71, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 78 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 78, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 670 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 670, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 883879177021972531 leveled up to 13!, with 84 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 84, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 675 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 675, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 883879177021972531 leveled up to 13!, with 90 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 90, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 682 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 682, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 998345861585186836 leveled up to 11!, with 689 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 689, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 998345861585186836 leveled up to 11!, with 699 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 699, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 998345861585186836 leveled up to 11!, with 708 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 708, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 998345861585186836 leveled up to 11!, with 714 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 714, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 883879177021972531 leveled up to 13!, with 99 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 99, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 106 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 106, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 112 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 112, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 722 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 722, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 883879177021972531 leveled up to 13!, with 118 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 118, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 124 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 124, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 132 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 132, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 729 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 729, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 998345861585186836 leveled up to 11!, with 735 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 735, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 883879177021972531 leveled up to 13!, with 140 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 140, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 145 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 145, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 743 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 743, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 883879177021972531 leveled up to 13!, with 155 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 155, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 160 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 160, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 166 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 166, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 174 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 174, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 183 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 183, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 751 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 751, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 883879177021972531 leveled up to 13!, with 193 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 193, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 758 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 758, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 998345861585186836 leveled up to 11!, with 764 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 764, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 1278340604899889214 leveled up to 13!, with 1547 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 1547, 'level': 13, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 998345861585186836 leveled up to 11!, with 773 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 773, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 1278340604899889214 leveled up to 13!, with 1552 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 1552, 'level': 13, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 1278340604899889214 leveled up to 13!, with 1559 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 1559, 'level': 13, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 1278340604899889214 leveled up to 13!, with 1565 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 1565, 'level': 13, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 998345861585186836 leveled up to 11!, with 782 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 782, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 1278340604899889214 leveled up to 13!, with 1575 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 1575, 'level': 13, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 1278340604899889214 leveled up to 13!, with 1580 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 1580, 'level': 13, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 1278340604899889214 leveled up to 13!, with 1588 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 1588, 'level': 13, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 998345861585186836 leveled up to 11!, with 791 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 791, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 1278340604899889214 leveled up to 13!, with 1593 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 1593, 'level': 13, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 1278340604899889214 leveled up to 14!, with 8 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 8, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 1278340604899889214 leveled up to 14!, with 17 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 17, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 998345861585186836 leveled up to 11!, with 800 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 800, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 1278340604899889214 leveled up to 14!, with 23 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 23, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 998345861585186836 leveled up to 11!, with 810 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 810, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 1278340604899889214 leveled up to 14!, with 33 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 33, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 998345861585186836 leveled up to 11!, with 815 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 815, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 1278340604899889214 leveled up to 14!, with 43 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 43, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 1278340604899889214 leveled up to 14!, with 53 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 53, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 1278340604899889214 leveled up to 14!, with 63 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 63, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 998345861585186836 leveled up to 11!, with 823 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 823, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 1278340604899889214 leveled up to 14!, with 68 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 68, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 998345861585186836 leveled up to 11!, with 832 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 832, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 1278340604899889214 leveled up to 14!, with 74 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 74, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 1278340604899889214 leveled up to 14!, with 83 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 83, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 1278340604899889214 leveled up to 14!, with 92 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 92, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 883879177021972531 leveled up to 13!, with 199 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 199, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 1278340604899889214 leveled up to 14!, with 97 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 97, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 998345861585186836 leveled up to 11!, with 839 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 839, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 1278340604899889214 leveled up to 14!, with 106 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 106, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 883879177021972531 leveled up to 13!, with 205 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 205, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 11!, with 846 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 846, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 883879177021972531 leveled up to 13!, with 211 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 211, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 220 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 220, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 1278340604899889214 leveled up to 14!, with 114 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 114, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 883879177021972531 leveled up to 13!, with 225 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 225, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 883879177021972531 leveled up to 13!, with 230 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 230, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 1278340604899889214 leveled up to 14!, with 121 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 121, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 883879177021972531 leveled up to 13!, with 240 XP remaining.
+
+
+User 883879177021972531 data saved: {'_id': ObjectId('673e02a6016760d10840f572'), 'user_id': '883879177021972531', 'xp': 240, 'level': 13, 'inventory': ['Banana', 'Banana', 'Banana', 'Banana', '🍔 Burger of Power'], 'balance': 0}
+
+
+User 1278340604899889214 leveled up to 14!, with 128 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 128, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 998345861585186836 leveled up to 11!, with 855 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 855, 'level': 11, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 23, 19, 7, 56, 733000), 'last_steal': 1732427499}
+
+
+User 1278340604899889214 leveled up to 14!, with 138 XP remaining.
+
+
+User 1278340604899889214 data saved: {'_id': ObjectId('673ed390491a384eb6545a1a'), 'user_id': '1278340604899889214', 'xp': 138, 'level': 14, 'inventory': ['Banana', 'Banana', 'Special Badge', 'Banana'], 'balance': 0, 'last_rob': datetime.datetime(2024, 11, 22, 12, 46, 16, 289000), 'last_steal': 1732279597}
+
+
+User 998345861585186836 leveled up to 11!, with 861 XP remaining.
+
+
