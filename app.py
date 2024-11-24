@@ -1,3 +1,4 @@
+import re
 import time
 import discord  # type: ignore
 from discord import app_commands  # type: ignore
@@ -5,6 +6,7 @@ from discord.ext import commands  # type: ignore
 import dotenv  # type: ignore
 import os  # type: ignore
 import random
+from bad_words import check_for_bad_words, split_msg_into_array, offensive_words
 from db import user_collection, store_collection
 from datetime import datetime, timedelta
 from discord.ui import View, Button
@@ -16,10 +18,6 @@ dotenv.load_dotenv()
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="/", intents=intents)
-
-# List of offensive words
-offensive_words = ["fuck","motherfucker","fucker","motherfucker","shit","whore","asshole","bitch","ass","nigga", "Israel",
-"nazi","jew","coon","dild","dildo","rape","dick","porn","penis","killyourself","whore","slut","twat","x-rated","xrated","18+","gore","cock","cum","cancer", "idiot", "vagina" ]
 
 # Store user offenses count
 user_offenses = defaultdict(int)
@@ -83,15 +81,6 @@ def get_xp_needed(level):
     # Example formula: Quadratic scaling for XP
     return 5 * (level ** 2) + 50 * level + 100
 
-# Replace offensive words with grayed-out versions
-def censor_message(message):
-    words = message.split()
-    censored_words = [
-        f"`{word}`" if word.lower() in offensive_words else word
-        for word in words
-    ]
-    return " ".join(censored_words)
-
 # Function to deduct coins or XP
 async def apply_penalty(user):
     user_id = str(user.id)
@@ -107,34 +96,49 @@ async def apply_penalty(user):
     # Notify the user about the penalty
     await user.send(f"🚨 ***You have used offensive words too many times. You have been penalized `{PENALTY_AMOUNT}` XP!***")
 
+def remove_links(message):
+    """
+    Remove URLs (e.g., GIF links) from a message.
+    """
+    # Regex to match URLs
+    url_pattern = r"(https?://\S+)"
+    return re.sub(url_pattern, "", message).strip()
+
 @bot.event
 async def on_message(message):
     # Ignore bot messages
     if message.author.bot:
         return
     
-    # Check for offensive words
-    if any(word.lower() in message.content.lower() for word in offensive_words):
-        # Censor the message
-        censored_content = censor_message(message.content)
+    if len(message.content.split()) == 1:
+        for word in message.content.split():
+            if word.lower() in offensive_words:
+                await message.delete()
+                # Send the censored version
+                await message.channel.send(
+                    f"🛑 {message.author.mention}: ||{message.content}||"
+                )
+                
+    else:
+        words = check_for_bad_words(message.content)
+        for word in words:
+            flagge_word_found, flagge_word = split_msg_into_array(word)
+        if flagge_word_found:
+            # Delete the original message
+            await message.delete()
+            # Send the censored version
+            await message.channel.send(
+                f"🛑 {message.author.mention}: ||{message.content}||"
+            )
+            # Increase the offense count
+            user_offenses[message.author.id] += 1
 
-        # Delete the original message
-        await message.delete()
-
-        # Send the censored version
-        await message.channel.send(
-            f"🛑 {message.author.mention} offensive content: {censored_content}"
-        )
-        # Increase the offense count
-        user_offenses[message.author.id] += 1
-
-        # Check if the user has reached the penalty threshold
-        if user_offenses[message.author.id] >= PENALTY_THRESHOLD:
-            await apply_penalty(message.author)  # Apply the penalty (e.g., lose XP)
-            await message.channel.send(f"🚨 {message.author.mention}  ***has been penalized `{PENALTY_AMOUNT}` XPs for using offensive words too many times!!.***")
-
-            # Reset the offense count after penalty
-            user_offenses[message.author.id] = 0
+            # Check if the user has reached the penalty threshold
+            if user_offenses[message.author.id] >= PENALTY_THRESHOLD:
+                await apply_penalty(message.author)
+                await message.channel.send(f"🚨 {message.author.mention}  ***has been penalized `{PENALTY_AMOUNT}` XPs for using offensive words too many times!!.***")
+                # Reset the offense count after penalty
+                user_offenses[message.author.id] = 0
 
     user_id = str(message.author.id)
     user_data = get_user_data(user_id)
