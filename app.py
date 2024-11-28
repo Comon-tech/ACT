@@ -1,3 +1,4 @@
+import asyncio
 import re
 import time
 import discord  # type: ignore
@@ -29,6 +30,19 @@ PENALTY_AMOUNT = 50  # Amount of coins or XP to be deducted
 # Cooldown tracker
 shoot_cooldowns = {}
 rob_cooldowns = {}
+heist_participants = []
+
+async def random_xp_drop():
+    while True:
+        await asyncio.sleep(random.randint(3600, 7200))  # 1-2 hours
+        channel = bot.get_channel("998348764282634242") 
+        reward = random.randint(50, 150)
+        lucky_user = random.choice(channel.members)
+        user_data = get_user_data(str(lucky_user.id))
+        user_data["xp"] += reward
+        save_user_data(str(lucky_user.id), user_data)
+        await channel.send(f"🎉 Surprise! {lucky_user.mention} just earned {reward} XP!")
+
 
 def get_user_data(user_id):
     user_data = user_collection.find_one({"user_id": user_id})
@@ -776,8 +790,6 @@ async def assign_role(interaction: discord.Interaction):
 @bot.tree.command(name="heist", description="Team up to pull off an epic heist!")
 async def heist(interaction: discord.Interaction):
     await interaction.response.send_message("💰 A heist is being planned! Type `/join_heist` to participate!")
-    
-heist_participants = []
 
 @bot.tree.command(name="join_heist", description="Join the heist!")
 async def join_heist(interaction: discord.Interaction):
@@ -788,7 +800,6 @@ async def join_heist(interaction: discord.Interaction):
         await interaction.response.send_message("You're already in the heist!", ephemeral=True)
 
 # To resolve the heist
-import random
 async def resolve_heist(interaction):
     if len(heist_participants) < 1:
         await interaction.channel.send("Not enough participants for the heist. Mission failed! 😔")
@@ -805,6 +816,21 @@ async def resolve_heist(interaction):
     else:
         await interaction.channel.send("🚨 The heist failed! Better luck next time!")
     heist_participants.clear()
+
+@bot.tree.command(name="open_box", description="Open a mystery box for surprises!")
+async def open_box(interaction: discord.Interaction):
+    rewards = ["250 XP", "Special Badge", "Exclusive Role"]
+    reward = random.choice(rewards)
+    user_data = get_user_data(str(interaction.user.id))
+
+    if reward.endswith("XP"):
+        user_data["xp"] += int(reward.split(" ")[0])
+    else:
+        user_data["inventory"].append(reward)
+
+    save_user_data(str(interaction.user.id), user_data)
+    await interaction.response.send_message(f"🎁 You opened a mystery box and received: {reward}!")
+
 
 bot.run(os.getenv('DISCORD_TOKEN'))
 
