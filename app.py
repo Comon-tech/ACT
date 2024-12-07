@@ -87,11 +87,10 @@ async def item_autocomplete(interaction: discord.Interaction, current: str):
 @bot.event
 async def on_ready():
     # load_data()
-    print(f"Rewards Bot is ready! Logged in as {bot.user}")
+    print(f"TACT Bot is ready! Logged in as {bot.user}")
     try:
         synced = await bot.tree.sync()
         print(f"synced {len(synced)} command(s)")
-        # print(f"Commands synced: {synced}")
     except Exception as e:
         print(e)
 
@@ -127,9 +126,74 @@ async def on_message(message):
     # Ignore bot messages
     if message.author.bot:
         return
-    
+    member = message.author
+    guild = message.guild
+    user_data = get_user_data(str(member.id))
+    if user_data["level"] in range(1, 3):
+        role = discord.utils.get(guild.roles, name="Novice")
+        #only assign role if the user doesn't have it
+        if role not in member.roles:
+            await member.add_roles(role)
+
+            #send this message to the channel
+            await message.channel.send(f"🎉 {member.mention} has been awarded the **{role.name}** role!")
+
+    elif user_data["level"] in range(4, 6):
+        role = discord.utils.get(guild.roles, name="Techie")
+        #only assign role if the user doesn't have it
+        if role not in member.roles:
+            await member.add_roles(role)
+
+            #send this message to the channel
+            await message.channel.send(f"🎉 {member.mention} has been awarded the **{role.name}** role!")
+
+    elif user_data["level"] in range(7, 10):
+        role = discord.utils.get(guild.roles, name="Geek")
+        print(f"User {member.name} is at level {user_data['level']}")
+        #only assign role if the user doesn't have it
+        if role not in member.roles:
+            await member.add_roles(role)
+
+            #send this message to the channel
+            await message.channel.send(f"🎉 {member.mention} has been awarded the **{role.name}** role!")
+
+    elif user_data["level"] in range(11, 15):
+        role = discord.utils.get(guild.roles, name="Harcker")
+        #only assign role if the user doesn't have it
+        if role not in member.roles:
+            await member.add_roles(role)
+
+            #send this message to the channel
+            await message.channel.send(f"🎉 {member.mention} has been awarded the **{role.name}** role!")
+
+    elif user_data["level"] in range(16, 20):
+        role = discord.utils.get(guild.roles, name="Guru")
+        
+        #only assign role if the user doesn't have it
+        if role not in member.roles:
+            await member.add_roles(role)
+            #send this message to the channel
+            await message.channel.send(f"🎉 {member.mention} has been awarded the **{role.name}** role!")
+
+    elif user_data["level"] in range(21, 25):
+        role = discord.utils.get(guild.roles, name="Godlike")
+        #only assign role if the user doesn't have it
+        if role not in member.roles:
+            await member.add_roles(role)
+
+            #send this message to the channel
+            await message.channel.send(f"🎉 {member.mention} has been awarded the **{role.name}** role!")
+
+    elif user_data["level"] in range(26, 30):
+        role = discord.utils.get(guild.roles, name="Wizard")
+        #only assign role if the user doesn't have it
+        if role not in member.roles:
+            await member.add_roles(role)
+            #send this message to the channel
+            await message.channel.send(f"🎉 {member.mention} has been awarded the **{role.name}** role!")
+            
     for word in offensive_words:
-        if word in message.content:
+        if word in [message for message in message.content.split(" ")]:
             await message.delete()
             await message.channel.send(
                 f"🛑 {message.author.mention}: ||{message.content}||"
