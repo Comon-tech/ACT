@@ -586,9 +586,19 @@ async def buy(interaction: discord.Interaction, item: str):
 
     save_user_data(user_id, user_data)
 
+def steal_function(thief_id, victim_id):
+    # Fetch thief and victim data
+    thief = get_user_data(thief_id)
+    victim = get_user_data(victim_id)
+
+    stolen_amount = random.randint(50, 200)  # Steal between 50 and 200 XPs
+    stolen_amount = min(stolen_amount, victim["xp"])  # Can't steal more than the victim's balance
+
+    return stolen_amount
+
 @bot.tree.command(name="steal", description="Attempt to steal from another user.")
 async def steal(interaction: discord.Interaction, target: discord.Member):
-    thief_id = str(interaction.user.id)
+    thief_id = str(interaction.user.id) #'673eb3f1491a384eb6545a19'
     victim_id = str(target.id)
 
     # Ensure thief isn't targeting themselves
@@ -630,9 +640,7 @@ async def steal(interaction: discord.Interaction, target: discord.Member):
     success = random.random() < success_rate
 
     if success:
-        # Calculate stolen amount
-        stolen_amount = random.randint(50, 200)  # Steal between 50 and 200 XPs
-        stolen_amount = min(stolen_amount, victim["xp"])  # Can't steal more than the victim's balance
+        stolen_amount = steal_function(thief_id, victim_id)
 
         # Update balances
         thief["xp"] += stolen_amount
@@ -993,4 +1001,5 @@ async def claim_hourly(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed)
 
 bot.run(os.getenv('DISCORD_TOKEN'))
+
 
