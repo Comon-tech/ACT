@@ -586,9 +586,8 @@ async def buy(interaction: discord.Interaction, item: str):
 
     save_user_data(user_id, user_data)
 
-def steal_function(thief_id, victim_id):
-    # Fetch thief and victim data
-    thief = get_user_data(thief_id)
+def steal_function(victim_id):
+    # Fetch victim data
     victim = get_user_data(victim_id)
 
     stolen_amount = random.randint(50, 200)  # Steal between 50 and 200 XPs
@@ -640,7 +639,7 @@ async def steal(interaction: discord.Interaction, target: discord.Member):
     success = random.random() < success_rate
 
     if success:
-        stolen_amount = steal_function(thief_id, victim_id)
+        stolen_amount = steal_function(victim_id)
 
         # Update balances
         thief["xp"] += stolen_amount
