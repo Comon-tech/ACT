@@ -28713,3 +28713,2503 @@ User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19')
 User 1184356402274246781 leveled up to 24!, with 481 XP remaining.
 
 
+[2024-12-07 09:22:04] [INFO    ] discord.client: logging in using static token
+[2024-12-07 09:22:05] [INFO    ] discord.gateway: Shard ID None has connected to Gateway (Session ID: 180582f82ce630ae3b14b3d94c02b72f).
+[2024-12-07 10:00:42] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 180582f82ce630ae3b14b3d94c02b72f.
+[2024-12-07 12:01:16] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 180582f82ce630ae3b14b3d94c02b72f.
+[2024-12-07 13:40:59] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 180582f82ce630ae3b14b3d94c02b72f.
+[2024-12-07 14:38:18] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 14:38:20] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 14:38:22] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 14:42:04] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 14:42:10] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 14:43:08] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 14:43:10] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 14:43:15] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+TACT Bot is ready! Logged in as TACT#1679
+synced 18 command(s)
+User 998345861585186836 leveled up to 19!, with 574 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 574, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 583 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 583, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1338 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1338, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 1184356402274246781 leveled up to 24!, with 1347 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1347, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 593 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 593, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1354 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1354, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 1184356402274246781 leveled up to 24!, with 1362 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1362, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 1184356402274246781 leveled up to 24!, with 1367 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1367, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 1184356402274246781 leveled up to 24!, with 1375 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1375, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 599 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 599, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1382 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1382, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 604 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 604, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1390 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1390, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 1184356402274246781 leveled up to 24!, with 1397 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1397, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 1184356402274246781 leveled up to 24!, with 1407 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1407, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 679 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 679, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 1184356402274246781 leveled up to 24!, with 1413 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1413, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 620609728828932096 leveled up to 2!, with 9 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 9, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 611 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 611, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 620609728828932096 leveled up to 2!, with 18 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 18, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 616 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 616, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 620609728828932096 leveled up to 2!, with 26 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 26, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 684 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 684, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 694 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 694, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 626 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 626, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 636 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 636, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 620609728828932096 leveled up to 2!, with 31 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 31, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 620609728828932096 leveled up to 2!, with 36 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 36, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 699 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 699, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 620609728828932096 leveled up to 2!, with 42 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 42, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 641 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 641, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 620609728828932096 leveled up to 2!, with 51 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 51, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 651 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 651, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 704 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 704, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 658 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 658, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 714 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 714, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 667 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 667, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 675 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 675, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 620609728828932096 leveled up to 2!, with 56 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 56, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 722 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 722, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 727 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 727, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 681 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 681, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 732 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 732, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 740 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 740, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 689 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 689, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 747 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 747, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 694 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 694, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 757 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 757, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 764 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 764, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 774 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 774, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 704 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 704, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 783 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 783, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 620609728828932096 leveled up to 2!, with 63 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 63, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 713 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 713, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 719 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 719, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 620609728828932096 leveled up to 2!, with 69 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 69, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 620609728828932096 leveled up to 2!, with 76 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 76, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 726 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 726, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 620609728828932096 leveled up to 2!, with 83 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 83, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 732 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 732, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 739 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 739, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1418 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1418, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 744 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 744, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1426 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1426, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 752 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 752, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1436 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1436, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 620609728828932096 leveled up to 2!, with 93 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 93, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 620609728828932096 leveled up to 2!, with 99 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 99, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 1184356402274246781 leveled up to 24!, with 1446 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1446, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 759 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 759, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1456 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1456, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 768 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 768, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1463 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1463, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 775 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 775, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 620609728828932096 leveled up to 2!, with 109 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 109, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 1184356402274246781 leveled up to 24!, with 1469 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1469, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 781 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 781, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1478 XP remaining.
+
+
+[2024-12-07 15:55:39] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 180582f82ce630ae3b14b3d94c02b72f.
+[2024-12-07 16:11:15] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:11:27] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1478, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 793 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 793, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 788 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 788, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 800 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 800, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 794 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 794, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 805 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 805, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 812 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 812, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 800 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 800, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 807 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 807, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 817 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 817, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 620609728828932096 leveled up to 2!, with 118 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 118, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 826 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 826, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 817 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 817, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 825 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 825, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 831 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 831, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 620609728828932096 leveled up to 2!, with 123 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 123, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 839 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 839, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 620609728828932096 leveled up to 2!, with 130 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 130, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 848 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 848, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 620609728828932096 leveled up to 2!, with 137 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 137, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 620609728828932096 leveled up to 2!, with 147 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 147, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 620609728828932096 leveled up to 2!, with 155 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 155, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 834 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 834, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 620609728828932096 leveled up to 2!, with 165 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 165, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 620609728828932096 leveled up to 2!, with 175 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 175, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 840 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 840, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 847 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 847, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 620609728828932096 leveled up to 2!, with 184 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 184, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 855 XP remaining.
+
+
+[2024-12-07 16:11:54] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:11:57] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:13:06] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:13:07] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:14:02] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:14:09] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:14:28] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:14:32] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:14:46] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:14:58] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:15:28] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:15:40] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:18:38] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:18:41] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:20:12] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:20:32] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:21:33] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:22:00] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:23:50] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 855, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 862 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 862, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 867 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 867, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 873 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 873, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 883 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 883, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 892 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 892, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 900 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 900, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 147 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 147, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 906 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 906, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 156 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 156, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 165 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 165, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 172 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 172, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 181 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 181, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 913 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 913, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 920 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 920, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 188 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 188, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 198 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 198, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 925 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 925, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 932 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 932, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 940 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 940, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 948 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 948, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 956 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 956, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 963 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 963, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 969 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 969, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 979 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 979, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 987 XP remaining.
+
+
+[2024-12-07 16:24:15] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:24:29] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:24:34] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:25:35] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:28:08] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:28:16] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:28:18] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:28:21] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:29:58] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:35:01] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:36:24] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:37:20] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:38:33] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:39:18] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:39:20] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 987, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 205 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 205, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 997 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 997, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1006 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1006, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 211 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 211, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 221 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 221, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1013 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1013, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1018 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1018, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 227 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 227, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1024 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1024, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1029 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1029, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 237 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 237, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1036 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1036, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 246 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 246, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1046 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1046, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1054 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1054, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1059 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1059, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 253 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 253, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 261 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 261, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 271 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 271, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1064 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1064, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 281 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 281, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1074 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1074, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1079 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1079, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 289 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 289, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 296 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 296, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 303 XP remaining.
+
+
+[2024-12-07 16:39:28] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:39:50] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:39:54] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:40:02] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:40:11] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:41:01] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 180582f82ce630ae3b14b3d94c02b72f.
+[2024-12-07 16:42:19] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:42:30] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:42:41] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:48:12] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:48:59] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:49:21] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:49:24] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:50:05] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 303, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 309 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 309, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 315 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 315, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1089 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1089, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1096 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1096, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 323 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 323, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 333 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 333, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1103 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1103, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1108 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1108, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 342 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 342, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1115 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1115, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1120 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1120, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 347 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 347, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1127 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1127, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1134 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1134, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1139 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1139, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 355 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 355, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 362 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 362, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 371 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 371, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1146 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1146, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 381 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 381, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 391 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 391, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1153 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1153, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1162 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1162, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1172 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1172, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1181 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1181, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1190 XP remaining.
+
+
+[2024-12-07 16:51:13] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:51:58] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:53:17] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:53:27] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:54:26] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:54:41] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:54:51] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:55:07] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:56:59] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:57:14] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:57:15] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:57:34] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:58:00] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:59:39] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:59:42] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:59:48] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 16:59:57] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 17:00:08] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 17:00:10] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 17:00:13] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 17:02:46] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 17:05:04] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 17:06:29] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1190, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1198 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1198, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 401 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 401, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 409 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 409, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1206 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1206, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 419 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 419, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 428 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 428, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 436 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 436, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1213 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1213, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1221 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1221, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1231 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1231, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 444 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 444, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1237 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1237, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1244 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1244, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 452 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 452, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 459 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 459, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1254 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1254, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 469 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 469, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 476 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 476, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1262 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1262, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1268 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1268, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1278 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1278, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1285 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1285, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 485 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 485, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1294 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1294, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 492 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 492, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1303 XP remaining.
+
+
+[2024-12-07 17:06:54] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 17:16:34] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 17:33:44] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 17:33:54] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-07 17:44:39] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1303, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1308 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1308, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User fallenpolarity is at level 8
+User 886682601228750938 leveled up to 8!, with 501 XP remaining.
+
+
+User 886682601228750938 data saved: {'_id': ObjectId('6750954a424542439f533f1f'), 'user_id': '886682601228750938', 'xp': 501, 'level': 8, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1313 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1313, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1319 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1319, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1484 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1484, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 1324 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1324, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1493 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1493, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 1184356402274246781 leveled up to 24!, with 1498 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1498, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 1184356402274246781 leveled up to 24!, with 1506 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1506, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 1332 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1332, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1513 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1513, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 1340 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1340, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1523 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1523, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 1184356402274246781 leveled up to 24!, with 1530 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1530, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 1184356402274246781 leveled up to 24!, with 1538 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1538, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 1349 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1349, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1546 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1546, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 1184356402274246781 leveled up to 24!, with 1554 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1554, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 1184356402274246781 leveled up to 24!, with 1563 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1563, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 1354 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1354, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1573 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1573, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 1184356402274246781 leveled up to 24!, with 1583 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1583, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+[2024-12-07 18:33:05] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 180582f82ce630ae3b14b3d94c02b72f.
+[2024-12-07 21:29:16] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 180582f82ce630ae3b14b3d94c02b72f.
+[2024-12-07 23:53:38] [ERROR   ] discord.client: Ignoring exception in on_message
+Traceback (most recent call last):
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/client.py", line 449, in _run_event
+    await coro(*args, **kwargs)
+  File "/home/ubuntu/TACT/app.py", line 164, in on_message
+    await member.add_roles(role)
+  File "/home/ubuntu/TACT/env/lib/python3.12/site-packages/discord/member.py", line 1083, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'id'
+[2024-12-08 01:13:30] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 180582f82ce630ae3b14b3d94c02b72f.
+[2024-12-08 02:40:40] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 180582f82ce630ae3b14b3d94c02b72f.
+[2024-12-08 03:40:13] [INFO    ] discord.gateway: Shard ID None has successfully RESUMED session 180582f82ce630ae3b14b3d94c02b72f.
+User 1184356402274246781 leveled up to 24!, with 1592 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1592, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 1364 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1364, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1598 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1598, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 1184356402274246781 leveled up to 24!, with 1607 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1607, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 1373 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1373, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 998345861585186836 leveled up to 19!, with 1381 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1381, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 1184356402274246781 leveled up to 24!, with 1615 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1615, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 1184356402274246781 leveled up to 24!, with 1622 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1622, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User 998345861585186836 leveled up to 19!, with 1388 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1388, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User 620609728828932096 leveled up to 2!, with 189 XP remaining.
+
+
+User 620609728828932096 data saved: {'_id': ObjectId('674198c8b495a683746db446'), 'user_id': '620609728828932096', 'xp': 189, 'level': 2, 'inventory': [], 'balance': 0}
+
+
+User 1184356402274246781 leveled up to 24!, with 1630 XP remaining.
+
+
+User 1184356402274246781 data saved: {'_id': ObjectId('673d9d375100c79559d68bb5'), 'user_id': '1184356402274246781', 'xp': 1630, 'level': 24, 'inventory': ['Special Badge', '🎖 Special Badge', '🎖 Special Badge'], 'last_steal': 1732858226, 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 44, 14000)}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 855 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 855, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 863 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 863, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 872 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 872, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 879 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 879, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 885 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 885, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 893 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 893, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 900 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 900, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 906 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 906, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1394 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1394, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 913 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 913, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1404 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1404, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 922 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 922, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1412 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1412, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+User ambratolm is at level 9
+User 304721494276308992 leveled up to 9!, with 932 XP remaining.
+
+
+User 304721494276308992 data saved: {'_id': ObjectId('673eb3f1491a384eb6545a19'), 'user_id': '304721494276308992', 'xp': 932, 'level': 9, 'inventory': [], 'balance': 0}
+
+
+User 998345861585186836 leveled up to 19!, with 1418 XP remaining.
+
+
+User 998345861585186836 data saved: {'_id': ObjectId('673d9cd55100c79559d68bb4'), 'user_id': '998345861585186836', 'xp': 1418, 'level': 19, 'inventory': ['🍔 Burger of Power'], 'last_rob': datetime.datetime(2024, 11, 29, 5, 39, 21, 903000), 'last_steal': 1732858384}
+
+
+/home/ubuntu/TACT/app.py:812: RuntimeWarning: coroutine 'InteractionResponse.defer' was never awaited
+  interaction.response.defer()
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback
+/home/ubuntu/TACT/app.py:698: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  now = datetime.utcnow()
