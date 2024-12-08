@@ -69,10 +69,10 @@ def award_xp(user_id, xp):
 
     # Level up if XP exceeds the threshold
     while user_data["xp"] >= get_xp_needed(user_data["level"]):
-        user_data["xp"] -= get_xp_needed(user_data["level"])
+        # user_data["xp"] -= get_xp_needed(user_data["level"])
         user_data["level"] += 1
     
-    print(f"User {user_id} leveled up to {user_data['level']}!, with {user_data['xp']} XP remaining.\n\n")
+    print(f"User {user_id} leveled up to {user_data['level']}!, with {user_data['xp']} XPs. \n\n")
 
     save_user_data(user_id, user_data)
     return user_data
@@ -98,7 +98,7 @@ def get_xp_needed(level):
     # Example formula: Quadratic scaling for XP
     return 5 * (level ** 2) + 50 * level + 100
 
-# Function to deduct coins or XP
+# Function to deduct XP
 async def apply_penalty(user):
     user_id = str(user.id)
     user_data = get_user_data(user_id)  # Fetch user data from database
@@ -107,7 +107,7 @@ async def apply_penalty(user):
         return
 
     # Deduct the penalty amount
-    user_data["xp"] -= PENALTY_AMOUNT  # Or replace 'xp' with 'coins' if you use coins
+    user_data["xp"] -= PENALTY_AMOUNT # Deduct XP
     save_user_data(user_id, user_data)  # Save the updated user data
 
     # Notify the user about the penalty
@@ -213,6 +213,7 @@ async def on_message(message):
     xp_needed = get_xp_needed(user_data["level"])
     # Award random XP between 5 and 10
     xp_earned = random.randint(5, 10)
+    print(f"User {message.author.name} earned {xp_earned} XP!\n\n")
     award_xp(user_id, xp_earned)
 
     await bot.process_commands(message)  # Ensure other commands can still run
@@ -437,7 +438,7 @@ async def balance(interaction: discord.Interaction, user: discord.Member = None)
     # Create response
     embed = discord.Embed(
         title=f"{user.display_name}'s Balance",
-        description=f"💰 **{balance} coins**",
+        description=f"💰 **{balance} XPs**",
         color=discord.Color.gold()
     )
     embed.set_thumbnail(url=user.display_avatar.url)
@@ -509,23 +510,23 @@ async def rob_bank(interaction: discord.Interaction):
 
     # Set success rate and rewards/penalties
     success_chance = 0.5  # 50% chance of success
-    success_amount = random.randint(100, 500)  # Coins gained on success
-    failure_penalty = random.randint(50, 300)  # Coins lost on failure
+    success_amount = random.randint(100, 500)  # XPs gained on success
+    failure_penalty = random.randint(50, 300)  # XPs lost on failure
 
     # Attempt robbery
     if random.random() < success_chance:
-        # Success: Add coins
+        # Success: Add XPs
         user_data["xp"] += success_amount
-        result_message = f"🎉 Success! You managed to rob the bank and got **{success_amount} coins**!"
+        result_message = f"🎉 Success! You managed to rob the bank and got **{success_amount} XPs**!"
     else:
-        # Failure: Deduct coins
+        # Failure: Deduct XPs
         if user_data["xp"] >= failure_penalty:
             user_data["xp"] -= failure_penalty
         else:
-            failure_penalty = user_data["xp"]
-            user_data["xp"] = 0
+            failure_penalty = user_data["xp"] 
+            user_data["xp"] = 0 
         result_message = (
-            f"🚨 You got caught trying to rob the bank and lost **{failure_penalty} coins**. Better luck next time!"
+            f"🚨 You got caught trying to rob the bank and lost **{failure_penalty} XPs**. Better luck next time!"
         )
 
     # Update last rob time and save data
@@ -630,7 +631,7 @@ async def steal(interaction: discord.Interaction, target: discord.Member):
 
     if success:
         # Calculate stolen amount
-        stolen_amount = random.randint(50, 200)  # Steal between 50 and 200 coins
+        stolen_amount = random.randint(50, 200)  # Steal between 50 and 200 XPs
         stolen_amount = min(stolen_amount, victim["xp"])  # Can't steal more than the victim's balance
 
         # Update balances
@@ -644,7 +645,7 @@ async def steal(interaction: discord.Interaction, target: discord.Member):
 
         embed = discord.Embed(
         title="🔫 Steal Results",
-        description=f"🎉 You successfully stole `{stolen_amount}` coins from {target.mention}!",
+        description=f"🎉 You successfully stole `{stolen_amount}` XPs from {target.mention}!",
         color=discord.Color.red()
         )
         embed.set_thumbnail(url=interaction.user.display_avatar.url)
@@ -652,7 +653,7 @@ async def steal(interaction: discord.Interaction, target: discord.Member):
         await interaction.response.send_message(embed=embed)
     else:
         # Failed attempt penalty
-        penalty = random.randint(20, 100)  # Lose between 20 and 100 coins
+        penalty = random.randint(20, 100)  # Lose between 20 and 100 XPs
         thief["xp"] -= penalty
         thief["xp"] = max(thief["xp"], 0)  # Prevent negative xp
 
@@ -661,10 +662,10 @@ async def steal(interaction: discord.Interaction, target: discord.Member):
         save_user_data(thief_id, thief)
 
         await interaction.response.send_message(
-            f"❌ You got caught and lost `{penalty}` coins as a penalty!"
+            f"❌ You got caught and lost `{penalty}` XPs as a penalty!"
         )
 
-@bot.tree.command(name="shoot", description="Shoot another user for a chance to win coins!")
+@bot.tree.command(name="shoot", description="Shoot another user for a chance to win XPs!")
 async def shoot(interaction: discord.Interaction, target: discord.Member):
     attacker_id = str(interaction.user.id)
     target_id = str(target.id)
@@ -713,12 +714,12 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
 
     # Set success chance, rewards, and penalties
     success_chance = 0.6  # 60% chance to hit
-    reward = random.randint(50, 200)  # Coins gained on success
-    penalty = random.randint(30, 100)  # Coins lost on failure
+    reward = random.randint(50, 200)  # XPs gained on success
+    penalty = random.randint(30, 100)  # XPs lost on failure
 
     # Attempt to shoot
     if random.random() < success_chance:
-        # Success: Attacker steals coins from the target
+        # Success: Attacker steals XPs from the target
         if target_data["xp"] >= reward:
             target_data["xp"] -= reward
         else:
@@ -727,10 +728,10 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
 
         attacker_data["xp"] += reward
         result_message = (
-            f"🎯 {interaction.user.mention} successfully shot {target.mention} and stole **{reward} coins**!"
+            f"🎯 {interaction.user.mention} successfully shot {target.mention} and stole **{reward} XPs**!"
         )
     else:
-        # Failure: Attacker loses coins
+        # Failure: Attacker loses XPs
         if attacker_data["xp"] >= penalty:
             attacker_data["xp"] -= penalty
         else:
@@ -738,7 +739,7 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
             attacker_data["xp"] = 0
 
         result_message = (
-            f"❌ {interaction.user.mention} missed their shot and lost **{penalty} coins**!"
+            f"❌ {interaction.user.mention} missed their shot and lost **{penalty} XPs**!"
         )
 
     # Save updated data
@@ -828,7 +829,7 @@ async def help(interaction: discord.Interaction):
             "**/leaderboard**: View the top users\n"
             "**/level**: Check your level\n"
             "**/steal**: Attempt to steal from another user\n"
-            "**/shoot**: Shoot another user for a chance to win coins\n"
+            "**/shoot**: Shoot another user for a chance to win XPs\n"
             "**/rob_bank**: Attempt to rob a bank\n"
             "**/store**: View items available for purchase\n"
             "**/buy**: Buy items from the store\n"
@@ -836,10 +837,13 @@ async def help(interaction: discord.Interaction):
             "**/inventory**: Check your inventory\n"
             "**/give_xp**: Give XP to another user\n"
             "**/heist**: Team up to pull off an epic heist\n"
+            "**/join_heist**: Join the heist\n"
             "**/open_box**: Open a mystery box for surprises\n"
             "**/claim_daily**: Claim your daily reward\n"
             "**/claim_hourly**: Claim your hourly reward\n"
-            "**/assign_role**: Assign exclusive roles to top contributors\n"
+            "**/help**: Get help with the commands"
+            "\n\nUse these commands to explore the TACT Bot features!"
+
         ),
         color=discord.Color.blue()
     )
