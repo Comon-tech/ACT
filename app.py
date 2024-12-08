@@ -846,26 +846,15 @@ async def help(interaction: discord.Interaction):
     embed.set_thumbnail(url=interaction.user.display_avatar.url)
     await interaction.response.send_message(embed=embed)
 
-@bot.tree.command(name="assign_role", description="Assign exclusive roles to top contributors.")
-async def assign_role(interaction: discord.Interaction):
-    guild = interaction.guild
-    members = guild.members
-    for member in members:
-        user_data = get_user_data(str(member.id))
-    
-        if user_data["xp"] >= 1000:
-            role = discord.utils.get(guild.roles, name="Extremely active")
-            await interaction.user.add_roles(role)
-            await interaction.response.send_message(f"🎉 {interaction.user.mention}, you’ve been given the **Elite Contributor** role!")
-        else:
-            await interaction.response.send_message("Keep contributing to earn exclusive roles!", ephemeral=True)
-
 @bot.tree.command(name="heist", description="Team up to pull off an epic heist!")
 async def heist(interaction: discord.Interaction):
 
+    heist_planner = interaction.user
+    heist_participants = [heist_planner.id]
+
     embed = discord.Embed(
-        title="epic heist!",
-        description="💰 A heist is being planned! Type `/join_heist` to participate!",
+        title="Epic heist!",
+        description=f"💰 A heist is being planned by {interaction.user} ! Type `/join_heist` to participate!",
         color=discord.Color.gold()
     )
     embed.set_thumbnail(url=interaction.user.display_avatar.url)
