@@ -232,29 +232,31 @@ async def leaderboard(interaction: discord.Interaction):
         return
 
     # Create an embed for the leaderboard
-    embed = discord.Embed(
-        title="🏆 TACT Leaderboard",
-        color=discord.Color.gold()
-    )
+    # embed = discord.Embed(
+    #     title="🏆 TACT Leaderboard",
+    #     color=discord.Color.gold()
+    # )
 
-    for i, user_data in enumerate(sorted_users[:10]):  # Top 10 users
-        try:
-            # Fetch the user's Discord info
-            user = await bot.fetch_user(int(user_data["user_id"]))
-            user_display = user.name
-        except Exception:
-            # If the user is not found (e.g., left the server), use their ID
-            user_display = f"Unknown User ({user_data['user_id']})"
+    # for i, user_data in enumerate(sorted_users[:10]):  # Top 10 users
+    #     try:
+    #         # Fetch the user's Discord info
+    #         user = await bot.fetch_user(int(user_data["user_id"]))
+    #         user_display = user.name
+    #     except Exception:
+    #         # If the user is not found (e.g., left the server), use their ID
+    #         user_display = f"Unknown User ({user_data['user_id']})"
         
-        # Add the user to the leaderboard
-        embed.add_field(
-            name=f"{i+1}. {user_display}",
-            value=f"Level: {user_data['level']} | XP: {user_data['xp']}",
-            inline=False
-        )
+    #     # Add the user to the leaderboard
+    #     embed.add_field(
+    #         #display user avatar next to their name
+    #         name=f"{i+1}. {user_display} ",
+    #         value=f"Level: {user_data['level']} | XP: {user_data['xp']} \n[Avatar]({user.display_avatar.url})",
+    #         inline=False
+    #     )
 
     # Send the embed
-    await interaction.followup.send(embed=embed)
+    view = LeaderboardView(users=sorted_users[:10])
+    await interaction.followup.send(embed=view.embed)
 
 @bot.tree.command(name="level", description="Get a user's TACT level")
 async def level(interaction: discord.Interaction, user: discord.Member = None):
@@ -641,6 +643,17 @@ async def steal(interaction: discord.Interaction, target: discord.Member):
     if success:
         stolen_amount = steal_function(victim_id)
 
+        if stolen_amount == 0:
+            embed = discord.Embed(
+            title="🔫 Steal Results",
+            description=f"❌ {target.mention} has no XPs to steal!",
+            color=discord.Color.red()
+            )
+            embed.set_thumbnail(url=interaction.user.display_avatar.url)
+
+            await interaction.response.send_message(embed=embed)
+            return
+
         # Update balances
         thief["xp"] += stolen_amount
         victim["xp"] -= stolen_amount
@@ -765,6 +778,30 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
     embed.set_thumbnail(url=interaction.user.display_avatar.url)
 
     await interaction.response.send_message(embed=embed)
+
+class LeaderboardView(View):
+    def __init__(self, users):
+        super().__init__()
+        self.users = users
+        self.embed = None
+        self.update_embed()
+
+    def update_embed(self):
+        leaderboard_text = "\n".join(
+            f"**{i + 1}. {user['user_id']}: {user['xp']} XP**"
+            for i, user in enumerate(self.users)
+        )
+
+        self.embed = discord.Embed(
+            title="🏆 Leaderboard",
+            description=leaderboard_text,
+            color=discord.Color.gold()
+        )
+
+    async def update_message(self, interaction):
+        self.update_embed()
+        await interaction.response.edit_message(embed=self.embed, view=self)
+
 class StoreView(View):
     def __init__(self, items, user, per_page=10):
         super().__init__()
@@ -859,6 +896,10 @@ async def help(interaction: discord.Interaction):
 
 @bot.tree.command(name="heist", description="Team up to pull off an epic heist!")
 async def heist(interaction: discord.Interaction):
+
+    #get all users in the database
+    # all_user_ids = list(user_collection.find({}, {"user_id": 1}))
+    # print("All users: ", all_user_ids)
 
     heist_planner = interaction.user
     heist_participants = [heist_planner.id]
@@ -1000,5 +1041,3 @@ async def claim_hourly(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed)
 
 bot.run(os.getenv('DISCORD_TOKEN'))
-
-
