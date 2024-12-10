@@ -122,35 +122,65 @@ def remove_links(message):
     return re.sub(url_pattern, "", message).strip()
 
 #function to add special badge to usernames if they have a certain role
-def get_special_role_badge(member):
+# def get_special_role_badge(member):
+#     if member.top_role == discord.utils.get(member.guild.roles, name="Admin"):
+#         return "🛡️"
+#     if member.top_role == discord.utils.get(member.guild.roles, name="Moderator"):
+#         return "🔧"
+#     if member.top_role == discord.utils.get(member.guild.roles, name="Intermediate"):
+#         return "🔥"
+#     if member.top_role == discord.utils.get(member.guild.roles, name="Novice"):
+#         return "🌟"
+#     if member.top_role == discord.utils.get(member.guild.roles, name="Techie"):
+#         return "👨‍💻"
+#     if member.top_role == discord.utils.get(member.guild.roles, name="Geek"):
+#         return "🤓"
+#     if member.top_role == discord.utils.get(member.guild.roles, name="Hacker"):
+#         return "👾"
+#     if member.top_role == discord.utils.get(member.guild.roles, name="Guru"):
+#         return "🧙"
+#     if member.top_role == discord.utils.get(member.guild.roles, name="Godlike"):
+#         return "🔱"
+#     if member.top_role == discord.utils.get(member.guild.roles, name="Wizard"):
+#         return "🧙‍♂️"
+#     if member.top_role == discord.utils.get(member.guild.roles, name="Princess"):
+#         return "👸"
+#     return ""
 
-    # if discord.utils.get(member.roles, name="Owner"):
-    #check if the role is the highest role
-    # if member.top_role == discord.utils.get(member.guild.roles, name="Owner"):
-    #     return "👑"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Admin"):
-        return "🛡️"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Moderator"):
-        return "🔧"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Intermediate"):
-        return "🔥"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Novice"):
-        return "🌟"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Techie"):
-        return "👨‍💻"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Geek"):
-        return "🤓"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Hacker"):
-        return "👾"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Guru"):
-        return "🧙"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Godlike"):
-        return "🔱"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Wizard"):
-        return "🧙‍♂️"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Princess"):
-        return "👸"
+def get_special_role_badge(member):
+    role_badges = {
+        "Admin": "🛡️",
+        "Moderator": "🔧",
+        "Intermediate": "🔥",
+        "Novice": "🌟",
+        "Techie": "👨‍💻",
+        "Geek": "🤓",
+        "Hacker": "👾",
+        "Guru": "🧙",
+        "Godlike": "🔱",
+        "Wizard": "🧙‍♂️",
+        "Princess": "👸",
+    }
+
+    for role in member.roles:
+        if role.name in role_badges:
+            return role_badges[role.name]
     return ""
+
+# Map roles to their respective emojis
+role_emoji_map = {
+    "Moderator": "🔧",
+    "Admin": "🛡️",
+    "Intermediate": "🔥",
+    "Novice": "🌟",
+    "Techie": "👨‍💻",
+    "Geek": "🤓",
+    "Hacker": "👾",
+    "Guru": "🧙",
+    "Godlike": "🔱",
+    "Wizard": "🧙‍♂️",
+    "Princess": "👸"
+}
 
 @bot.event
 async def on_message(message):
@@ -162,9 +192,26 @@ async def on_message(message):
     user_data = get_user_data(str(member.id))
 
     #rename the user's name to include the special badge
-    #check if user already has the badge
-    if get_special_role_badge(member) not in member.display_name:
-        await member.edit(nick=f"{member.display_name} {get_special_role_badge(member)}")
+    # check if user already has the badge
+    # if get_special_role_badge(member) not in member.display_name:
+    #     await member.edit(nick=f"{member.display_name} {get_special_role_badge(member)}")
+
+    badge = get_special_role_badge(member)
+
+    # Ensure the bot has permission and check if the nickname needs an update
+    # if member.guild.me.guild_permissions.manage_nicknames:
+    # Extract current nickname or fallback to username
+    current_nick = member.nick or member.name
+    expected_nick = f"{current_nick.split(' ')[0]} {badge}".strip()
+
+    if current_nick != expected_nick:
+        try:
+            await member.edit(nick=expected_nick)
+            print(f"Updated nickname for {member.name} to '{expected_nick}'")
+        except discord.Forbidden:
+            print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+        except discord.HTTPException as e:
+            print(f"Error updating nickname for {member.name}: {e}")
 
     if user_data["level"] in range(1, 3):
         role = discord.utils.get(guild.roles, name="Intermediate")
@@ -375,15 +422,15 @@ async def give_xp(interaction: discord.Interaction, member: discord.Member, xp: 
         return
     
     #check if user is trying to give themselves XP
-    if interaction.user == member:
-        embed = discord.Embed(
-            title="❌ XP Not Awarded!!",
-            description="You can't give yourself XP!",
-            color=discord.Color.red()
-        )
-        embed.set_thumbnail(url=member.display_avatar.url)
-        await interaction.response.send_message(embed=embed)
-        return
+    # if interaction.user == member:
+    #     embed = discord.Embed(
+    #         title="❌ XP Not Awarded!!",
+    #         description="You can't give yourself XP!",
+    #         color=discord.Color.red()
+    #     )
+    #     embed.set_thumbnail(url=member.display_avatar.url)
+    #     await interaction.response.send_message(embed=embed)
+    #     return
 
     # Add XP and update user data
     user_data["xp"] = user_data.get("xp", 0) + xp
@@ -1105,5 +1152,18 @@ async def claim_hourly(interaction: discord.Interaction):
     embed.set_thumbnail(url=interaction.user.display_avatar.url)
 
     await interaction.response.send_message(embed=embed)
+
+#command to reset user level
+@bot.tree.command(name="reset_level", description="Reset the level of a user.")
+async def reset_level(interaction: discord.Interaction, member: discord.Member):
+    user_id = str(interaction.user.id)
+    user_data = get_user_data(user_id)
+
+    user_data["level"] = 0
+    save_user_data(user_id, user_data)  # Save the data
+    await interaction.response.send_message(f"✅ {member.mention}'s XP has been reset.")
+    # else:
+    #     await interaction.response.send_message(f"{member.mention} has no XP data to reset.")
+
 
 bot.run(os.getenv('DISCORD_TOKEN'))
