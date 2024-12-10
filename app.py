@@ -293,6 +293,17 @@ async def give_xp(interaction: discord.Interaction, member: discord.Member, xp: 
     if not user_data:
         await interaction.response.send_message("User not found!")
         return
+    
+    #check if user is trying to give themselves XP
+    if interaction.user == member:
+        embed = discord.Embed(
+            title="❌ XP Not Awarded!!",
+            description="You can't give yourself XP!",
+            color=discord.Color.red()
+        )
+        embed.set_thumbnail(url=member.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
+        return
 
     # Add XP and update user data
     user_data["xp"] = user_data.get("xp", 0) + xp
