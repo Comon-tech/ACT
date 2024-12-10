@@ -121,6 +121,37 @@ def remove_links(message):
     url_pattern = r"(https?://\S+)"
     return re.sub(url_pattern, "", message).strip()
 
+#function to add special badge to usernames if they have a certain role
+def get_special_role_badge(member):
+
+    # if discord.utils.get(member.roles, name="Owner"):
+    #check if the role is the highest role
+    # if member.top_role == discord.utils.get(member.guild.roles, name="Owner"):
+    #     return "👑"
+    if member.top_role == discord.utils.get(member.guild.roles, name="Admin"):
+        return "🛡️"
+    if member.top_role == discord.utils.get(member.guild.roles, name="Moderator"):
+        return "🔧"
+    if member.top_role == discord.utils.get(member.guild.roles, name="Intermediate"):
+        return "🔥"
+    if member.top_role == discord.utils.get(member.guild.roles, name="Novice"):
+        return "🌟"
+    if member.top_role == discord.utils.get(member.guild.roles, name="Techie"):
+        return "👨‍💻"
+    if member.top_role == discord.utils.get(member.guild.roles, name="Geek"):
+        return "🤓"
+    if member.top_role == discord.utils.get(member.guild.roles, name="Hacker"):
+        return "👾"
+    if member.top_role == discord.utils.get(member.guild.roles, name="Guru"):
+        return "🧙"
+    if member.top_role == discord.utils.get(member.guild.roles, name="Godlike"):
+        return "🔱"
+    if member.top_role == discord.utils.get(member.guild.roles, name="Wizard"):
+        return "🧙‍♂️"
+    if member.top_role == discord.utils.get(member.guild.roles, name="Princess"):
+        return "👸"
+    return ""
+
 @bot.event
 async def on_message(message):
     # Ignore bot messages
@@ -129,68 +160,117 @@ async def on_message(message):
     member = message.author
     guild = message.guild
     user_data = get_user_data(str(member.id))
+
+    #rename the user's name to include the special badge
+    #check if user already has the badge
+    if get_special_role_badge(member) not in member.display_name:
+        await member.edit(nick=f"{member.display_name} {get_special_role_badge(member)}")
+
     if user_data["level"] in range(1, 3):
+        role = discord.utils.get(guild.roles, name="Intermediate")
+        #only assign role if the user doesn't have it
+        if role not in member.roles:
+            await member.add_roles(role)
+
+            #award XP to the user
+            xp_earned = random.randint(5, 10)
+            award_xp(str(member.id), xp_earned)
+
+            #send this message to the channel
+            await message.channel.send(f"🎉🎉🎉 **Role UP** \n{member.mention} has been awarded the **{role.name}** role and has been awarded **{xp_earned}**XPs!")
+
+    elif user_data["level"] in range(4, 9):
         role = discord.utils.get(guild.roles, name="Novice")
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
 
-            #send this message to the channel
-            await message.channel.send(f"🎉 {member.mention} has been awarded the **{role.name}** role!")
+            #award XP to the user
+            xp_earned = random.randint(5, 10)
+            award_xp(str(member.id), xp_earned)
 
-    elif user_data["level"] in range(4, 6):
+            #send this message to the channel
+            await message.channel.send(f"🎉🎉🎉 **Role UP** \n{member.mention} has been awarded the **{role.name}** role and has been awarded **{xp_earned}**XPs!")
+
+    elif user_data["level"] in range(11, 16):
         role = discord.utils.get(guild.roles, name="Techie")
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
 
-            #send this message to the channel
-            await message.channel.send(f"🎉 {member.mention} has been awarded the **{role.name}** role!")
+            #award XP to the user
+            xp_earned = random.randint(5, 10)
+            award_xp(str(member.id), xp_earned)
 
-    elif user_data["level"] in range(7, 10):
+            #send this message to the channel
+            await message.channel.send(f"🎉🎉🎉 **Role UP** \n{member.mention} has been awarded the **{role.name}** role and has been awarded **{xp_earned}**XPs!")
+
+    elif user_data["level"] in range(17, 23):
         role = discord.utils.get(guild.roles, name="Geek")
         print(f"User {member.name} is at level {user_data['level']}")
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
 
-            #send this message to the channel
-            await message.channel.send(f"🎉 {member.mention} has been awarded the **{role.name}** role!")
+            #award XP to the user
+            xp_earned = random.randint(5, 10)
+            award_xp(str(member.id), xp_earned)
 
-    elif user_data["level"] in range(11, 15):
-        role = discord.utils.get(guild.roles, name="Harcker")
+            #send this message to the channel
+            await message.channel.send(f"🎉🎉🎉 **Role UP** \n{member.mention} has been awarded the **{role.name}** role and has been awarded **{xp_earned}**XPs!")
+
+    elif user_data["level"] in range(24, 30):
+        role = discord.utils.get(guild.roles, name="Hacker")
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
 
-            #send this message to the channel
-            await message.channel.send(f"🎉 {member.mention} has been awarded the **{role.name}** role!")
+            #award XP to the user
+            xp_earned = random.randint(5, 10)
+            award_xp(str(member.id), xp_earned)
 
-    elif user_data["level"] in range(16, 20):
+            #send this message to the channel
+            await message.channel.send(f"🎉🎉🎉 **Role UP** \n{member.mention} has been awarded the **{role.name}** role and has been awarded **{xp_earned}**XPs !")
+
+    elif user_data["level"] in range(31, 37):
         role = discord.utils.get(guild.roles, name="Guru")
         
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
-            #send this message to the channel
-            await message.channel.send(f"🎉 {member.mention} has been awarded the **{role.name}** role!")
+            
+            #award XP to the user
+            xp_earned = random.randint(5, 10)
+            award_xp(str(member.id), xp_earned)
 
-    elif user_data["level"] in range(21, 25):
+            #send this message to the channel
+            await message.channel.send(f"🎉🎉🎉 **Role UP** \n{member.mention} has been awarded the **{role.name}** role and has been awarded **{xp_earned}**XPs!")
+
+    elif user_data["level"] in range(43, 49):
         role = discord.utils.get(guild.roles, name="Godlike")
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
 
-            #send this message to the channel
-            await message.channel.send(f"🎉 {member.mention} has been awarded the **{role.name}** role!")
+            #award XP to the user
+            xp_earned = random.randint(5, 10)
+            award_xp(str(member.id), xp_earned)
 
-    elif user_data["level"] in range(26, 30):
+            #send this message to the channel
+            await message.channel.send(f"🎉🎉🎉 **Role UP** \n{member.mention} has been awarded the **{role.name}** role and has been awarded **{xp_earned}**XPs!")
+
+    elif user_data["level"] in range(55, 61):
         role = discord.utils.get(guild.roles, name="Wizard")
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
+            
+            #award XP to the user
+            xp_earned = random.randint(5, 10)
+            award_xp(str(member.id), xp_earned)
+
             #send this message to the channel
-            await message.channel.send(f"🎉 {member.mention} has been awarded the **{role.name}** role!")
+            await message.channel.send(f"🎉🎉🎉 **Role UP** \n{member.mention} has been awarded the **{role.name}** role and has been awarded **{xp_earned}**XPs!")
             
     for word in offensive_words:
         if word in [message for message in message.content.split(" ")]:
