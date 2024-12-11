@@ -31,6 +31,8 @@ PENALTY_AMOUNT = 50  # Amount of coins or XP to be deducted
 shoot_cooldowns = {}
 rob_cooldowns = {}
 heist_participants = []
+badge_list = ["🔧", "🔥", "🌟", "👨‍💻", "🤓", "👾", "🧙", "🔱", "🧙‍♂️", "👸"]
+
 # Track last claim times in a database or dictionary
 last_daily_claim = {}
 # Track last hourly claim times in a database or dictionary
@@ -121,37 +123,6 @@ def remove_links(message):
     url_pattern = r"(https?://\S+)"
     return re.sub(url_pattern, "", message).strip()
 
-#function to add special badge to usernames if they have a certain role
-def get_special_role_badge(member):
-
-    # if discord.utils.get(member.roles, name="Owner"):
-    #check if the role is the highest role
-    # if member.top_role == discord.utils.get(member.guild.roles, name="Owner"):
-    #     return "👑"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Admin"):
-        return "🛡️"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Moderator"):
-        return "🔧"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Intermediate"):
-        return "🔥"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Novice"):
-        return "🌟"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Techie"):
-        return "👨‍💻"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Geek"):
-        return "🤓"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Hacker"):
-        return "👾"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Guru"):
-        return "🧙"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Godlike"):
-        return "🔱"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Wizard"):
-        return "🧙‍♂️"
-    if member.top_role == discord.utils.get(member.guild.roles, name="Princess"):
-        return "👸"
-    return ""
-
 @bot.event
 async def on_message(message):
     # Ignore bot messages
@@ -160,17 +131,29 @@ async def on_message(message):
     member = message.author
     guild = message.guild
     user_data = get_user_data(str(member.id))
-
-    #rename the user's name to include the special badge
-    #check if user already has the badge
-    if get_special_role_badge(member) not in member.display_name:
-        await member.edit(nick=f"{member.display_name} {get_special_role_badge(member)}")
+    current_nick = member.display_name
 
     if user_data["level"] in range(1, 3):
         role = discord.utils.get(guild.roles, name="Intermediate")
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
+
+            try:
+                for badge in badge_list:
+                    if badge in current_nick:
+                        print(f"Badge: {badge} is already in the nickname")
+                        current_nick = current_nick.replace(badge, "")
+                    
+                intermediate_badge = "🔥"
+                new_nick = current_nick + intermediate_badge
+
+                # new_nick = get_special_role_badge(member, role)
+                await member.edit(nick=new_nick)
+            except discord.Forbidden:
+                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+            except discord.HTTPException as e:
+                print(f"Error updating nickname for {member.name}: {e}")
 
             #award XP to the user
             xp_earned = random.randint(5, 10)
@@ -185,6 +168,22 @@ async def on_message(message):
         if role not in member.roles:
             await member.add_roles(role)
 
+            try:
+                for badge in badge_list:
+                    if badge in current_nick:
+                        print(f"Badge: {badge} is already in the nickname")
+                        current_nick = current_nick.replace(badge, "")
+                    
+                novice_badge = "🌟"
+                new_nick = current_nick + novice_badge
+
+                await member.edit(nick=new_nick)
+
+            except discord.Forbidden:
+                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+            except discord.HTTPException as e:
+                print(f"Error updating nickname for {member.name}: {e}")
+
             #award XP to the user
             xp_earned = random.randint(5, 10)
             award_xp(str(member.id), xp_earned)
@@ -197,6 +196,22 @@ async def on_message(message):
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
+
+            try:
+                for badge in badge_list:
+                    if badge in current_nick:
+                        print(f"Badge: {badge} is already in the nickname")
+                        current_nick = current_nick.replace(badge, "")
+                    
+                techie_badge = "👨‍💻"
+                new_nick = current_nick + techie_badge
+
+                await member.edit(nick=new_nick)
+                
+            except discord.Forbidden:
+                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+            except discord.HTTPException as e:
+                print(f"Error updating nickname for {member.name}: {e}")
 
             #award XP to the user
             xp_earned = random.randint(5, 10)
@@ -212,6 +227,24 @@ async def on_message(message):
         if role not in member.roles:
             await member.add_roles(role)
 
+            try:
+                for badge in badge_list:
+                    if badge in current_nick:
+                        print(f"Badge: {badge} is already in the nickname")
+                        current_nick = current_nick.replace(badge, "")
+                    
+                geek_badge = "🤓"
+                new_nick = current_nick + geek_badge
+
+                await member.edit(nick=new_nick)
+
+                await member.edit(nick=new_nick)
+                print(f"Updated nickname for {member.name} to '{new_nick}'")
+            except discord.Forbidden:
+                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+            except discord.HTTPException as e:
+                print(f"Error updating nickname for {member.name}: {e}")
+
             #award XP to the user
             xp_earned = random.randint(5, 10)
             award_xp(str(member.id), xp_earned)
@@ -224,6 +257,24 @@ async def on_message(message):
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
+
+            try:
+                for badge in badge_list:
+                    if badge in current_nick:
+                        print(f"Badge: {badge} is already in the nickname")
+                        current_nick = current_nick.replace(badge, "")
+                    
+                hacker_badge = "👾"
+                new_nick = current_nick + hacker_badge
+
+                await member.edit(nick=new_nick)
+
+                await member.edit(nick=new_nick)
+                print(f"Updated nickname for {member.name} to '{new_nick}'")
+            except discord.Forbidden:
+                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+            except discord.HTTPException as e:
+                print(f"Error updating nickname for {member.name}: {e}")
 
             #award XP to the user
             xp_earned = random.randint(5, 10)
@@ -238,6 +289,21 @@ async def on_message(message):
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
+
+            try:
+                for badge in badge_list:
+                    if badge in current_nick:
+                        print(f"Badge: {badge} is already in the nickname")
+                        current_nick = current_nick.replace(badge, "")
+                    
+                guru_badge = "🧙"
+                new_nick = current_nick + guru_badge
+                await member.edit(nick=new_nick)
+
+            except discord.Forbidden:
+                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+            except discord.HTTPException as e:
+                print(f"Error updating nickname for {member.name}: {e}")
             
             #award XP to the user
             xp_earned = random.randint(5, 10)
@@ -252,6 +318,22 @@ async def on_message(message):
         if role not in member.roles:
             await member.add_roles(role)
 
+            try:
+                for badge in badge_list:
+                    if badge in current_nick:
+                        print(f"Badge: {badge} is already in the nickname")
+                        current_nick = current_nick.replace(badge, "")
+                    
+                godlike_badge = "🔱"
+                new_nick = current_nick + godlike_badge
+
+                await member.edit(nick=new_nick)
+
+            except discord.Forbidden:
+                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+            except discord.HTTPException as e:
+                print(f"Error updating nickname for {member.name}: {e}")
+
             #award XP to the user
             xp_earned = random.randint(5, 10)
             award_xp(str(member.id), xp_earned)
@@ -264,6 +346,22 @@ async def on_message(message):
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
+
+            try:
+                for badge in badge_list:
+                    if badge in current_nick:
+                        print(f"Badge: {badge} is already in the nickname")
+                        current_nick = current_nick.replace(badge, "")
+                    
+                wizard_badge = "🧙‍♂️"
+                new_nick = current_nick + wizard_badge
+
+                await member.edit(nick=new_nick)
+
+            except discord.Forbidden:
+                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+            except discord.HTTPException as e:
+                print(f"Error updating nickname for {member.name}: {e}")
             
             #award XP to the user
             xp_earned = random.randint(5, 10)
@@ -271,7 +369,9 @@ async def on_message(message):
 
             #send this message to the channel
             await message.channel.send(f"🎉🎉🎉 **Role UP** \n{member.mention} has been awarded the **{role.name}** role and has been awarded **{xp_earned}**XPs!")
-            
+
+        #rename the user's name to include the special badge 
+
     for word in offensive_words:
         if word in [message for message in message.content.split(" ")]:
             await message.delete()
@@ -350,7 +450,7 @@ async def level(interaction: discord.Interaction, user: discord.Member = None):
     # Build an embed with the level information
     embed = discord.Embed(
         title=f"{user.display_name}'s Level",
-        description=f"**Level:** {level}\n**XP:** {xp}",
+        description=f"**Level:** {level}\n**XP:** {xp} / {get_xp_needed(level + 1)}",
         color=discord.Color.blue()
     )
     embed.set_thumbnail(url=user.display_avatar.url)
@@ -375,15 +475,15 @@ async def give_xp(interaction: discord.Interaction, member: discord.Member, xp: 
         return
     
     #check if user is trying to give themselves XP
-    if interaction.user == member:
-        embed = discord.Embed(
-            title="❌ XP Not Awarded!!",
-            description="You can't give yourself XP!",
-            color=discord.Color.red()
-        )
-        embed.set_thumbnail(url=member.display_avatar.url)
-        await interaction.response.send_message(embed=embed)
-        return
+    # if interaction.user == member:
+    #     embed = discord.Embed(
+    #         title="❌ XP Not Awarded!!",
+    #         description="You can't give yourself XP!",
+    #         color=discord.Color.red()
+    #     )
+    #     embed.set_thumbnail(url=member.display_avatar.url)
+    #     await interaction.response.send_message(embed=embed)
+    #     return
 
     # Add XP and update user data
     user_data["xp"] = user_data.get("xp", 0) + xp
@@ -963,10 +1063,6 @@ async def help(interaction: discord.Interaction):
 @bot.tree.command(name="heist", description="Team up to pull off an epic heist!")
 async def heist(interaction: discord.Interaction):
 
-    #get all users in the database
-    # all_user_ids = list(user_collection.find({}, {"user_id": 1}))
-    # print("All users: ", all_user_ids)
-
     heist_planner = interaction.user
     heist_participants = [heist_planner.id]
 
@@ -1105,5 +1201,25 @@ async def claim_hourly(interaction: discord.Interaction):
     embed.set_thumbnail(url=interaction.user.display_avatar.url)
 
     await interaction.response.send_message(embed=embed)
+
+#command to reset user level
+@bot.tree.command(name="reset_level", description="Reset the level of a user.")
+async def reset_level(interaction: discord.Interaction, member: discord.Member):
+    user_id = str(interaction.user.id)
+    user_data = get_user_data(user_id)
+
+    user_data["level"] = 0
+    save_user_data(user_id, user_data)  # Save the data
+    await interaction.response.send_message(f"✅ {member.mention}'s XP has been reset.")
+
+#command to reset user XP
+@bot.tree.command(name="reset_xp", description="Reset the XP of a user.")
+async def reset_xp(interaction: discord.Interaction, member: discord.Member):
+    user_id = str(interaction.user.id)
+    user_data = get_user_data(user_id)
+
+    user_data["xp"] = 0
+    save_user_data(user_id, user_data)
+
 
 bot.run(os.getenv('DISCORD_TOKEN'))
