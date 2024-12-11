@@ -1205,7 +1205,7 @@ async def claim_hourly(interaction: discord.Interaction):
 #command to reset user level
 @bot.tree.command(name="reset_level", description="Reset the level of a user.")
 async def reset_level(interaction: discord.Interaction, member: discord.Member):
-    user_id = str(interaction.user.id)
+    user_id = str(member.id)
     user_data = get_user_data(user_id)
 
     user_data["level"] = 0
@@ -1215,11 +1215,12 @@ async def reset_level(interaction: discord.Interaction, member: discord.Member):
 #command to reset user XP
 @bot.tree.command(name="reset_xp", description="Reset the XP of a user.")
 async def reset_xp(interaction: discord.Interaction, member: discord.Member):
-    user_id = str(interaction.user.id)
+    user_id = str(member.id)
     user_data = get_user_data(user_id)
 
     user_data["xp"] = 0
     save_user_data(user_id, user_data)
+    await interaction.response.send(f"✅ {member.mention}'s XP has been reset.")
 
 
 bot.run(os.getenv('DISCORD_TOKEN'))
