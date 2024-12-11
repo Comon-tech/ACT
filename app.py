@@ -125,10 +125,10 @@ def remove_links(message):
 def get_special_role_badge(member, role) -> str:
 
     badge_list = ["🔧", "🔥", "🌟", "👨‍💻", "🤓", "👾", "🧙", "🔱", "🧙‍♂️", "👸"]
-    current_nick = member.nick or member.name
+    current_nick = member.display_name
 
     #check if the role is the top role of the member
-    if member.top_role == role:
+    if member.top_role == discord.utils.get(member.guild.roles, name=role):
         if role == "Admin":
             admin_badge = "🛡️"
             #first remove any existing badge
@@ -217,6 +217,7 @@ def get_special_role_badge(member, role) -> str:
                     return new_nick
 
         # return ""
+    return "Member"
 
     # if member.top_role == discord.utils.get(member.guild.roles, name="Admin"):
     #     return "🛡️"
