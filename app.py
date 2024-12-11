@@ -122,65 +122,125 @@ def remove_links(message):
     return re.sub(url_pattern, "", message).strip()
 
 #function to add special badge to usernames if they have a certain role
-# def get_special_role_badge(member):
-#     if member.top_role == discord.utils.get(member.guild.roles, name="Admin"):
-#         return "🛡️"
-#     if member.top_role == discord.utils.get(member.guild.roles, name="Moderator"):
-#         return "🔧"
-#     if member.top_role == discord.utils.get(member.guild.roles, name="Intermediate"):
-#         return "🔥"
-#     if member.top_role == discord.utils.get(member.guild.roles, name="Novice"):
-#         return "🌟"
-#     if member.top_role == discord.utils.get(member.guild.roles, name="Techie"):
-#         return "👨‍💻"
-#     if member.top_role == discord.utils.get(member.guild.roles, name="Geek"):
-#         return "🤓"
-#     if member.top_role == discord.utils.get(member.guild.roles, name="Hacker"):
-#         return "👾"
-#     if member.top_role == discord.utils.get(member.guild.roles, name="Guru"):
-#         return "🧙"
-#     if member.top_role == discord.utils.get(member.guild.roles, name="Godlike"):
-#         return "🔱"
-#     if member.top_role == discord.utils.get(member.guild.roles, name="Wizard"):
-#         return "🧙‍♂️"
-#     if member.top_role == discord.utils.get(member.guild.roles, name="Princess"):
-#         return "👸"
-#     return ""
+def get_special_role_badge(member, role) -> str:
 
-def get_special_role_badge(member):
-    role_badges = {
-        "Admin": "🛡️",
-        "Moderator": "🔧",
-        "Intermediate": "🔥",
-        "Novice": "🌟",
-        "Techie": "👨‍💻",
-        "Geek": "🤓",
-        "Hacker": "👾",
-        "Guru": "🧙",
-        "Godlike": "🔱",
-        "Wizard": "🧙‍♂️",
-        "Princess": "👸",
-    }
+    badge_list = ["🔧", "🔥", "🌟", "👨‍💻", "🤓", "👾", "🧙", "🔱", "🧙‍♂️", "👸"]
+    current_nick = member.nick or member.name
 
-    for role in member.roles:
-        if role.name in role_badges:
-            return role_badges[role.name]
-    return ""
+    #check if the role is the top role of the member
+    if member.top_role == role:
+        if role == "Admin":
+            admin_badge = "🛡️"
+            #first remove any existing badge
+            for badge in badge_list:
+                if badge in current_nick:
+                    new_nick = current_nick.replace(badge, admin_badge)
+                    return new_nick         
+            
+        if role == "Moderator":
+            mod_badge = "🔧"
+            #first remove any existing badge
+            for badge in badge_list:
+                if badge in current_nick:
+                    new_nick = current_nick.replace(badge, mod_badge)
+                    return new_nick
 
-# Map roles to their respective emojis
-role_emoji_map = {
-    "Moderator": "🔧",
-    "Admin": "🛡️",
-    "Intermediate": "🔥",
-    "Novice": "🌟",
-    "Techie": "👨‍💻",
-    "Geek": "🤓",
-    "Hacker": "👾",
-    "Guru": "🧙",
-    "Godlike": "🔱",
-    "Wizard": "🧙‍♂️",
-    "Princess": "👸"
-}
+        if role == "Intermediate":
+            intermediate_badge = "🔥"
+            #first remove any existing badge
+            for badge in badge_list:
+                if badge in current_nick:
+                    new_nick = current_nick.replace(badge, intermediate_badge)
+                    return new_nick
+
+        if role == "Novice":
+            novice_badge = "🌟"
+            #first remove any existing badge
+            for badge in badge_list:
+                if badge in current_nick:
+                    new_nick = current_nick.replace(badge, novice_badge)
+                    return new_nick
+
+        if role == "Techie":
+            techie_badge = "👨‍💻"
+            #first remove any existing badge
+            for badge in badge_list:
+                if badge in current_nick:
+                    new_nick = current_nick.replace(badge, techie_badge)
+                    return new_nick
+
+        if role == "Geek":
+            geek_badge = "🤓"
+            #first remove any existing badge
+            for badge in badge_list:
+                if badge in current_nick:
+                    new_nick = current_nick.replace(badge, geek_badge)
+                    return new_nick
+
+        if role == "Hacker":
+            hacker_badge = "👾"
+            #first remove any existing badge
+            for badge in badge_list:
+                if badge in current_nick:
+                    new_nick = current_nick.replace(badge, hacker_badge)
+                    return new_nick
+        if role == "Guru":
+            guru_badge = "🧙"
+            #first remove any existing badge
+            for badge in badge_list:
+                if badge in current_nick:
+                    new_nick = current_nick.replace(badge, guru_badge)
+                    return new_nick
+
+        if role == "Godlike":
+            godlike_badge = "🔱"
+            #first remove any existing badge
+            for badge in badge_list:
+                if badge in current_nick:
+                    new_nick = current_nick.replace(badge, godlike_badge)
+                    return new_nick
+
+        if role == "Wizard":
+            wizard_badge = "🧙‍♂️"
+            #first remove any existing badge
+            for badge in badge_list:
+                if badge in current_nick:
+                    new_nick = current_nick.replace(badge, wizard_badge)
+                    return new_nick
+
+        if role == "Princess":
+            princess_badge = "👸"
+            #first remove any existing badge
+            for badge in badge_list:
+                if badge in current_nick:
+                    new_nick = current_nick.replace(badge, princess_badge)
+                    return new_nick
+
+        # return ""
+
+    # if member.top_role == discord.utils.get(member.guild.roles, name="Admin"):
+    #     return "🛡️"
+    # if member.top_role == discord.utils.get(member.guild.roles, name="Moderator"):
+    #     return "🔧"
+    # if member.top_role == discord.utils.get(member.guild.roles, name="Intermediate"):
+    #     return "🔥"
+    # if member.top_role == discord.utils.get(member.guild.roles, name="Novice"):
+    #     return "🌟"
+    # if member.top_role == discord.utils.get(member.guild.roles, name="Techie"):
+    #     return "👨‍💻"
+    # if member.top_role == discord.utils.get(member.guild.roles, name="Geek"):
+    #     return "🤓"
+    # if member.top_role == discord.utils.get(member.guild.roles, name="Hacker"):
+    #     return "👾"
+    # if member.top_role == discord.utils.get(member.guild.roles, name="Guru"):
+    #     return "🧙"
+    # if member.top_role == discord.utils.get(member.guild.roles, name="Godlike"):
+    #     return "🔱"
+    # if member.top_role == discord.utils.get(member.guild.roles, name="Wizard"):
+    #     return "🧙‍♂️"
+    # if member.top_role == discord.utils.get(member.guild.roles, name="Princess"):
+    #     return "👸"
+    # return ""
 
 @bot.event
 async def on_message(message):
@@ -191,33 +251,23 @@ async def on_message(message):
     guild = message.guild
     user_data = get_user_data(str(member.id))
 
-    #rename the user's name to include the special badge
-    # check if user already has the badge
-    # if get_special_role_badge(member) not in member.display_name:
-    #     await member.edit(nick=f"{member.display_name} {get_special_role_badge(member)}")
-
-    badge = get_special_role_badge(member)
-
-    # Ensure the bot has permission and check if the nickname needs an update
-    # if member.guild.me.guild_permissions.manage_nicknames:
-    # Extract current nickname or fallback to username
-    current_nick = member.nick or member.name
-    expected_nick = f"{current_nick.split(' ')[0]} {badge}".strip()
-
-    if current_nick != expected_nick:
-        try:
-            await member.edit(nick=expected_nick)
-            print(f"Updated nickname for {member.name} to '{expected_nick}'")
-        except discord.Forbidden:
-            print(f"Failed to update nickname for {member.name} (insufficient permissions).")
-        except discord.HTTPException as e:
-            print(f"Error updating nickname for {member.name}: {e}")
-
     if user_data["level"] in range(1, 3):
         role = discord.utils.get(guild.roles, name="Intermediate")
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
+
+            print(f"gave {role} role to user")
+
+            try:
+                print("enter try block............")
+                new_nick = get_special_role_badge(member, role)
+                await member.edit(nick=new_nick)
+                print(f"Updated nickname for {member.name} to '{new_nick}'")
+            except discord.Forbidden:
+                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+            except discord.HTTPException as e:
+                print(f"Error updating nickname for {member.name}: {e}")
 
             #award XP to the user
             xp_earned = random.randint(5, 10)
@@ -232,6 +282,15 @@ async def on_message(message):
         if role not in member.roles:
             await member.add_roles(role)
 
+            try:
+                new_nick = get_special_role_badge(member, role)
+                await member.edit(nick=new_nick)
+                print(f"Updated nickname for {member.name} to '{new_nick}'")
+            except discord.Forbidden:
+                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+            except discord.HTTPException as e:
+                print(f"Error updating nickname for {member.name}: {e}")
+
             #award XP to the user
             xp_earned = random.randint(5, 10)
             award_xp(str(member.id), xp_earned)
@@ -244,6 +303,15 @@ async def on_message(message):
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
+
+            try:
+                new_nick = get_special_role_badge(member, role)
+                await member.edit(nick=new_nick)
+                print(f"Updated nickname for {member.name} to '{new_nick}'")
+            except discord.Forbidden:
+                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+            except discord.HTTPException as e:
+                print(f"Error updating nickname for {member.name}: {e}")
 
             #award XP to the user
             xp_earned = random.randint(5, 10)
@@ -259,6 +327,15 @@ async def on_message(message):
         if role not in member.roles:
             await member.add_roles(role)
 
+            try:
+                new_nick = get_special_role_badge(member, role)
+                await member.edit(nick=new_nick)
+                print(f"Updated nickname for {member.name} to '{new_nick}'")
+            except discord.Forbidden:
+                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+            except discord.HTTPException as e:
+                print(f"Error updating nickname for {member.name}: {e}")
+
             #award XP to the user
             xp_earned = random.randint(5, 10)
             award_xp(str(member.id), xp_earned)
@@ -271,6 +348,15 @@ async def on_message(message):
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
+
+            try:
+                new_nick = get_special_role_badge(member, role)
+                await member.edit(nick=new_nick)
+                print(f"Updated nickname for {member.name} to '{new_nick}'")
+            except discord.Forbidden:
+                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+            except discord.HTTPException as e:
+                print(f"Error updating nickname for {member.name}: {e}")
 
             #award XP to the user
             xp_earned = random.randint(5, 10)
@@ -285,6 +371,15 @@ async def on_message(message):
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
+
+            try:
+                new_nick = get_special_role_badge(member, role)
+                await member.edit(nick=new_nick)
+                print(f"Updated nickname for {member.name} to '{new_nick}'")
+            except discord.Forbidden:
+                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+            except discord.HTTPException as e:
+                print(f"Error updating nickname for {member.name}: {e}")
             
             #award XP to the user
             xp_earned = random.randint(5, 10)
@@ -298,6 +393,15 @@ async def on_message(message):
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
+
+            try:
+                new_nick = get_special_role_badge(member, role)
+                await member.edit(nick=new_nick)
+                print(f"Updated nickname for {member.name} to '{new_nick}'")
+            except discord.Forbidden:
+                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
+            except discord.HTTPException as e:
+                print(f"Error updating nickname for {member.name}: {e}")
 
             #award XP to the user
             xp_earned = random.randint(5, 10)
@@ -318,7 +422,9 @@ async def on_message(message):
 
             #send this message to the channel
             await message.channel.send(f"🎉🎉🎉 **Role UP** \n{member.mention} has been awarded the **{role.name}** role and has been awarded **{xp_earned}**XPs!")
-            
+
+        #rename the user's name to include the special badge 
+
     for word in offensive_words:
         if word in [message for message in message.content.split(" ")]:
             await message.delete()
@@ -397,7 +503,7 @@ async def level(interaction: discord.Interaction, user: discord.Member = None):
     # Build an embed with the level information
     embed = discord.Embed(
         title=f"{user.display_name}'s Level",
-        description=f"**Level:** {level}\n**XP:** {xp}",
+        description=f"**Level:** {level}\n**XP:** {xp} / {get_xp_needed(level + 1)}",
         color=discord.Color.blue()
     )
     embed.set_thumbnail(url=user.display_avatar.url)
