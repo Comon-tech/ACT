@@ -179,7 +179,6 @@ async def on_message(message):
 
                 await member.edit(nick=new_nick)
 
-                
             except discord.Forbidden:
                 print(f"Failed to update nickname for {member.name} (insufficient permissions).")
             except discord.HTTPException as e:
@@ -1064,10 +1063,6 @@ async def help(interaction: discord.Interaction):
 @bot.tree.command(name="heist", description="Team up to pull off an epic heist!")
 async def heist(interaction: discord.Interaction):
 
-    #get all users in the database
-    # all_user_ids = list(user_collection.find({}, {"user_id": 1}))
-    # print("All users: ", all_user_ids)
-
     heist_planner = interaction.user
     heist_participants = [heist_planner.id]
 
@@ -1216,8 +1211,15 @@ async def reset_level(interaction: discord.Interaction, member: discord.Member):
     user_data["level"] = 0
     save_user_data(user_id, user_data)  # Save the data
     await interaction.response.send_message(f"✅ {member.mention}'s XP has been reset.")
-    # else:
-    #     await interaction.response.send_message(f"{member.mention} has no XP data to reset.")
+
+#command to reset user XP
+@bot.tree.command(name="reset_xp", description="Reset the XP of a user.")
+async def reset_xp(interaction: discord.Interaction, member: discord.Member):
+    user_id = str(interaction.user.id)
+    user_data = get_user_data(user_id)
+
+    user_data["xp"] = 0
+    save_user_data(user_id, user_data)
 
 
 bot.run(os.getenv('DISCORD_TOKEN'))
