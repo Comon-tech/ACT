@@ -5,7 +5,7 @@ import json
 url = "https://vector.profanity.dev"
 
 # List of offensive words
-offensive_words = ["fuck","motherfucker","fucker","motherfucker","shit" "Shit","whore","asshole","bitch","ass","nigga", "Israel", "israel","nazi","jew","coon","dild","dildo","rape","dick","porn","penis","killyourself","whore","slut","twat","x-rated","xrated","18+","gore","cock","cum","cancer", "idiot", "vagina" ]
+offensive_words = ["fuck","motherfucker","fucker","motherfucker","shit", "Shit","whore","asshole","bitch","ass","nigga", "Israel", "israel","nazi","jew","coon","dild","dildo","rape","dick","porn","penis","killyourself","whore","slut","twat","x-rated","xrated","18+","gore","cock","cum","cancer", "idiot", "vagina" ]
 
 def check_for_bad_words(message):
     loop_index = 0
