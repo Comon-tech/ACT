@@ -71,7 +71,6 @@ def award_xp(user_id, xp):
 
     # Level up if XP exceeds the threshold
     while user_data["xp"] >= get_xp_needed(user_data["level"]):
-        # user_data["xp"] -= get_xp_needed(user_data["level"])
         user_data["level"] += 1
     
     print(f"User {user_id} leveled up to {user_data['level']}!, with {user_data['xp']} XPs. \n\n")
@@ -97,8 +96,10 @@ async def on_ready():
         print(e)
 
 def get_xp_needed(level):
-    # Example formula: Quadratic scaling for XP
-    return 5 * (level ** 2) + 50 * level + 100
+    # XP needed for next level should be more than the previous level and have a gap of 1000
+    # return 5 * (level ** 2) + 50 * level + 100
+    return 1000 + (level - 1) ** 2 * 1000
+
 
 # Function to deduct XP
 async def apply_penalty(user):
@@ -144,12 +145,12 @@ async def on_message(message):
                     if badge in current_nick:
                         print(f"Badge: {badge} is already in the nickname")
                         current_nick = current_nick.replace(badge, "")
+                        print(f"replace badge: {badge} with empty string")
                     
                 intermediate_badge = "🔥"
                 new_nick = current_nick + intermediate_badge
-
-                # new_nick = get_special_role_badge(member, role)
                 await member.edit(nick=new_nick)
+
             except discord.Forbidden:
                 print(f"Failed to update nickname for {member.name} (insufficient permissions).")
             except discord.HTTPException as e:
@@ -176,7 +177,6 @@ async def on_message(message):
                     
                 novice_badge = "🌟"
                 new_nick = current_nick + novice_badge
-
                 await member.edit(nick=new_nick)
 
             except discord.Forbidden:
@@ -205,7 +205,6 @@ async def on_message(message):
                     
                 techie_badge = "👨‍💻"
                 new_nick = current_nick + techie_badge
-
                 await member.edit(nick=new_nick)
                 
             except discord.Forbidden:
@@ -235,10 +234,8 @@ async def on_message(message):
                     
                 geek_badge = "🤓"
                 new_nick = current_nick + geek_badge
-
                 await member.edit(nick=new_nick)
 
-                await member.edit(nick=new_nick)
                 print(f"Updated nickname for {member.name} to '{new_nick}'")
             except discord.Forbidden:
                 print(f"Failed to update nickname for {member.name} (insufficient permissions).")
@@ -266,10 +263,8 @@ async def on_message(message):
                     
                 hacker_badge = "👾"
                 new_nick = current_nick + hacker_badge
-
                 await member.edit(nick=new_nick)
 
-                await member.edit(nick=new_nick)
                 print(f"Updated nickname for {member.name} to '{new_nick}'")
             except discord.Forbidden:
                 print(f"Failed to update nickname for {member.name} (insufficient permissions).")
@@ -326,7 +321,6 @@ async def on_message(message):
                     
                 godlike_badge = "🔱"
                 new_nick = current_nick + godlike_badge
-
                 await member.edit(nick=new_nick)
 
             except discord.Forbidden:
@@ -355,7 +349,6 @@ async def on_message(message):
                     
                 wizard_badge = "🧙‍♂️"
                 new_nick = current_nick + wizard_badge
-
                 await member.edit(nick=new_nick)
 
             except discord.Forbidden:
