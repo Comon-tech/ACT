@@ -875,9 +875,9 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
     # Prevent self-targeting
     if interaction.user == target:
         embed = discord.Embed(
-        title="🔫 Shoot Results",
-        description="🔫 You can't shoot yourself",
-        color=discord.Color.red()
+            title="🔫 Shoot Results",
+            description="🔫 You can't shoot yourself.",
+            color=discord.Color.red()
         )
         embed.set_thumbnail(url=interaction.user.display_avatar.url)
         await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -889,13 +889,31 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
 
     if not attacker_data or not target_data:
         embed = discord.Embed(
-        title="🔫 Shoot Results",
-        description="🔍 Both users must be registered to participate!",
-        color=discord.Color.red()
+            title="🔫 Shoot Results",
+            description="🔍 Both users must be registered to participate!",
+            color=discord.Color.red()
         )
         embed.set_thumbnail(url=interaction.user.display_avatar.url)
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
+
+    # Check if attacker has bullets in inventory (handling inventory as a list)
+    inventory = attacker_data.get("inventory", [])
+    bullet_count = sum(1 for item in inventory if item == "✏ Bullet")
+
+    if bullet_count < 1:
+        embed = discord.Embed(
+            title="🔫 Shoot Results",
+            description="❌ You don't have any bullets to shoot. Buy some from the store!",
+            color=discord.Color.red()
+        )
+        embed.set_thumbnail(url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+
+    # Remove one bullet from inventory
+    inventory.remove("✏ Bullet")
+    attacker_data["inventory"] = inventory
 
     # Check cooldown
     now = datetime.utcnow()
@@ -905,12 +923,11 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
     if last_shoot and now - last_shoot < cooldown_time:
         remaining_time = cooldown_time - (now - last_shoot)
         embed = discord.Embed(
-        title="🔫 Shoot Results",
-        description=f"⏳ You need to wait {remaining_time.seconds} seconds before shooting again!",
-        color=discord.Color.red()
+            title="🔫 Shoot Results",
+            description=f"⏳ You need to wait {remaining_time.seconds} seconds before shooting again!",
+            color=discord.Color.red()
         )
         embed.set_thumbnail(url=interaction.user.display_avatar.url)
-
         await interaction.response.send_message(embed=embed, ephemeral=True)
         return
 
@@ -960,6 +977,101 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
     embed.set_thumbnail(url=interaction.user.display_avatar.url)
 
     await interaction.response.send_message(embed=embed)
+
+
+# @bot.tree.command(name="shoot", description="Shoot another user for a chance to win XPs!")
+# async def shoot(interaction: discord.Interaction, target: discord.Member):
+#     attacker_id = str(interaction.user.id)
+#     target_id = str(target.id)
+
+#     # Prevent self-targeting
+#     if interaction.user == target:
+#         embed = discord.Embed(
+#         title="🔫 Shoot Results",
+#         description="🔫 You can't shoot yourself",
+#         color=discord.Color.red()
+#         )
+#         embed.set_thumbnail(url=interaction.user.display_avatar.url)
+#         await interaction.response.send_message(embed=embed, ephemeral=True)
+#         return
+
+#     # Retrieve attacker and target data
+#     attacker_data = get_user_data(attacker_id)
+#     target_data = get_user_data(target_id)
+
+#     if not attacker_data or not target_data:
+#         embed = discord.Embed(
+#         title="🔫 Shoot Results",
+#         description="🔍 Both users must be registered to participate!",
+#         color=discord.Color.red()
+#         )
+#         embed.set_thumbnail(url=interaction.user.display_avatar.url)
+#         await interaction.response.send_message(embed=embed, ephemeral=True)
+#         return
+
+#     # Check cooldown
+#     now = datetime.utcnow()
+#     last_shoot = shoot_cooldowns.get(attacker_id, None)
+#     cooldown_time = timedelta(minutes=5)  # Cooldown duration
+
+#     if last_shoot and now - last_shoot < cooldown_time:
+#         remaining_time = cooldown_time - (now - last_shoot)
+#         embed = discord.Embed(
+#         title="🔫 Shoot Results",
+#         description=f"⏳ You need to wait {remaining_time.seconds} seconds before shooting again!",
+#         color=discord.Color.red()
+#         )
+#         embed.set_thumbnail(url=interaction.user.display_avatar.url)
+
+#         await interaction.response.send_message(embed=embed, ephemeral=True)
+#         return
+
+#     # Set success chance, rewards, and penalties
+#     success_chance = 0.6  # 60% chance to hit
+#     reward = random.randint(50, 200)  # XPs gained on success
+#     penalty = random.randint(30, 100)  # XPs lost on failure
+
+#     # Attempt to shoot
+#     if random.random() < success_chance:
+#         # Success: Attacker steals XPs from the target
+#         if target_data["xp"] >= reward:
+#             target_data["xp"] -= reward
+#         else:
+#             reward = target_data["xp"]
+#             target_data["xp"] = 0
+
+#         attacker_data["xp"] += reward
+#         result_message = (
+#             f"🎯 {interaction.user.mention} successfully shot {target.mention} and stole **{reward} XPs**!"
+#         )
+#     else:
+#         # Failure: Attacker loses XPs
+#         if attacker_data["xp"] >= penalty:
+#             attacker_data["xp"] -= penalty
+#         else:
+#             penalty = attacker_data["xp"]
+#             attacker_data["xp"] = 0
+
+#         result_message = (
+#             f"❌ {interaction.user.mention} missed their shot and lost **{penalty} XPs**!"
+#         )
+
+#     # Save updated data
+#     save_user_data(attacker_id, attacker_data)
+#     save_user_data(target_id, target_data)
+
+#     # Update cooldown
+#     shoot_cooldowns[attacker_id] = now
+
+#     # Send result as an embed
+#     embed = discord.Embed(
+#         title="🔫 Shoot Results",
+#         description=result_message,
+#         color=discord.Color.green() if "successfully" in result_message else discord.Color.red()
+#     )
+#     embed.set_thumbnail(url=interaction.user.display_avatar.url)
+
+#     await interaction.response.send_message(embed=embed)
 
 class StoreView(View):
     def __init__(self, items, user, per_page=10):
