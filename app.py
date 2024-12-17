@@ -1232,27 +1232,89 @@ async def reset_xp(interaction: discord.Interaction, member: discord.Member):
     user_data["xp"] = 0
     save_user_data(user_id, user_data)
     await interaction.response.send(f"✅ {member.mention}'s XP has been reset.")
+class Paginator(View):
+    def __init__(self, pages: list, user: discord.User):
+        super().__init__(timeout=120)  # Timeout after 2 minutes
+        self.pages = pages
+        self.current_page = 0
+        self.user = user  # Restrict button usage to the original user
+
+    def update_buttons(self):
+        # Enable/disable buttons based on the current page
+        for child in self.children:
+            if isinstance(child, Button):
+                if child.label == "⏮️ First":
+                    child.disabled = self.current_page == 0
+                elif child.label == "⬅️ Previous":
+                    child.disabled = self.current_page == 0
+                elif child.label == "➡️ Next":
+                    child.disabled = self.current_page == len(self.pages) - 1
+                elif child.label == "⏭️ Last":
+                    child.disabled = self.current_page == len(self.pages) - 1
+
+    async def send_page(self, interaction: discord.Interaction):
+        embed = discord.Embed(
+            title="🤖 TACT AI RESPONSE",
+            description=self.pages[self.current_page],
+            color=discord.Color.purple()
+        )
+        embed.set_footer(text=f"Page {self.current_page + 1}/{len(self.pages)}")
+        embed.set_thumbnail(url=interaction.client.user.display_avatar.url)
+        await interaction.response.edit_message(embed=embed, view=self)
+
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.user != self.user:
+            await interaction.response.send_message(
+                "❌ You cannot interact with this menu.", ephemeral=True
+            )
+            return False
+        return True
+
+    @discord.ui.button(label="⏮️ First", style=discord.ButtonStyle.primary)
+    async def first_page(self, interaction: discord.Interaction, button: Button):
+        self.current_page = 0
+        self.update_buttons()
+        await self.send_page(interaction)
+
+    @discord.ui.button(label="⬅️ Previous", style=discord.ButtonStyle.primary)
+    async def previous_page(self, interaction: discord.Interaction, button: Button):
+        self.current_page -= 1
+        self.update_buttons()
+        await self.send_page(interaction)
+
+    @discord.ui.button(label="➡️ Next", style=discord.ButtonStyle.primary)
+    async def next_page(self, interaction: discord.Interaction, button: Button):
+        self.current_page += 1
+        self.update_buttons()
+        await self.send_page(interaction)
+
+    @discord.ui.button(label="⏭️ Last", style=discord.ButtonStyle.primary)
+    async def last_page(self, interaction: discord.Interaction, button: Button):
+        self.current_page = len(self.pages) - 1
+        self.update_buttons()
+        await self.send_page(interaction)
 
 @bot.tree.command(name="tact", description="Interact with the AI for questions or assistance!")
 async def tact(interaction: discord.Interaction, *, query: str):
-    await interaction.response.defer(thinking=True)  # Let the user know the bot is thinking
+    await interaction.response.defer(thinking=True)  # Show a typing indicator
     try:
-        # Generate AI response
         response = generate_content(query)
 
-        # Create an embed with the response
+        # Split response into pages if it's too long
+        max_chars = 1024  # Discord embed character limit per field
+        pages = [response[i:i + max_chars] for i in range(0, len(response), max_chars)]
+
+        # Send the first page with pagination view
+        paginator = Paginator(pages, interaction.user)
         embed = discord.Embed(
             title="🤖 TACT AI RESPONSE",
-            description=response,
+            description=pages[0],
             color=discord.Color.purple()
         )
-        
-        # get the bot avatar
-        bot_avatar = bot.user.display_avatar.url
-        embed.set_thumbnail(url=bot_avatar)
-        embed.set_footer(text=f"**Asked by {interaction.user.display_name}**")
+        embed.set_footer(text=f"Page 1/{len(pages)} | Asked by {interaction.user.display_name}")
+        embed.set_thumbnail(url=bot.user.display_avatar.url)
 
-        await interaction.followup.send(embed=embed)
+        await interaction.followup.send(embed=embed, view=paginator)
     except Exception as e:
         await interaction.followup.send(
             content="⚠️ Something went wrong while processing your request. Please try again later.",
