@@ -921,16 +921,16 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
     last_shoot = shoot_cooldowns.get(attacker_id, None)
     cooldown_time = timedelta(minutes=5)  # Cooldown duration
 
-    if last_shoot and now - last_shoot < cooldown_time:
-        remaining_time = cooldown_time - (now - last_shoot)
-        embed = discord.Embed(
-            title="🔫 Shoot Results",
-            description=f"⏳ You need to wait {remaining_time.seconds} seconds before shooting again!",
-            color=discord.Color.red()
-        )
-        embed.set_thumbnail(url=interaction.user.display_avatar.url)
-        await interaction.response.send_message(embed=embed, ephemeral=True)
-        return
+    # if last_shoot and now - last_shoot < cooldown_time:
+    #     remaining_time = cooldown_time - (now - last_shoot)
+    #     embed = discord.Embed(
+    #         title="🔫 Shoot Results",
+    #         description=f"⏳ You need to wait {remaining_time.seconds} seconds before shooting again!",
+    #         color=discord.Color.red()
+    #     )
+    #     embed.set_thumbnail(url=interaction.user.display_avatar.url)
+    #     await interaction.response.send_message(embed=embed, ephemeral=True)
+    #     return
 
     # Set success chance, rewards, and penalties
     success_chance = 0.6  # 60% chance to hit
@@ -939,8 +939,14 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
 
     # Attempt to shoot
     if random.random() < success_chance:
+        # check if target has 🛡 Shield of Protection
+        if "🛡 Shield of Protection" in target_data.get("inventory", []):
+            # Shield blocks the attack
+            result_message = (
+                f"🛡 {target.mention} blocked your shot with the **Shield of Protection**!"
+            )
         # Success: Attacker steals XPs from the target
-        if target_data["xp"] >= reward:
+        elif target_data["xp"] >= reward:
             target_data["xp"] -= reward
         else:
             reward = target_data["xp"]
@@ -950,17 +956,17 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
         result_message = (
             f"🎯 {interaction.user.mention} successfully shot {target.mention} and stole **{reward} XPs**!"
         )
-    else:
-        # Failure: Attacker loses XPs
-        if attacker_data["xp"] >= penalty:
-            attacker_data["xp"] -= penalty
-        else:
-            penalty = attacker_data["xp"]
-            attacker_data["xp"] = 0
+    # else:
+    #     # Failure: Attacker loses XPs
+    #     if attacker_data["xp"] >= penalty:
+    #         attacker_data["xp"] -= penalty
+    #     else:
+    #         penalty = attacker_data["xp"]
+    #         attacker_data["xp"] = 0
 
-        result_message = (
-            f"❌ {interaction.user.mention} missed their shot and lost **{penalty} XPs**!"
-        )
+    #     result_message = (
+    #         f"❌ {interaction.user.mention} missed their shot and lost **{penalty} XPs**!"
+    #     )
 
     # Save updated data
     save_user_data(attacker_id, attacker_data)
