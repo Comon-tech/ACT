@@ -698,11 +698,22 @@ async def rob_bank(interaction: discord.Interaction):
     success_amount = random.randint(100, 500)  # XPs gained on success
     failure_penalty = random.randint(50, 300)  # XPs lost on failure
 
+    # Check for "🚗 Escape Car" in inventory
+    has_escape_car = "🚗 Escape Car" in user_data["inventory"]
+    if has_escape_car:
+        success_chance = 0.75  # Tripled success chance
+        success_amount = random.randint(500, 1500)  # Tripled reward
+        # Remove the Escape Car from the inventory
+        user_data["inventory"].remove("🚗 Escape Car")
+
     # Attempt robbery
     if random.random() < success_chance:
         # Success: Add XPs
         user_data["xp"] += success_amount
-        result_message = f"🎉 Success! You managed to rob the bank and got **{success_amount} XPs**!"
+        if has_escape_car:
+            result_message = (f"🚗 The **Escape Car** tripled your heist to **{success_amount} XPs**! The car is now used up.")
+        else:
+            result_message = f"🎉 Success! You managed to rob the bank and got **{success_amount} XPs**!"
     else:
         # Failure: Deduct XPs
         if user_data["xp"] >= failure_penalty:
