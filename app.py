@@ -14,6 +14,8 @@ from discord.ui import View, Button
 from math import ceil
 from collections import Counter, defaultdict
 
+from gemini import generate_content
+
 dotenv.load_dotenv()
 
 intents = discord.Intents.default()
