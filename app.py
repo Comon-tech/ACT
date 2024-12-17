@@ -1250,7 +1250,7 @@ async def tact(interaction: discord.Interaction, *, query: str):
         # get the bot avatar
         bot_avatar = bot.user.display_avatar.url
         embed.set_thumbnail(url=bot_avatar)
-        embed.set_footer(text=f"**Asked by {interaction.user.display_name}**")
+        embed.set_footer(text=f"Asked by {interaction.user.display_name}")
 
         await interaction.followup.send(embed=embed)
     except Exception as e:
