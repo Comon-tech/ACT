@@ -386,7 +386,7 @@ async def on_message(message):
 
     xp_needed = get_xp_needed(user_data["level"])
     # Award random XP between 5 and 10
-    xp_earned = random.randint(5, 10)
+    xp_earned = random.randint(5, 100)
     print(f"User {message.author.name} earned {xp_earned} XP!\n\n")
     award_xp(user_id, xp_earned)
 
@@ -728,54 +728,79 @@ async def rob_bank(interaction: discord.Interaction):
 
     await interaction.response.send_message(embed=embed)
 
-# Buy command with autocomplete
+# Buy command with autocomplete and quantity
 @bot.tree.command(name="buy", description="Buy items from the shop")
-@app_commands.describe(item="The item you want to purchase")
+@app_commands.describe(item="The item you want to purchase", quantity="The number of items you want to buy (default: 1)")
 @app_commands.autocomplete(item=item_autocomplete)
-async def buy(interaction: discord.Interaction, item: str):
+async def buy(interaction: discord.Interaction, item: str, quantity: int = 1):
     user_id = str(interaction.user.id)
     user_data = get_user_data(user_id)
 
+    # Fetch store items and prices
     store_items = {item_data["item_name"]: item_data["item_price"] for item_data in store_collection.find()}
 
+    # Check if the item exists in the store
     item_price = store_items.get(item)
     if item_price is None:
         embed = discord.Embed(
             title="🛒 Purchase Unsuccessful !!",
             description=f"❌ {item} is not available in the store.",
             color=discord.Color.red()
-            )
+        )
         embed.set_thumbnail(url=interaction.user.display_avatar.url)
         await interaction.response.send_message(embed=embed)
         return
 
-    if user_data["xp"] < int(item_price):
+    # Validate quantity
+    if quantity <= 0:
         embed = discord.Embed(
             title="🛒 Purchase Unsuccessful !!",
-            description=f"❌ You need {item_price} XP to buy {item}.",
+            description="❌ Quantity must be a positive number greater than zero.",
             color=discord.Color.red()
-            )
+        )
         embed.set_thumbnail(url=interaction.user.display_avatar.url)
         await interaction.response.send_message(embed=embed)
-    else:
-        user_data["xp"] -= int(item_price)
-        user_data["inventory"].append(item)
+        return
+
+    # Calculate total cost
+    total_cost = int(item_price) * quantity
+
+    # Check if the user has enough XP
+    if user_data["xp"] < total_cost:
         embed = discord.Embed(
-            title="🛒 Purchase Successful",
-            description=f"✅ {interaction.user.mention} bought {item} for {item_price} XP.",
-            color=discord.Color.green()
-            )
+            title="🛒 Purchase Unsuccessful !!",
+            description=f"❌ You need {total_cost} XP to buy {quantity} x {item}.",
+            color=discord.Color.red()
+        )
         embed.set_thumbnail(url=interaction.user.display_avatar.url)
-
         await interaction.response.send_message(embed=embed)
+        return
 
+    # Deduct XP and add items to inventory
+    user_data["xp"] -= total_cost
+    user_data["inventory"].extend([item] * quantity)
+
+    # Send success message
+    embed = discord.Embed(
+        title="🛒 Purchase Successful",
+        description=(
+            f"✅ {interaction.user.mention} bought {quantity} x {item} for {total_cost} XP.\n"
+            f"💰 Remaining XP: {user_data['xp']}"
+        ),
+        color=discord.Color.green()
+    )
+    embed.set_thumbnail(url=interaction.user.display_avatar.url)
+    await interaction.response.send_message(embed=embed)
+
+    # Save updated user data
     save_user_data(user_id, user_data)
+
 
 def steal_function(victim_id):
     # Fetch victim data
     victim = get_user_data(victim_id)
 
-    stolen_amount = random.randint(50, 200)  # Steal between 50 and 200 XPs
+    stolen_amount = random.randint(50, 2000)  # Steal between 50 and 200 XPs
     stolen_amount = min(stolen_amount, victim["xp"])  # Can't steal more than the victim's balance
 
     return stolen_amount
@@ -916,6 +941,26 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
     inventory.remove("✏ Bullet")
     attacker_data["inventory"] = inventory
 
+    # Check if target has the shield
+    target_inventory = target_data.get("inventory", [])
+    if "🛡 Shield of Protection" in target_inventory:
+        # Shield protects the target
+        target_inventory.remove("🛡 Shield of Protection")
+        target_data["inventory"] = target_inventory
+        save_user_data(target_id, target_data)  # Save updated target data
+
+        embed = discord.Embed(
+            title="🛡 Shield Activated!",
+            description=(
+                f"{target.mention} was protected by the **🛡 Shield of Protection**! "
+                f"The shield blocked {interaction.user.mention}'s attack!"
+            ),
+            color=discord.Color.blue()
+        )
+        embed.set_thumbnail(url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
+        return
+
     # Check cooldown
     now = datetime.utcnow()
     last_shoot = shoot_cooldowns.get(attacker_id, None)
@@ -934,8 +979,8 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
 
     # Set success chance, rewards, and penalties
     success_chance = 0.6  # 60% chance to hit
-    reward = random.randint(50, 200)  # XPs gained on success
-    penalty = random.randint(30, 100)  # XPs lost on failure
+    reward = random.randint(50, 2000)  # XPs gained on success
+    penalty = random.randint(30, 1000)  # XPs lost on failure
 
     # Attempt to shoot
     if random.random() < success_chance:
