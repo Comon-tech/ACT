@@ -698,11 +698,22 @@ async def rob_bank(interaction: discord.Interaction):
     success_amount = random.randint(100, 500)  # XPs gained on success
     failure_penalty = random.randint(50, 300)  # XPs lost on failure
 
+    # Check for "🚗 Escape Car" in inventory
+    has_escape_car = "🚗 Escape Car" in user_data["inventory"]
+    if has_escape_car:
+        success_chance = 0.75  # Tripled success chance
+        success_amount = random.randint(500, 1500)  # Tripled reward
+        # Remove the Escape Car from the inventory
+        user_data["inventory"].remove("🚗 Escape Car")
+
     # Attempt robbery
     if random.random() < success_chance:
         # Success: Add XPs
         user_data["xp"] += success_amount
-        result_message = f"🎉 Success! You managed to rob the bank and got **{success_amount} XPs**!"
+        if has_escape_car:
+            result_message = (f"🚗 The **Escape Car** tripled your heist to **{success_amount} XPs**! The car is now used up.")
+        else:
+            result_message = f"🎉 Success! You managed to rob the bank and got **{success_amount} XPs**!"
     else:
         # Failure: Deduct XPs
         if user_data["xp"] >= failure_penalty:
@@ -1171,23 +1182,45 @@ async def resolve_heist(interaction):
 
 @bot.tree.command(name="open_box", description="Open a mystery box for surprises!")
 async def open_box(interaction: discord.Interaction):
-    rewards = ["250 XP", "Special Badge", "Exclusive Role"]
+
+    # rewards from the store
+    rewards = list(store_collection.find())
     reward = random.choice(rewards)
     user_data = get_user_data(str(interaction.user.id))
 
-    if reward.endswith("XP"):
+    # check if user has the 📦 Mystery Box in their inventory
+    if "📦 Mystery Box" not in user_data.get("inventory", []):
+        embed = discord.Embed(
+            title="🎁 Mystery Box",
+            description="❌ You need a **📦 Mystery Box** to open it!",
+            color=discord.Color.gold()
+        )
+        embed.set_thumbnail(url=interaction.user.display_avatar.url)
+        await interaction.response.send_message(embed=embed)
+        return
+    
+    if type(reward) != dict and reward.endswith("XP"):
         user_data["xp"] += int(reward.split(" ")[0])
     else:
-        user_data["inventory"].append(reward)
+        user_data["inventory"].append(reward['item_name'])
+
+    # Remove the mystery box from the user's inventory
+    user_data["inventory"].remove("📦 Mystery Box")
 
     save_user_data(str(interaction.user.id), user_data)
-    await interaction.response.send_message(f"🎁 You opened a mystery box and received: {reward}!")
-
+    embed = discord.Embed(
+        title="🎁 Mystery Box",
+        description=f"🎁 You opened a mystery box and received: {reward['item_name']}!",
+        color=discord.Color.gold()
+    )
+    embed.set_thumbnail(url=interaction.user.display_avatar.url)
+    await interaction.response.send_message(embed=embed)
+    
 @bot.tree.command(name="claim_daily", description="Claim your daily reward!")
 async def claim_daily(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
     now = datetime.utcnow()
-    reward_xp = 500  # Amount of XP given as a daily reward
+    reward_xp = 1000  # Amount of XP given as a daily reward
 
     # Check if the user has already claimed the reward today
     if user_id in last_daily_claim:
@@ -1224,7 +1257,7 @@ async def claim_daily(interaction: discord.Interaction):
 async def claim_hourly(interaction: discord.Interaction):
     user_id = str(interaction.user.id)
     now = datetime.utcnow()
-    reward_xp = 400  # Amount of XP given as an hourly reward
+    reward_xp = 600  # Amount of XP given as an hourly reward
 
     # Check if the user has already claimed the reward this hour
     if user_id in last_hourly_claim:
