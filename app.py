@@ -14,6 +14,8 @@ from discord.ui import View, Button
 from math import ceil
 from collections import Counter, defaultdict
 
+from gemini import generate_content
+
 dotenv.load_dotenv()
 
 intents = discord.Intents.default()
@@ -99,7 +101,6 @@ def get_xp_needed(level):
     # XP needed for next level should be more than the previous level and have a gap of 1000
     # return 5 * (level ** 2) + 50 * level + 100
     return 1000 + (level - 1) ** 2 * 1000
-
 
 # Function to deduct XP
 async def apply_penalty(user):
@@ -978,101 +979,6 @@ async def shoot(interaction: discord.Interaction, target: discord.Member):
 
     await interaction.response.send_message(embed=embed)
 
-
-# @bot.tree.command(name="shoot", description="Shoot another user for a chance to win XPs!")
-# async def shoot(interaction: discord.Interaction, target: discord.Member):
-#     attacker_id = str(interaction.user.id)
-#     target_id = str(target.id)
-
-#     # Prevent self-targeting
-#     if interaction.user == target:
-#         embed = discord.Embed(
-#         title="🔫 Shoot Results",
-#         description="🔫 You can't shoot yourself",
-#         color=discord.Color.red()
-#         )
-#         embed.set_thumbnail(url=interaction.user.display_avatar.url)
-#         await interaction.response.send_message(embed=embed, ephemeral=True)
-#         return
-
-#     # Retrieve attacker and target data
-#     attacker_data = get_user_data(attacker_id)
-#     target_data = get_user_data(target_id)
-
-#     if not attacker_data or not target_data:
-#         embed = discord.Embed(
-#         title="🔫 Shoot Results",
-#         description="🔍 Both users must be registered to participate!",
-#         color=discord.Color.red()
-#         )
-#         embed.set_thumbnail(url=interaction.user.display_avatar.url)
-#         await interaction.response.send_message(embed=embed, ephemeral=True)
-#         return
-
-#     # Check cooldown
-#     now = datetime.utcnow()
-#     last_shoot = shoot_cooldowns.get(attacker_id, None)
-#     cooldown_time = timedelta(minutes=5)  # Cooldown duration
-
-#     if last_shoot and now - last_shoot < cooldown_time:
-#         remaining_time = cooldown_time - (now - last_shoot)
-#         embed = discord.Embed(
-#         title="🔫 Shoot Results",
-#         description=f"⏳ You need to wait {remaining_time.seconds} seconds before shooting again!",
-#         color=discord.Color.red()
-#         )
-#         embed.set_thumbnail(url=interaction.user.display_avatar.url)
-
-#         await interaction.response.send_message(embed=embed, ephemeral=True)
-#         return
-
-#     # Set success chance, rewards, and penalties
-#     success_chance = 0.6  # 60% chance to hit
-#     reward = random.randint(50, 200)  # XPs gained on success
-#     penalty = random.randint(30, 100)  # XPs lost on failure
-
-#     # Attempt to shoot
-#     if random.random() < success_chance:
-#         # Success: Attacker steals XPs from the target
-#         if target_data["xp"] >= reward:
-#             target_data["xp"] -= reward
-#         else:
-#             reward = target_data["xp"]
-#             target_data["xp"] = 0
-
-#         attacker_data["xp"] += reward
-#         result_message = (
-#             f"🎯 {interaction.user.mention} successfully shot {target.mention} and stole **{reward} XPs**!"
-#         )
-#     else:
-#         # Failure: Attacker loses XPs
-#         if attacker_data["xp"] >= penalty:
-#             attacker_data["xp"] -= penalty
-#         else:
-#             penalty = attacker_data["xp"]
-#             attacker_data["xp"] = 0
-
-#         result_message = (
-#             f"❌ {interaction.user.mention} missed their shot and lost **{penalty} XPs**!"
-#         )
-
-#     # Save updated data
-#     save_user_data(attacker_id, attacker_data)
-#     save_user_data(target_id, target_data)
-
-#     # Update cooldown
-#     shoot_cooldowns[attacker_id] = now
-
-#     # Send result as an embed
-#     embed = discord.Embed(
-#         title="🔫 Shoot Results",
-#         description=result_message,
-#         color=discord.Color.green() if "successfully" in result_message else discord.Color.red()
-#     )
-#     embed.set_thumbnail(url=interaction.user.display_avatar.url)
-
-#     await interaction.response.send_message(embed=embed)
-
 class StoreView(View):
     def __init__(self, items, user, per_page=10):
         super().__init__()
@@ -1327,5 +1233,31 @@ async def reset_xp(interaction: discord.Interaction, member: discord.Member):
     save_user_data(user_id, user_data)
     await interaction.response.send(f"✅ {member.mention}'s XP has been reset.")
 
+@bot.tree.command(name="tact", description="Interact with the AI for questions or assistance!")
+async def tact(interaction: discord.Interaction, *, query: str):
+    await interaction.response.defer(thinking=True)  # Let the user know the bot is thinking
+    try:
+        # Generate AI response
+        response = generate_content(query)
+
+        # Create an embed with the response
+        embed = discord.Embed(
+            title="🤖 TACT AI RESPONSE",
+            description=response,
+            color=discord.Color.purple()
+        )
+        
+        # get the bot avatar
+        bot_avatar = bot.user.display_avatar.url
+        embed.set_thumbnail(url=bot_avatar)
+        embed.set_footer(text=f"**Asked by {interaction.user.display_name}**")
+
+        await interaction.followup.send(embed=embed)
+    except Exception as e:
+        await interaction.followup.send(
+            content="⚠️ Something went wrong while processing your request. Please try again later.",
+            ephemeral=True
+        )
+        print(f"Error: {e}")
 
 bot.run(os.getenv('DISCORD_TOKEN'))
