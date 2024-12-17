@@ -728,48 +728,73 @@ async def rob_bank(interaction: discord.Interaction):
 
     await interaction.response.send_message(embed=embed)
 
-# Buy command with autocomplete
+# Buy command with autocomplete and quantity
 @bot.tree.command(name="buy", description="Buy items from the shop")
-@app_commands.describe(item="The item you want to purchase")
+@app_commands.describe(item="The item you want to purchase", quantity="The number of items you want to buy (default: 1)")
 @app_commands.autocomplete(item=item_autocomplete)
-async def buy(interaction: discord.Interaction, item: str):
+async def buy(interaction: discord.Interaction, item: str, quantity: int = 1):
     user_id = str(interaction.user.id)
     user_data = get_user_data(user_id)
 
+    # Fetch store items and prices
     store_items = {item_data["item_name"]: item_data["item_price"] for item_data in store_collection.find()}
 
+    # Check if the item exists in the store
     item_price = store_items.get(item)
     if item_price is None:
         embed = discord.Embed(
             title="🛒 Purchase Unsuccessful !!",
             description=f"❌ {item} is not available in the store.",
             color=discord.Color.red()
-            )
+        )
         embed.set_thumbnail(url=interaction.user.display_avatar.url)
         await interaction.response.send_message(embed=embed)
         return
 
-    if user_data["xp"] < int(item_price):
+    # Validate quantity
+    if quantity <= 0:
         embed = discord.Embed(
             title="🛒 Purchase Unsuccessful !!",
-            description=f"❌ You need {item_price} XP to buy {item}.",
+            description="❌ Quantity must be a positive number greater than zero.",
             color=discord.Color.red()
-            )
+        )
         embed.set_thumbnail(url=interaction.user.display_avatar.url)
         await interaction.response.send_message(embed=embed)
-    else:
-        user_data["xp"] -= int(item_price)
-        user_data["inventory"].append(item)
+        return
+
+    # Calculate total cost
+    total_cost = int(item_price) * quantity
+
+    # Check if the user has enough XP
+    if user_data["xp"] < total_cost:
         embed = discord.Embed(
-            title="🛒 Purchase Successful",
-            description=f"✅ {interaction.user.mention} bought {item} for {item_price} XP.",
-            color=discord.Color.green()
-            )
+            title="🛒 Purchase Unsuccessful !!",
+            description=f"❌ You need {total_cost} XP to buy {quantity} x {item}.",
+            color=discord.Color.red()
+        )
         embed.set_thumbnail(url=interaction.user.display_avatar.url)
-
         await interaction.response.send_message(embed=embed)
+        return
 
+    # Deduct XP and add items to inventory
+    user_data["xp"] -= total_cost
+    user_data["inventory"].extend([item] * quantity)
+
+    # Send success message
+    embed = discord.Embed(
+        title="🛒 Purchase Successful",
+        description=(
+            f"✅ {interaction.user.mention} bought {quantity} x {item} for {total_cost} XP.\n"
+            f"💰 Remaining XP: {user_data['xp']}"
+        ),
+        color=discord.Color.green()
+    )
+    embed.set_thumbnail(url=interaction.user.display_avatar.url)
+    await interaction.response.send_message(embed=embed)
+
+    # Save updated user data
     save_user_data(user_id, user_data)
+
 
 def steal_function(victim_id):
     # Fetch victim data
