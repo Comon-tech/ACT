@@ -1,3 +1,4 @@
 bot-env/
 .env
 env/
+venv/
