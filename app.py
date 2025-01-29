@@ -27,13 +27,12 @@ user_offenses = defaultdict(int)
 
 # Penalty system (e.g., lose 50 coins or XP after 5 offenses)
 PENALTY_THRESHOLD = 5
-PENALTY_AMOUNT = 50  # Amount of coins or XP to be deducted
+PENALTY_AMOUNT = 500  # Amount of coins or XP to be deducted
 
 # Cooldown tracker
 shoot_cooldowns = {}
 rob_cooldowns = {}
 heist_participants = []
-badge_list = ["🔧", "🔥", "🌟", "👨‍💻", "🤓", "👾", "🧙", "🔱", "🧙‍♂️", "👸"]
 
 # Track last claim times in a database or dictionary
 last_daily_claim = {}
@@ -47,7 +46,7 @@ async def random_xp_drop():
     while True:
         await asyncio.sleep(random.randint(3600, 7200))  # 1-2 hours
         channel = bot.get_channel("998348764282634242") 
-        reward = random.randint(50, 150)
+        reward = random.randint(50, 1500)
         lucky_user = random.choice(channel.members)
         user_data = get_user_data(str(lucky_user.id))
         user_data["xp"] += reward
@@ -67,7 +66,6 @@ def save_user_data(user_id, data):
         {"$set": data},
         upsert=True
     )
-
     print(f"User {user_id} data saved: {data}\n\n")
 
 def award_xp(user_id, xp):
@@ -149,8 +147,6 @@ async def on_message(message):
     # Store the last 10 messages (adjust as needed)
     chat_history[channel_id].append(f"{message.author.display_name}: {message.content}")
 
-    print(f"Chat History: {chat_history[channel_id]}")
-
     if len(chat_history[channel_id]) > 10:
         chat_history[channel_id].pop(0)  # Remove the oldest message
 
@@ -162,24 +158,8 @@ async def on_message(message):
         if role not in member.roles:
             await member.add_roles(role)
 
-            try:
-                for badge in badge_list:
-                    if badge in current_nick:
-                        print(f"Badge: {badge} is already in the nickname")
-                        current_nick = current_nick.replace(badge, "")
-                        print(f"replace badge: {badge} with empty string")
-                    
-                intermediate_badge = "🔥"
-                new_nick = current_nick + intermediate_badge
-                await member.edit(nick=new_nick)
-
-            except discord.Forbidden:
-                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
-            except discord.HTTPException as e:
-                print(f"Error updating nickname for {member.name}: {e}")
-
             #award XP to the user
-            xp_earned = random.randint(5, 10)
+            xp_earned = random.randint(5, 1000)
             award_xp(str(member.id), xp_earned)
 
             #send this message to the channel
@@ -191,23 +171,8 @@ async def on_message(message):
         if role not in member.roles:
             await member.add_roles(role)
 
-            try:
-                for badge in badge_list:
-                    if badge in current_nick:
-                        print(f"Badge: {badge} is already in the nickname")
-                        current_nick = current_nick.replace(badge, "")
-                    
-                novice_badge = "🌟"
-                new_nick = current_nick + novice_badge
-                await member.edit(nick=new_nick)
-
-            except discord.Forbidden:
-                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
-            except discord.HTTPException as e:
-                print(f"Error updating nickname for {member.name}: {e}")
-
             #award XP to the user
-            xp_earned = random.randint(5, 10)
+            xp_earned = random.randint(5, 1000)
             award_xp(str(member.id), xp_earned)
 
             #send this message to the channel
@@ -219,23 +184,8 @@ async def on_message(message):
         if role not in member.roles:
             await member.add_roles(role)
 
-            try:
-                for badge in badge_list:
-                    if badge in current_nick:
-                        print(f"Badge: {badge} is already in the nickname")
-                        current_nick = current_nick.replace(badge, "")
-                    
-                techie_badge = "👨‍💻"
-                new_nick = current_nick + techie_badge
-                await member.edit(nick=new_nick)
-                
-            except discord.Forbidden:
-                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
-            except discord.HTTPException as e:
-                print(f"Error updating nickname for {member.name}: {e}")
-
             #award XP to the user
-            xp_earned = random.randint(5, 10)
+            xp_earned = random.randint(5, 1000)
             award_xp(str(member.id), xp_earned)
 
             #send this message to the channel
@@ -248,24 +198,8 @@ async def on_message(message):
         if role not in member.roles:
             await member.add_roles(role)
 
-            try:
-                for badge in badge_list:
-                    if badge in current_nick:
-                        print(f"Badge: {badge} is already in the nickname")
-                        current_nick = current_nick.replace(badge, "")
-                    
-                geek_badge = "🤓"
-                new_nick = current_nick + geek_badge
-                await member.edit(nick=new_nick)
-
-                print(f"Updated nickname for {member.name} to '{new_nick}'")
-            except discord.Forbidden:
-                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
-            except discord.HTTPException as e:
-                print(f"Error updating nickname for {member.name}: {e}")
-
             #award XP to the user
-            xp_earned = random.randint(5, 10)
+            xp_earned = random.randint(5, 1000)
             award_xp(str(member.id), xp_earned)
 
             #send this message to the channel
@@ -277,24 +211,8 @@ async def on_message(message):
         if role not in member.roles:
             await member.add_roles(role)
 
-            try:
-                for badge in badge_list:
-                    if badge in current_nick:
-                        print(f"Badge: {badge} is already in the nickname")
-                        current_nick = current_nick.replace(badge, "")
-                    
-                hacker_badge = "👾"
-                new_nick = current_nick + hacker_badge
-                await member.edit(nick=new_nick)
-
-                print(f"Updated nickname for {member.name} to '{new_nick}'")
-            except discord.Forbidden:
-                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
-            except discord.HTTPException as e:
-                print(f"Error updating nickname for {member.name}: {e}")
-
             #award XP to the user
-            xp_earned = random.randint(5, 10)
+            xp_earned = random.randint(5, 1000)
             award_xp(str(member.id), xp_earned)
 
             #send this message to the channel
@@ -306,24 +224,9 @@ async def on_message(message):
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
-
-            try:
-                for badge in badge_list:
-                    if badge in current_nick:
-                        print(f"Badge: {badge} is already in the nickname")
-                        current_nick = current_nick.replace(badge, "")
-                    
-                guru_badge = "🧙"
-                new_nick = current_nick + guru_badge
-                await member.edit(nick=new_nick)
-
-            except discord.Forbidden:
-                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
-            except discord.HTTPException as e:
-                print(f"Error updating nickname for {member.name}: {e}")
             
             #award XP to the user
-            xp_earned = random.randint(5, 10)
+            xp_earned = random.randint(5, 1000)
             award_xp(str(member.id), xp_earned)
 
             #send this message to the channel
@@ -335,23 +238,8 @@ async def on_message(message):
         if role not in member.roles:
             await member.add_roles(role)
 
-            try:
-                for badge in badge_list:
-                    if badge in current_nick:
-                        print(f"Badge: {badge} is already in the nickname")
-                        current_nick = current_nick.replace(badge, "")
-                    
-                godlike_badge = "🔱"
-                new_nick = current_nick + godlike_badge
-                await member.edit(nick=new_nick)
-
-            except discord.Forbidden:
-                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
-            except discord.HTTPException as e:
-                print(f"Error updating nickname for {member.name}: {e}")
-
             #award XP to the user
-            xp_earned = random.randint(5, 10)
+            xp_earned = random.randint(5, 1000)
             award_xp(str(member.id), xp_earned)
 
             #send this message to the channel
@@ -362,24 +250,9 @@ async def on_message(message):
         #only assign role if the user doesn't have it
         if role not in member.roles:
             await member.add_roles(role)
-
-            try:
-                for badge in badge_list:
-                    if badge in current_nick:
-                        print(f"Badge: {badge} is already in the nickname")
-                        current_nick = current_nick.replace(badge, "")
-                    
-                wizard_badge = "🧙‍♂️"
-                new_nick = current_nick + wizard_badge
-                await member.edit(nick=new_nick)
-
-            except discord.Forbidden:
-                print(f"Failed to update nickname for {member.name} (insufficient permissions).")
-            except discord.HTTPException as e:
-                print(f"Error updating nickname for {member.name}: {e}")
             
             #award XP to the user
-            xp_earned = random.randint(5, 10)
+            xp_earned = random.randint(5, 1000)
             award_xp(str(member.id), xp_earned)
 
             #send this message to the channel
