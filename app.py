@@ -8,7 +8,7 @@ import dotenv  # type: ignore
 import os  # type: ignore
 import random
 from bad_words import check_for_bad_words, split_msg_into_array, offensive_words
-from db import user_collection, store_collection
+from db import user_collection, store_collection, chat_collection
 from datetime import datetime, timedelta
 from discord.ui import View, Button
 from math import ceil
@@ -67,6 +67,14 @@ def save_user_data(user_id, data):
         upsert=True
     )
     print(f"User {user_id} data saved: {data}\n\n")
+
+def save_chat_history(channel_id, chat_data):
+    chat_collection.update_one(
+        {"channel_id": channel_id},
+        {"$set": {"chat_data": chat_data}},
+        upsert=True
+    )
+    print(f"Chat history for channel {channel_id} saved: {chat_data}\n\n")
 
 def award_xp(user_id, xp):
     user_data = get_user_data(user_id)
@@ -134,7 +142,6 @@ async def on_message(message):
     member = message.author
     guild = message.guild
     user_data = get_user_data(str(member.id))
-    current_nick = member.display_name
 
     # implement the chat history feature
     channel_id = message.channel.id
@@ -142,14 +149,17 @@ async def on_message(message):
     print(f"Channel ID: {channel_id}")
 
     if channel_id not in chat_history:
-        chat_history[channel_id] = []
+        # chat_history[channel_id] = []
+        # save more information about the message
+        chat_history[channel_id] = [{"author_id":message.author.id, "author_name": message.author.display_name, "content": message.content, "timestamp": message.created_at}]
+        # save the chat history to the database
+        save_chat_history(channel_id, chat_history[channel_id])
 
     # Store the last 10 messages (adjust as needed)
     chat_history[channel_id].append(f"{message.author.display_name}: {message.content}")
 
     if len(chat_history[channel_id]) > 10:
         chat_history[channel_id].pop(0)  # Remove the oldest message
-
     # implement the chat history feature end
 
     if user_data["level"] in range(1, 3):

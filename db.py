@@ -25,6 +25,7 @@ user_collection = db["users"]
 channel_collection = db["channels"]
 message_collection = db["messages"]
 store_collection = db["store"]
+chat_collection = db["chats"]
 
 
 # Add new items
