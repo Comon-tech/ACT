@@ -1310,9 +1310,12 @@ async def reset_xp(interaction: discord.Interaction, member: discord.Member):
     user_data["xp"] = 0
     save_user_data(user_id, user_data)
     await interaction.response.send(f"✅ {member.mention}'s XP has been reset.")
+
+from typing import Callable
 class Paginator(View):
-    def __init__(self, pages: list, user: discord.User):
+    def __init__(self, pages: list, user: discord.User, page_content: Callable[[], discord.Embed]):
         super().__init__(timeout=120)  # Timeout after 2 minutes
+        self.page_content = page_content
         self.pages = pages
         self.current_page = 0
         self.user = user  # Restrict button usage to the original user
@@ -1330,15 +1333,13 @@ class Paginator(View):
                 elif child.label == "⏭️ Last":
                     child.disabled = self.current_page == len(self.pages) - 1
 
+    async def create_page(self, interaction: discord.Interaction):
+        self.update_buttons()
+        await interaction.followup.send(embed=(self.page_content()), view=self)
+
     async def send_page(self, interaction: discord.Interaction):
-        embed = discord.Embed(
-            title="🤖 TACT AI RESPONSE",
-            description=self.pages[self.current_page],
-            color=discord.Color.purple()
-        )
-        embed.set_footer(text=f"Page {self.current_page + 1}/{len(self.pages)}")
-        embed.set_thumbnail(url=interaction.client.user.display_avatar.url)
-        await interaction.response.edit_message(embed=embed, view=self)
+        self.update_buttons()
+        await interaction.response.edit_message(embed=(self.page_content()), view=self)
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user != self.user:
@@ -1351,48 +1352,52 @@ class Paginator(View):
     @discord.ui.button(label="⏮️ First", style=discord.ButtonStyle.primary)
     async def first_page(self, interaction: discord.Interaction, button: Button):
         self.current_page = 0
-        self.update_buttons()
         await self.send_page(interaction)
 
     @discord.ui.button(label="⬅️ Previous", style=discord.ButtonStyle.primary)
     async def previous_page(self, interaction: discord.Interaction, button: Button):
         self.current_page -= 1
-        self.update_buttons()
         await self.send_page(interaction)
 
     @discord.ui.button(label="➡️ Next", style=discord.ButtonStyle.primary)
     async def next_page(self, interaction: discord.Interaction, button: Button):
         self.current_page += 1
-        self.update_buttons()
         await self.send_page(interaction)
 
     @discord.ui.button(label="⏭️ Last", style=discord.ButtonStyle.primary)
     async def last_page(self, interaction: discord.Interaction, button: Button):
         self.current_page = len(self.pages) - 1
-        self.update_buttons()
         await self.send_page(interaction)
 
 @bot.tree.command(name="tact", description="Interact with the AI for questions or assistance!")
 async def tact(interaction: discord.Interaction, *, query: str):
     await interaction.response.defer(thinking=True)  # Show a typing indicator
     try:
+        # response = '''Lorem Ipsum is simply dummy text of the printing and typesetting industry. \n\nLorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.''' 
+        # response = 'very long text :D'
         response = generate_content(query)
 
         # Split response into pages if it's too long
         max_chars = 1024  # Discord embed character limit per field
         pages = [response[i:i + max_chars] for i in range(0, len(response), max_chars)]
 
-        # Send the first page with pagination view
-        paginator = Paginator(pages, interaction.user)
-        embed = discord.Embed(
-            title="🤖 TACT AI RESPONSE",
-            description=pages[0],
-            color=discord.Color.purple()
-        )
-        embed.set_footer(text=f"Page 1/{len(pages)} | Asked by {interaction.user.display_name}")
-        embed.set_thumbnail(url=bot.user.display_avatar.url)
+        # define page content
+        def page_content():
+            embed = discord.Embed(
+                color=discord.Color.purple()
+            )
+            embed.add_field(name=f'👤 {interaction.user.display_name}', value=f'{query}', inline=False)
+            embed.add_field(name='', value="\n\n", inline=False)
+            embed.add_field(name="🤖 TACT AI", value=pages[paginator.current_page], inline=False)
+            embed.set_footer(text=f"Page {paginator.current_page + 1}/{len(pages)}")
+            embed.set_thumbnail(url=interaction.user.display_avatar.url)
+            return embed
 
-        await interaction.followup.send(embed=embed, view=paginator)
+        # define paginator
+        paginator = Paginator(pages, interaction.user, page_content)
+
+         # send first page
+        await paginator.create_page(interaction)
     except Exception as e:
         await interaction.followup.send(
             content="⚠️ Something went wrong while processing your request. Please try again later.",

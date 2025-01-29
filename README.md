@@ -1,4 +1,3 @@
----
 # TACT (The Assistant of Common Tech) Discord Bot
 
 TACT is a feature-rich, open-source Discord bot designed to gamify and enhance server engagement by awarding XP, tracking levels, and enabling users to interact through fun commands. This bot is built with Python, Discord.py, and PostgreSQL, and is Dockerized for seamless deployment.
@@ -17,6 +16,7 @@ TACT is a feature-rich, open-source Discord bot designed to gamify and enhance s
 ### Quick Start
 
 1. **Clone the Repository**:
+
    ```bash
    git clone https://github.com/comon-tech/TACT.git
    cd TACT
@@ -24,13 +24,28 @@ TACT is a feature-rich, open-source Discord bot designed to gamify and enhance s
 
 2. **Set Up Environment Variables**:
    Rename `.env.example` to `.env` and replace with your own values:
+
    ```bash
    DISCORD_TOKEN=your-discord-token
    DATABASE_URL=postgresql://bot_user:bot_password@db:5432/bot_db
    ```
 
-3. **Run**:
-   ```py
+3. **Install Dependencies**:
+
+   ```bash
+   python install -r requirements.txt
+   ```
+
+   If you are using **Python 3.13** you'll probably get this error at runtime: `ModuleNotFoundError: No module named 'audioop'` ([Why?](https://github.com/Rapptz/discord.py/issues/9477))
+
+   To fix it install `audioop-lts`:
+
+   ```bash
+   pip install audioop-lts
+   ```
+
+4. **Run**:
+   ```bash
    python app.py
    ```
 
@@ -38,31 +53,30 @@ TACT is a feature-rich, open-source Discord bot designed to gamify and enhance s
 
 ### General Commands
 
-| Command             | Description                                                                                 | Usage                                  |
-|---------------------|---------------------------------------------------------------------------------------------|----------------------------------------|
-| `/level`            | Displays your current level and XP.                                                         | `/level`                               |
-| `/leaderboard`      | Shows the top users by level in the server.                                                 | `/leaderboard`                         |
-| `/server_stats`     | Displays the server's total users, total XP, and average level (admin-only).                | `/server_stats`                        |
-| `/give_xp`          | Grants XP to a user.                                                                        | `/give_xp <@user> <amount>`            |
-| `/reset_xp`         | Resets a user's XP and level (admin-only).                                                  | `/reset_xp <@user>`                    |
+| Command         | Description                                                                  | Usage                       |
+| --------------- | ---------------------------------------------------------------------------- | --------------------------- |
+| `/level`        | Displays your current level and XP.                                          | `/level`                    |
+| `/leaderboard`  | Shows the top users by level in the server.                                  | `/leaderboard`              |
+| `/server_stats` | Displays the server's total users, total XP, and average level (admin-only). | `/server_stats`             |
+| `/give_xp`      | Grants XP to a user.                                                         | `/give_xp <@user> <amount>` |
+| `/reset_xp`     | Resets a user's XP and level (admin-only).                                   | `/reset_xp <@user>`         |
 
 ### Fun Interaction Commands
 
-| Command             | Description                                                                                 | Usage                                  |
-|---------------------|---------------------------------------------------------------------------------------------|----------------------------------------|
-| `/steal <@user>`    | Attempt to steal XP from another user.                                                      | `/steal <@user>`                       |
-| `/shoot <@user>`    | Attempt to shoot another user (for fun).                                                    | `/shoot <@user>`                       |
-| `/inventory`        | Shows the items you currently own.                                                          | `/inventory`                           |
+| Command          | Description                              | Usage            |
+| ---------------- | ---------------------------------------- | ---------------- |
+| `/steal <@user>` | Attempt to steal XP from another user.   | `/steal <@user>` |
+| `/shoot <@user>` | Attempt to shoot another user (for fun). | `/shoot <@user>` |
+| `/inventory`     | Shows the items you currently own.       | `/inventory`     |
 
 ### Store Commands
 
-| Command             | Description                                                                                 | Usage                                  |
-|---------------------|---------------------------------------------------------------------------------------------|----------------------------------------|
-| `/store`            | Displays available items for purchase and their prices.                                     | `/store`                               |
-| `/buy <item>`       | Buy an item from the store if you have enough XP.                                           | `/buy <item>`                          |
+| Command       | Description                                             | Usage         |
+| ------------- | ------------------------------------------------------- | ------------- |
+| `/store`      | Displays available items for purchase and their prices. | `/store`      |
+| `/buy <item>` | Buy an item from the store if you have enough XP.       | `/buy <item>` |
 
 ## Data Persistence
-
 
 TACT uses (currently a json file but migrating soon) PostgreSQL to store XP, level, and inventory data for persistent tracking across sessions. Docker Compose configures and manages the PostgreSQL container.
 
