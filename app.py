@@ -40,6 +40,9 @@ last_daily_claim = {}
 # Track last hourly claim times in a database or dictionary
 last_hourly_claim = {}
 
+# --- Chat History Storage ---
+chat_history = {}  # Dictionary to store chat history for each channel
+
 async def random_xp_drop():
     while True:
         await asyncio.sleep(random.randint(3600, 7200))  # 1-2 hours
@@ -134,6 +137,24 @@ async def on_message(message):
     guild = message.guild
     user_data = get_user_data(str(member.id))
     current_nick = member.display_name
+
+    # implement the chat history feature
+    channel_id = message.channel.id
+
+    print(f"Channel ID: {channel_id}")
+
+    if channel_id not in chat_history:
+        chat_history[channel_id] = []
+
+    # Store the last 10 messages (adjust as needed)
+    chat_history[channel_id].append(f"{message.author.display_name}: {message.content}")
+
+    print(f"Chat History: {chat_history[channel_id]}")
+
+    if len(chat_history[channel_id]) > 10:
+        chat_history[channel_id].pop(0)  # Remove the oldest message
+
+    # implement the chat history feature end
 
     if user_data["level"] in range(1, 3):
         role = discord.utils.get(guild.roles, name="Intermediate")
@@ -1372,10 +1393,20 @@ class Paginator(View):
 @bot.tree.command(name="tact", description="Interact with the AI for questions or assistance!")
 async def tact(interaction: discord.Interaction, *, query: str):
     await interaction.response.defer(thinking=True)  # Show a typing indicator
+
+    # Get the chat history for the current channel
+    channel_id = interaction.channel.id
+    relevant_history = chat_history.get(channel_id, [])
+
+    # Construct the prompt with chat history
+    prompt = f"The following is a conversation from a Discord server:\n"
+    prompt += "\n".join(relevant_history) + "\n"  # Add the chat history
+    prompt += f"Based on this, answer the following question:\n{query}"
+
     try:
         # response = '''Lorem Ipsum is simply dummy text of the printing and typesetting industry. \n\nLorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.''' 
         # response = 'very long text :D'
-        response = generate_content(query)
+        response = generate_content(prompt)
 
         # Split response into pages if it's too long
         max_chars = 1024  # Discord embed character limit per field
