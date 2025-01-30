@@ -58,4 +58,20 @@ chat_collection = db["chats"]
 # print("Fun items added to the store!")
 
 
+def get_user_data(user_id):
+    user_data = user_collection.find_one({"user_id": user_id})
+    if not user_data:
+        user_data = {"user_id": user_id, "xp": 0, "level": 1, "inventory": [], "balance": 0}
+        user_collection.insert_one(user_data)
+    return user_data
+
+def save_user_data(user_id, data):
+    user_collection.update_one(
+        {"user_id": user_id},
+        {"$set": data},
+        upsert=True
+    )
+    print(f"User {user_id} data saved: {data}\n\n")
+
+
 
