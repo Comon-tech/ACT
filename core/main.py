@@ -63,5 +63,5 @@ if __name__ == "__main__":
     asyncio.run(load_cogs())
 
     # run bot
-    # bot.run(os.getenv('DISCORD_TOKEN'))
+    bot.run(os.getenv('DISCORD_TOKEN'))
     
