@@ -171,13 +171,17 @@ class OnMessage(commands.Cog):
         user_id = str(message.author.id)
         user_data = get_user_data(user_id)
 
-        xp_needed = self.get_xp_needed(user_data["level"])
+        # xp_needed = self.get_xp_needed(user_data["level"])
         # Award random XP between 5 and 10
         xp_earned = random.randint(5, 100)
         print(f"User {message.author.name} earned {xp_earned} XP!\n\n")
         self.award_xp(user_id, xp_earned)
 
         await self.bot.process_commands(message)  # Ensure other commands can still run
+    def get_xp_needed(self, level):
+        # XP needed for next level should be more than the previous level and have a gap of 1000
+        # return 5 * (level ** 2) + 50 * level + 100
+        return 1000 + (level - 1) ** 2 * 1000
 
     def save_chat_history(self, channel_id, chat_data):
         chat_collection.update_one(

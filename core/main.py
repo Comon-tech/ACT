@@ -45,20 +45,22 @@ if __name__ == "__main__":
     
     async def load_cogs():
         base_path = os.path.join(os.path.dirname(__file__), "commands")
-        for root, _, files in os.walk(base_path):
-            for file in files:
-                if file.endswith(".py") and not file.startswith("__"):
-                    relative_path = os.path.relpath(os.path.join(root, file), os.path.dirname(__file__))
-                    module_path = relative_path.replace(os.sep, ".")[:-3]
-                    try:
-                        module = importlib.import_module(module_path)
-                        for name, obj in inspect.getmembers(module, inspect.isclass):
-                            if issubclass(obj, commands.Cog) and obj.__module__ == module.__name__:
-                                await bot.add_cog(obj(bot))
-                                print(f"✅ Loaded {name} cog from {module_path}")
-                                break
-                    except Exception as e:
-                        print(f"⛔ Failed to load cog {module_path}: {e}\n")
+        events_path = os.path.join(os.path.dirname(__file__), "events")
+        for path in [base_path, events_path]:
+            for root, _, files in os.walk(path):
+                for file in files:
+                    if file.endswith(".py") and not file.startswith("__"):
+                        relative_path = os.path.relpath(os.path.join(root, file), os.path.dirname(__file__))
+                        module_path = relative_path.replace(os.sep, ".")[:-3]
+                        try:
+                            module = importlib.import_module(module_path)
+                            for name, obj in inspect.getmembers(module, inspect.isclass):
+                                if issubclass(obj, commands.Cog) and obj.__module__ == module.__name__:
+                                    await bot.add_cog(obj(bot))
+                                    print(f"✅ Loaded {name} cog from {module_path}")
+                                    break
+                        except Exception as e:
+                            print(f"⛔ Failed to load cog {module_path}: {e}\n")
     
     asyncio.run(load_cogs())
 
