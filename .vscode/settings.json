@@ -1,0 +1,14 @@
+{
+  "jupyter.notebookFileRoot": "${workspaceFolder}",
+  "files.exclude": {
+    "**/*cache*": false,
+    ".vscode": false,
+    ".venv": false,
+    ".mongodb": false,
+    ".python-version": false,
+    "uv.lock": false,
+    ".gitignore": false,
+    "LICENSE": false,
+    "README.*": false
+  }
+}
