@@ -17,30 +17,37 @@ log = logger(__name__)
 class DbModel(BaseModel):
     """Model that supports working with a database."""
 
-    id: int | str = Field(serialization_alias="_id")
+    id: int | str = Field(alias="_id")
     _database: Database = PrivateAttr()
 
     def __init__(self, database: Database, **kwargs):
-        super().__init__(**kwargs)
-        self._database = database
+        try:
+            super().__init__(**kwargs)
+            self._database = database
+        except ValidationError as e:
+            log.exception(e)
 
     @classmethod
     def __init_subclass__(cls, collection_name: str, **kwargs):
         cls.collection_name = collection_name
         return super().__init_subclass__(**kwargs)
 
+    # @property
+    # def database(self):
+    #     return self._database
+
     @classmethod
     def get_collection(cls, database: Database) -> Collection:
         """Retrieve associated native collection from given database."""
         return database.get_collection(cls.collection_name)
 
-    @classmethod
-    def create(cls, database: Database, document: dict) -> Self | None:
-        """Create model instance for given database using given document. Return None if error."""
-        try:
-            return cls(database, **document)
-        except ValidationError as e:
-            log.exception(e)
+    # @classmethod
+    # def instantiate(cls, database: Database, document: dict) -> Self | None:
+    #     """Create new model instance for given database using given document. Return None if error."""
+    #     try:
+    #         return cls(database, **document)
+    #     except ValidationError as e:
+    #         log.exception(e)
 
     @classmethod
     def load(cls, database: Database, id: int | str) -> Self | None:

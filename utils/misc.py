@@ -2,6 +2,7 @@ import inspect
 import os
 import re
 import sys
+import unicodedata
 from importlib import import_module
 
 
@@ -61,16 +62,21 @@ def import_classes(folder_name: str, class_type: type = None) -> list[type]:
 # * Text Block
 # ----------------------------------------------------------------------------------------------------
 def text_block(text="") -> str:
-    """Render given text as text block with border. This handles spaces, tabs, and ANSI escape codes."""
+    """Render given text as text block with border. This handle spaces, tabs, ANSI escape codes, and UTF-8 characters."""
     ansi_escape = re.compile(r"\x1b\[[0-9;]*[mG]")
     lines = text.splitlines()
     expanded_lines = [line.expandtabs() for line in lines]
     clean_lines = [ansi_escape.sub("", line) for line in expanded_lines]
-    max_len = max(len(line) for line in clean_lines) if clean_lines else 0
+    visual_lengths = [
+        sum(1 + (unicodedata.east_asian_width(char) == "W") for char in line)
+        for line in clean_lines
+    ]
+    max_len = max(visual_lengths) if visual_lengths else 0
     top_bottom_border = "┌" + "─" * (max_len + 2) + "┐"
     middle_lines = []
-    for line in expanded_lines:
-        padded_line = line + " " * (max_len - len(ansi_escape.sub("", line)))
+    for i, line in enumerate(expanded_lines):
+        padding_needed = max_len - visual_lengths[i]
+        padded_line = line + " " * padding_needed
         middle_lines.append(f"│ {padded_line} │")
     if not lines:
         middle_lines = ["│" + " " * (max_len + 2) + "│"]
