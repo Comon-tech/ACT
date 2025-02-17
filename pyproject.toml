@@ -1,7 +1,7 @@
 [project]
 name = "ACT"
 version = "0.0.1"
-description = "Assistant of Common Tech"
+description = "Assistant of Comon Tech"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -35,4 +35,5 @@ app-prod = { cmd = "python main.py", help = "run app for production" }
 #----------------------------------------------------------------------------------------------------
 [tool.act.components]
 bot = true
-api = true
+api = false
+db = true

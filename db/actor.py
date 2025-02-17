@@ -84,10 +84,10 @@ class Actor(DbModel, collection_name="actors"):
 
     # ----------------------------------------------------------------------------------------------------
 
-    def level_bar_str(self) -> str:
+    def level_bar(self) -> str:
         return text_progress_bar(self.level, self.MAX_LEVEL, 5, "⭐", "☆")
 
-    def xp_bar_str(self) -> str:
+    def xp_bar(self) -> str:
         return text_progress_bar(self.xp, self.next_level_xp, 10, "■", "□")
 
     # ----------------------------------------------------------------------------------------------------

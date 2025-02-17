@@ -51,13 +51,17 @@ async def main():
         )
 
         # Get components to enable
-        bot, api = get_components(TOOL_ACT_COMPONENTS)
+        db, bot, api = get_components(TOOL_ACT_COMPONENTS)
 
         # Prepare list of components to run
         coroutines = []
 
         # Create & add database
-        db_client = ActDbClient(host=db_uri, name=name)
+        if db:
+            db = ActDbClient(host=db_uri, name=name)
+        else:
+            db = None
+            log.warning("Database component is turned off.")
 
         # Create & add bot component
         if bot:
@@ -65,14 +69,18 @@ async def main():
             intents.message_content = True
             bot = ActBot(
                 token=bot_token,
-                db_client=db_client,
-                title=name,
-                version=version,
-                api_keys={"gemini": ai_api_key},
                 command_prefix="!",
                 intents=intents,
+                db_client=db,
+                api_keys={"gemini": ai_api_key},
+                title=name,
+                version=version,
+                description=description,
             )
-            coroutines.append(bot.enter())
+            coroutines.append(bot.open())
+        else:
+            bot = None
+            log.warning("Bot component is turned off.")
 
         # Create & add api component
         if api:
@@ -83,7 +91,10 @@ async def main():
                 version=version,
                 description=description,
             )
-            coroutines.append(api.enter())
+            coroutines.append(api.open())
+        else:
+            api = None
+            log.warning("API component is turned off.")
 
         # Run all components asynchronously
         await asyncio.gather(*coroutines)
@@ -93,14 +104,15 @@ async def main():
             log.info("Keyboard interrupt received.")
         elif not isinstance(e, asyncio.CancelledError):
             log.exception(e)
+        if db:
+            db.close()
         if bot:
-            await bot.exit()
+            await bot.close()
         if api:
-            await api.exit()
-        db_client.close()
+            await api.close()
 
     finally:
-        print("❤  Bye!\n")
+        print("\n❤  Bye!\n")
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -108,9 +120,17 @@ async def main():
 # ----------------------------------------------------------------------------------------------------
 def get_components(config: dict[str, bool]):
     parser = ArgumentParser(description="run app components")
-    parser.add_argument("-b", "--bot", action="store_true", help="run bot component")
-    parser.add_argument("-a", "--api", action="store_true", help="run api component")
+    parser.add_argument(
+        "-d", "--db", action="store_true", help="enable db client component"
+    )
+    parser.add_argument(
+        "-b", "--bot", action="store_true", help="enable bot client component"
+    )
+    parser.add_argument(
+        "-a", "--api", action="store_true", help="enable api server component"
+    )
     args = parser.parse_args()
+    db = args.db if args.db else config.get("db", False)
     bot = args.bot if args.bot else config.get("bot", False)
     api = args.api if args.api else config.get("api", False)
     if not (bot or api):
@@ -118,7 +138,7 @@ def get_components(config: dict[str, bool]):
             f"No app component specified in command options or project settings.\n\n{parser.format_help()}"
         )
         raise SystemExit(1)
-    return (bot, api)
+    return (db, bot, api)
 
 
 # ----------------------------------------------------------------------------------------------------

@@ -68,11 +68,11 @@ class ActApi(FastAPI):
 
     # ----------------------------------------------------------------------------------------------------
 
-    async def enter(self):
-        log.loading(f"{self.title} api running...")
+    async def open(self):
+        log.loading(f"API server opening...")
         await self.server.serve()
 
-    async def exit(self):
-        log.loading(f"{self.title} api exiting...")
+    async def close(self):
+        log.loading(f"API server closing...")
         await self.server.shutdown()
-        log.success(f"{self.title} api exited.")
+        log.success(f"API server closed.")
