@@ -26,4 +26,6 @@ class EmbedX:
 
     @staticmethod
     def error(title: str = "", description: str = "") -> Embed:
-        return Embed(title=f":x: {title}", description=description, color=Color.red())
+        return Embed(
+            title=f":no_entry: {title}", description=description, color=Color.red()
+        )

@@ -1,4 +1,5 @@
 import logging
+import pathlib
 from collections import defaultdict
 
 from discord import Color, Embed, Message
@@ -6,17 +7,15 @@ from discord.ext.commands import Bot, Cog
 
 from utils.log import logger
 
-# from core.user import DbUser
-
 log = logger(__name__)
 
 
 # ----------------------------------------------------------------------------------------------------
 # * Filter Cog
 # ----------------------------------------------------------------------------------------------------
-# 💡 TODO: Try profanity-filter package: https://pypi.org/project/profanity-filter
+# 💡 TODO: Try: https://github.com/vzhou842/profanity-check (using linear SVM model)
 class Filter(Cog, description="Filters blacklisted message content."):
-    BLACKLIST_PATH = "./bot/filter.txt"
+    BLACKLIST_PATH = pathlib.Path(__file__).parent / "filter_cog.txt"
     MAX_OFFENSES = 5
     GOLD_PENALTY = 500
 
@@ -25,9 +24,7 @@ class Filter(Cog, description="Filters blacklisted message content."):
         self.offenses = defaultdict(int)  # { "user_id": offense_count }
         with open(Filter.BLACKLIST_PATH, "r") as file:
             self.blacklist_words = file.read().split("\n")
-            log.info(
-                f"{self.__cog_name__} cog: {len(self.blacklist_words)} blacklisted words."
-            )
+            log.info(f"{len(self.blacklist_words)} blacklisted words.")
 
     @Cog.listener()
     async def on_message(self, message: Message):

@@ -13,7 +13,7 @@ from utils.misc import text_block
 log = logger(__name__)
 
 
-class DbRef(DbModel, collection_name="dbs"):
+class DbRef(DbModel, collection_name="db_refs"):
     name: str
 
 
@@ -23,8 +23,10 @@ class DbRef(DbModel, collection_name="dbs"):
 class ActDbClient(MongoClient):
 
     def __init__(self, *args, name: str = "", **kwargs):
+        log.loading(f"Database client opening...")
         super().__init__(*args, **kwargs)
         self.name = name or ActDbClient.__name__
+        self.title = self.name
         self.databases: dict[str, Database] = {}
         self.main_database = self.get_database(self.name)
         log.success(
@@ -45,12 +47,13 @@ class ActDbClient(MongoClient):
 
     def get_database_by_id(self, id: int, name: str = None) -> Database | None:
         """Retrieve database by id. if nonexistent, create using given name, if no name given return None."""
-        if id not in self.databases and name:
-            db_name = self._generate_database_name(name, id)
-            db_ref_raw = {"_id": id, "name": db_name}
-            db_ref = DbRef.create(self.main_database, db_ref_raw)
-            db_ref.save()
-            self.databases[id] = self.get_database(db_name)
+        if id not in self.databases:
+            db_ref = DbRef.load(self.main_database, id)
+            if not db_ref and name:
+                db_name = self._generate_database_name(name, id)
+                db_ref = DbRef(self.main_database, {"id": id, "name": db_name})
+                db_ref.save()
+            self.databases[id] = self.get_database(db_ref.name)
         return self.databases.get(id)
 
     def _generate_database_name(self, name: str, id: int) -> str:
@@ -60,3 +63,8 @@ class ActDbClient(MongoClient):
             id_hash = hashlib.sha256(str(id).encode()).hexdigest()[:8]
             name = f"{name}_{id_hash}"
         return f"{self.name}_{name}"
+
+    def close(self):
+        log.loading(f"Database client closing...")
+        super().close()
+        log.success(f"Database client closed.")
