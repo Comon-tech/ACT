@@ -1,11 +1,9 @@
-from discord import Embed, Interaction, Message, app_commands
+from discord import Interaction, Message, app_commands
 from discord.ext import commands
 from discord.ext.commands import Cog
 
 from bot.main import ActBot
 from bot.ui import EmbedX
-from db.actor import Actor
-from db.main import ActDbClient, DbRef
 
 
 # ----------------------------------------------------------------------------------------------------

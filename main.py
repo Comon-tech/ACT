@@ -9,7 +9,7 @@ from discord import Intents
 
 from api.main import ActApi
 from bot.main import ActBot
-from db.main import ActDbClient
+from db.main import ActDb
 from utils.log import logger
 
 log = logger(__name__)
@@ -58,7 +58,7 @@ async def main():
 
         # Create & add database
         if db:
-            db = ActDbClient(host=db_uri, name=name)
+            db = ActDb(host=db_uri, name=name)
         else:
             db = None
             log.warning("Database component is turned off.")
@@ -71,7 +71,7 @@ async def main():
                 token=bot_token,
                 command_prefix="!",
                 intents=intents,
-                db_client=db,
+                db_api=db,
                 api_keys={"gemini": ai_api_key},
                 title=name,
                 version=version,
