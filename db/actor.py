@@ -1,16 +1,24 @@
-from typing import ClassVar
+from datetime import datetime
+from typing import ClassVar, Optional
 
-from pydantic import NonNegativeInt, PositiveInt
+from odmantic import Field, Model
+from pydantic import NonNegativeInt
 
-from utils.misc import clamp, text_progress_bar
-
-from .model import DbModel
+from utils.misc import text_progress_bar
 
 
 # ----------------------------------------------------------------------------------------------------
 # * Actor
 # ----------------------------------------------------------------------------------------------------
-class Actor(DbModel, collection_name="actors"):
+class Actor(Model):
+    model_config = {"collection": "actors"}
+
+    id: int = Field(primary_field=True)
+    name: str = ""
+    display_name: str = ""
+
+    ai_interacted_at: Optional[datetime] = None  # Last time actor interacted with AI
+
     xp: NonNegativeInt = 0
     level: NonNegativeInt = 0
     rank: NonNegativeInt = 0

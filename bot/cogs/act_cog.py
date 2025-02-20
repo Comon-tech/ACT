@@ -7,7 +7,7 @@ from pymongo.database import Database
 
 from bot.main import ActBot
 from bot.ui import EmbedX
-from db.main import ActDbClient
+from db.main import ActDb
 from utils.log import logger
 from utils.misc import import_classes, text_block
 

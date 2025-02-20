@@ -12,10 +12,11 @@ from discord.ext.commands import (
     MissingPermissions,
     MissingRequiredArgument,
 )
+from odmantic import SyncEngine
 from pymongo.database import Database
 
 from bot.ui import EmbedX
-from db.main import ActDbClient
+from db.main import ActDb
 from utils.log import logger
 from utils.misc import import_classes, text_block
 
@@ -30,7 +31,7 @@ class ActBot(Bot):
         self,
         *args,
         token="",
-        db_client: ActDbClient = None,
+        db_api: ActDb = None,
         api_keys: dict[str, str] = {},
         title="",
         version="",
@@ -39,7 +40,7 @@ class ActBot(Bot):
     ):
         super().__init__(*args, **kwargs)
         self.token = token
-        self.db_client = db_client
+        self.db_api = db_api
         self.api_keys = api_keys
         self.title = title
         self.version = version
@@ -177,9 +178,9 @@ class ActBot(Bot):
 
     # ----------------------------------------------------------------------------------------------------
 
-    def get_database(self, guild: Guild) -> Database:
-        """Retrieve database by guild. Create if nonexistent."""
-        return self.db_client.get_database_by_id(guild.id, guild.name)
+    def db_engine(self, guild: Guild) -> SyncEngine:
+        """Retrieve database engine instance by guild. Create if nonexistent."""
+        return self.db_api.get_engine(guild.id, guild.name)
 
     async def open(self):
         log.loading(f"Bot client opening...")

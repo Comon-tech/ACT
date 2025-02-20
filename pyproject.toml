@@ -10,8 +10,8 @@ dependencies = [
     "fastapi[standard]>=0.115.8",
     "google-generativeai>=0.8.4",
     "humanize>=4.11.0",
+    "odmantic>=1.0.2",
     "pydantic>=2.10.6",
-    "pymongo==3.11.0",
     "python-dotenv>=1.0.1",
 ]
 #----------------------------------------------------------------------------------------------------

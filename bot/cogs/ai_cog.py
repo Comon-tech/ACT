@@ -1,21 +1,23 @@
 import asyncio
 import csv
-import os
 import pathlib
 import re
 import tomllib
-from io import StringIO
+from datetime import UTC, datetime
+from io import BytesIO, StringIO
 from types import SimpleNamespace
 
 import google.generativeai as genai
 import requests
-from discord import Attachment, Guild, Member, Message, TextChannel
+from discord import Attachment, File, Guild, HTTPException, Member, Message
 from discord.ext.commands import Cog
-from google.ai import generativelanguage_v1beta as glm
 from google.api_core.exceptions import ResourceExhausted
 
 from bot.main import ActBot
+from db.actor import Actor
+from utils.ai import AiChat, AiPersona
 from utils.log import logger
+from utils.misc import text_csv
 
 log = logger(__name__)
 
@@ -29,17 +31,12 @@ class AI(Cog, description="Integrated generative AI chat bot."):
     def __init__(self, bot: ActBot):
         self.bot = bot
         with open(self.CONFIG_PATH, "rb") as file:
-            self.config = tomllib.load(file)
-            self.persona = self.create_persona("activa")
-            log.info(
-                f"{self.persona.name.title()} persona with {len(self.persona.desc)} characters description used."
-            )
-        genai.configure(api_key=bot.api_keys.get("gemini"))
-        self.model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash", system_instruction=self.persona.desc
+            config = tomllib.load(file)
+        persona = AiPersona(**config.get("personas").get("activa"))
+        self.ai_chat = AiChat(api_key=bot.api_keys.get("gemini"), persona=persona)
+        log.info(
+            f"AI persona with {len(persona.instructions_text)} characters instructions used."
         )
-        self.chat_sessions = {}
-        self.cooldowns = {}
 
     @Cog.listener()
     async def on_message(self, message: Message):
@@ -47,218 +44,154 @@ class AI(Cog, description="Integrated generative AI chat bot."):
         if self.bot.user == message.author or self.bot.user not in message.mentions:
             return
 
-        # Create default reply
-        reply = "What? 😕"
+        # Prepare prompts
+        text_prompt = f"{message.author.name}: {message.content.replace(self.bot.user.mention, "").strip()}"
+        image_prompt: bytes = bytes(0)
 
-        # Create text prompt
-        prompt = message.content.replace(self.bot.user.mention, "").strip()
+        # Load all members who interacted before
+        actors = self.load_actors(message.guild)
+        text_prompt += f"\n{text_csv(actors, "|")}"
 
-        # Create image prompt
-        file: Attachment = None
-        image_url: str = None
+        # Add attachment
         if message.attachments:
-            file = message.attachments[0]
-            file_type = file.content_type
-            if file_type.startswith("text/"):
-                reply = "Is this a 📄text file? 🤔"
-            if file_type.startswith("image/"):
-                image_url = file.url
-                # reply = "Is this an 🖼image file? 🤔"
-            elif file_type.startswith("audio/"):
-                reply = "Is this an 🔊audio file? 🤔"
-            elif file_type.startswith("video/"):
-                reply = "Is this a 🎬video file? 🤔"
-            else:
-                reply = f"What type of file is this? 😮\nAfter inspecting, it says `{file_type}`\nhmm...🤔"
+            attachment = message.attachments[0]
+            content_type, content = await self.process_attachment(attachment)
+            match content_type:
+                case "text":
+                    text_prompt += content
+                case "image":
+                    image_prompt = content
+                case "video":
+                    text_prompt += f"_sent video:{attachment.filename}_"
+                case _:
+                    text_prompt += f"_sent file:{attachment.filename}_"
 
-        # Create context
-        session_id = str(message.channel.id)
-
-        # Check context
-        if not session_id:
-            reply = None
-        if session_id in self.cooldowns:
-            reply = "I'm taking a quick break! 🌙 Too many questions at once 😲. Try again in a moment."
-
-        # Generate AI reply
-        if prompt or image_url:
-            # Load session
-            if session_id not in self.chat_sessions:
-                self.load_chat_session(message)
-
-            # go
-            try:
-                async with message.channel.typing():
-                    reply = await self.generate_content(
-                        prompt=f"{message.author.display_name}: {prompt}",
-                        image_url=image_url,
-                        session_id=session_id,
-                    )
-            except ResourceExhausted as e:
-                reply = "Oops! 😵‍💫 I'm out of energy for now. Give me a moment! 🙏"
-                log.exception(e)
-                # Set cooldown to prevent spamming API when quota is exceeded
-                # asyncio.create_task(self.sleep_in_channel(session_id))
-            except Exception as e:
-                reply = "Sorry! 😵‍💫 There's something wrong with me right now 😭. Give me a moment plz! 🙏"
-                log.exception(e)
-
-        # Check one last time
-        if not reply:
-            reply = "...⁉"
-
-        # Process mentions
-        # mentions = re.findall(r"@(\w+)", reply)
-        # for username in mentions:
-        #     user_id = await message.guild.fetch_member()
-        #     if user_id:
-        #         text = text.replace(f"@{username}", f"<@!{user_id}>") # replace username mention with user id mention
-        #     else:
-        #         log.warning(f"User '{username}' not found in guild '{guild.name}'.")
+        # Prompt AI
+        log.info(f"[Prompt] {text_prompt} <image:{len(image_prompt)}bytes>")
+        try:
+            chat = self.ai_chat
+            chat.use_session(message.guild.id, history=[])
+            reply = await chat.prompt(text=text_prompt, image=image_prompt)
+        except ResourceExhausted as e:
+            reply = "Oops! 😵‍💫 I'm out of energy for now. Give me a moment! 🙏"
+            log.exception(e)
+            # Set cooldown to prevent spamming API when quota is exceeded
+            # asyncio.create_task(self.sleep_in_channel(session_id))
+        except Exception as e:
+            reply = "Sorry! 😵‍💫 There's something wrong with me right now 😭. Give me a moment plz! 🙏"
+            log.exception(e)
 
         # Send reply
-        await message.reply(reply)
+        fallback_reply = "What? 😕"
+        await message.reply(reply or fallback_reply)
 
-        # Save chat session
-        self.save_chat_session(message)
-        self.save_member(message.author)
+        # Save current member who interacted to be remembered next time
+        self.save_actor(message.guild, message.author)
 
     # ----------------------------------------------------------------------------------------------------
 
-    async def generate_content(self, prompt: str, image_url="", session_id=""):
-        """Generate AI response while maintaining conversation history for each channel."""
-        # Continue conversation in the existing chat session
-        response = self.chat_sessions[session_id].send_message(
-            {
-                "role": "user",
-                "parts": [
-                    prompt,
-                    (
-                        {
-                            "mime_type": "image/png",
-                            "data": requests.get(image_url).content,
-                        }
-                        if image_url
-                        else ""
-                    ),
-                ],
-            }
+    @staticmethod
+    async def process_attachment(attachment: Attachment) -> tuple[str, str | bytes]:
+        file_type = attachment.content_type.strip()
+        content_type = file_type.split("/")[0]
+        if content_type == "text":
+            content = (await attachment.read()).decode("utf-8")
+        elif content_type in ("image", "audio", "video"):
+            content = await attachment.read()
+        else:
+            content = file_type
+        return (content_type, content)
+
+    def load_actors(self, guild: Guild):
+        db = self.bot.db_engine(guild)
+        actors = db.find(
+            Actor,
+            sort=Actor.ai_interacted_at,  # Sort by interaction time (most recent first)
+            limit=5,
         )
+        return [
+            actor.model_dump(include={"id": True, "name": True, "display_name": True})
+            for actor in actors
+        ]
 
-        return response.text if response else None
-
-    # @staticmethod
-    # async def get_recent_messages(channel: TextChannel, limit=3) -> str:
-    #     """Fetch recent messages from a text channel."""
-    #     messages = [msg async for msg in channel.history(limit=limit)]
-    #     return "\n".join(
-    #         [
-    #             f"User {msg.author.display_name} (name:{msg.author.name},id:{msg.author.id}) said: {msg.content}"
-    #             for msg in reversed(messages)
-    #         ]
-    #     )
-
-    def save_member(self, member: Member):
-        ai_chat_users = self.bot.get_database(member.guild)["ai_chat_users"]
-        return ai_chat_users.update_one(
-            {"_id": member.id},
-            {
-                "$set": {
-                    "_id": member.id,
-                    "name": member.name,
-                    "display_name": member.display_name,
-                }
-            },
-            upsert=True,
-        )
-
-    def load_members_csv(self, guild: Guild):
-        ai_chat_users = self.bot.get_database(guild)["ai_chat_users"]
-        members = ai_chat_users.find()
-        output = StringIO()
-        writer = csv.DictWriter(output, fieldnames=["_id", "name", "display_name"])
-        writer.writeheader()
-        for member in members:
-            writer.writerow(member)
-        return output.getvalue()
-
-    # @staticmethod
-    # async def get_recent_channel_users_csv(channel: TextChannel, limit=10) -> str:
-    #     """Fetch recent unique message authors from a text channel in CSV format."""
-    #     users = set()
-    #     async for msg in channel.history(limit=limit):
-    #         user_info = {  # Store in a dictionary for CSV writer
-    #             "id": msg.author.id,
-    #             "name": msg.author.name,
-    #             "display_name": msg.author.display_name,
-    #         }
-    #         users.add(tuple(user_info.values()))  # Stringify the user object directly
-    #     # Create CSV string in memory:
-    #     output = StringIO()  # Use StringIO for in-memory file-like object
-    #     writer = csv.DictWriter(output, fieldnames=user_info.keys())  # Use DictWriter
-    #     writer.writeheader()  # Write the header row
-    #     for user_data in users:
-    #         writer.writerow(
-    #             dict(zip(user_info.keys(), user_data))
-    #         )  # Write each user as row
-    #     return output.getvalue()
-
-    def create_persona(self, name):
-        persona = SimpleNamespace(**self.config.get("personas", {}).get(name, {}))
-        persona.desc = " ".join(line.strip() for line in persona.desc.splitlines())
-        return persona
-
-    def load_chat_session(self, message: Message):
-        try:
-            guild_db = self.bot.get_database(message.guild)
-            sessions = guild_db.get_collection("ai_chat_sessions").find(
-                {}, {"history": {"$slice": -10}}
-            )  # slice few last records
-            for session in sessions:
-                id = session["_id"]
-                history = session["history"]
-                history.append(
-                    {
-                        "role": "user",
-                        "parts": [self.load_members_csv(message.guild)],
-                    }
-                )
-                self.chat_sessions[id] = self.model.start_chat(history=history)
-                log.info(
-                    f"[{message.guild.name}][{message.channel.name}] Loaded chat session."
-                )
-        except Exception as e:
-            log.exception(
-                f"[{message.guild.name}][{message.channel.name}] Error loading chat session: {e}"
+    def save_actor(self, guild: Guild, member: Member):
+        db = self.bot.db_engine(guild)
+        actor = db.find_one(Actor, Actor.id == member.id)
+        if not actor:
+            user = member
+            actor = Actor(
+                id=user.id,
+                name=user.name,
+                display_name=user.display_name,
+                ai_interacted_at=datetime.now(UTC),
             )
+        db.save(actor)
 
-    def save_chat_session(self, message: Message):
-        try:
-            session_id = str(message.channel.id)
-            guild_db = self.bot.get_database(message.guild)
-            guild_db.get_collection("ai_chat_sessions").replace_one(
-                {"_id": session_id},
-                {
-                    "_id": session_id,
-                    "history": [
-                        genai.protos.Content.to_dict(content)
-                        for content in self.chat_sessions[session_id].history
-                    ],
-                },
-                upsert=True,
-            )
-            log.info(
-                f"[{message.guild.name}][{message.channel.name}] Saved chat session."
-            )
-        except Exception as e:
-            log.exception(
-                f"[{message.guild.name}][{message.channel.name}] Error saving chat session: {e}"
-            )
+    # ----------------------------------------------------------------------------------------------------
 
-    async def sleep_in_channel(self, channel_id):
-        self.cooldowns[channel_id] = True
-        sleep_time = 60  # 1 minute
-        log.loading(f"Sleeping for {sleep_time} seconds in channel {channel_id}...")
-        await asyncio.sleep(60)
-        log.info(f"Awake from sleep in channel {channel_id}.")
-        self.cooldowns.pop(channel_id, None)
+    # def load_chat_session(self, guild: Guild):
+    #     try:
+    #         session_id = guild.id
+    #         if session_id not in self.chat_sessions:
+    #             db = self.bot.db_engine(guild)
+    #             sessions = db.get_collection("ai_chat_sessions").find(
+    #                 {}, {"history": {"$slice": -10}}
+    #             )  # slice few last records
+
+    #             sessions = db.find(ChatSessionModel)
+
+    #             for session in sessions:
+    #                 history.append(
+    #                     {
+    #                         "role": "user",
+    #                         "parts": [self.load_members_csv(message.guild)],
+    #                     }
+    #                 )
+    #                 self.chat_sessions[id] = self.model.start_chat(
+    #                     history=session.history
+    #                 )
+    #                 log.info(f"[{guild.name}] Loaded chat session.")
+    #         if session_id not in self.chat_sessions:
+    #             self.chat_sessions[session_id] = self.model.start_chat(
+    #                 history=[
+    #                     {
+    #                         "role": "user",
+    #                         "parts": [self.load_members_csv(message.guild)],
+    #                     }
+    #                 ]
+    #             )
+    #     except Exception as e:
+    #         log.exception(
+    #             f"[{message.guild.name}][{message.channel.name}] Error loading chat session: {e}"
+    #         )
+
+    # def save_chat_session(self, message: Message):
+    #     try:
+    #         session_id = message.channel.id
+    #         guild_db = self.bot.db_engine(message.guild)
+    #         guild_db.get_collection("ai_chat_sessions").replace_one(
+    #             {"_id": session_id},
+    #             {
+    #                 "_id": session_id,
+    #                 "history": [
+    #                     genai.protos.Content.to_dict(content)
+    #                     for content in self.chat_sessions[session_id].history
+    #                 ],
+    #             },
+    #             upsert=True,
+    #         )
+    #         log.info(
+    #             f"[{message.guild.name}][{message.channel.name}] Saved chat session."
+    #         )
+    #     except Exception as e:
+    #         log.exception(
+    #             f"[{message.guild.name}][{message.channel.name}] Error saving chat session: {e}"
+    #         )
+
+    # async def sleep_in_channel(self, channel_id):
+    #     self.cooldowns[channel_id] = True
+    #     sleep_time = 60  # 1 minute
+    #     log.loading(f"Sleeping for {sleep_time} seconds in channel {channel_id}...")
+    #     await asyncio.sleep(60)
+    #     log.info(f"Awake from sleep in channel {channel_id}.")
+    #     self.cooldowns.pop(channel_id, None)

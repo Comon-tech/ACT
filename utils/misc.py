@@ -3,7 +3,9 @@ import os
 import re
 import sys
 import unicodedata
+from csv import DictWriter
 from importlib import import_module
+from io import StringIO
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -110,3 +112,27 @@ def clamp(
 ) -> int | float:
     """Constrain given value within specified range."""
     return max(min_value, min(value, max_value))
+
+
+# ----------------------------------------------------------------------------------------------------
+# * Text CSV
+# ----------------------------------------------------------------------------------------------------
+def text_csv(data: dict | list[dict], replace_newline: str | None = None) -> str:
+    """Convert given dictionary or dictionaries list to CSV string."""
+    if not data:
+        return ""
+    if isinstance(data, dict):
+        data = [data]
+    if not isinstance(data, list):
+        raise TypeError("Invalid input: not a dict or list.")
+    if not all(isinstance(item, dict) for item in data):
+        raise TypeError("Invalid input: not all items are dict.")
+    fieldnames = data[0].keys()
+    if not all(item.keys() == fieldnames for item in data):
+        raise TypeError("Invalid input: dicts do not have same keys.")
+    with StringIO() as output:
+        writer = DictWriter(output, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(data)
+        text = output.getvalue()
+    return replace_newline.join(text.splitlines()) if replace_newline else text
