@@ -1,21 +1,34 @@
-import google.generativeai as genai
-import requests
-from google.generativeai.generative_models import ChatSession
-from pydantic import BaseModel, StringConstraints, field_validator
+from google.genai import Client
+from google.genai.chats import Chat
+from google.genai.types import Content, GenerateContentConfig, Part
+from pydantic import BaseModel, Field, StringConstraints, field_validator
 from typing_extensions import Annotated
 
 from utils.log import logger
-from utils.misc import text_csv
 
 log = logger(__name__)
 NonEmptyStr = Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)]
 
 
 # ----------------------------------------------------------------------------------------------------
-# * AI Persona
+# * Act AI
 # ----------------------------------------------------------------------------------------------------
-class AiPersona(BaseModel):
-    instructions: NonEmptyStr | list[NonEmptyStr] = None
+class ActAi(BaseModel):
+    """Multi-session AI chat bot interface."""
+
+    api_key: NonEmptyStr
+    instructions: NonEmptyStr | list[NonEmptyStr] | None = None
+    model_name: str = Field(alias="model", default="gemini-1.5-flash")
+
+    _client: Client | None = None
+    _chats: dict[int | str, Chat | None] = {}
+    _current_chat_id: int = 0
+
+    def model_post_init(self, __context):
+        self._client = Client(api_key=self.api_key)
+        return super().model_post_init(__context)
+
+    # ----------------------------------------------------------------------------------------------------
 
     @classmethod
     @field_validator("instructions")
@@ -24,67 +37,38 @@ class AiPersona(BaseModel):
             instructions.splitlines() if isinstance(instructions, str) else instructions
         )
 
-    @property
-    def instructions_text(self) -> str:
-        return ";".join(self.instructions)
-
-
-# ----------------------------------------------------------------------------------------------------
-# * AI Chat
-# ----------------------------------------------------------------------------------------------------
-class AiChat(BaseModel):
-    api_key: NonEmptyStr
-    persona: AiPersona
-    _model: genai.GenerativeModel
-    _sessions: dict[int | str, ChatSession | None] = {}
-    _current_session_id: int = 0
-
-    def model_post_init(self, __context):
-        genai.configure(api_key=self.api_key)
-        self._model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            system_instruction=self.persona.instructions_text,
-        )
-        return super().model_post_init(__context)
-
     # ----------------------------------------------------------------------------------------------------
 
-    async def prompt(self, text: str, image: bytes = None) -> str | None:
-        session = self.use_session(self._current_session_id)
-        content = self._create_content(text, image)
-        response = session.send_message(content)
+    def prompt(self, text: str, data: bytes | None = None, mime_type="") -> str | None:
+        chat = self.use_session(self._current_chat_id)
+        message = [Part(text=text)]
+        if data:
+            message.append(Part.from_bytes(data=data, mime_type=mime_type))
+        config = GenerateContentConfig(system_instruction=self.instructions)
+        response = chat.send_message(message, config)
         return response.text if response else None
 
     # ----------------------------------------------------------------------------------------------------
 
-    def use_session(self, id: int, history: list[dict | str] = []) -> ChatSession:
-        """Use session with given id. If nonexistent, create and initialize with given history."""
-        session = self._sessions.get(id)
-        if not session:
-            session = self._model.start_chat(history=history)
-            self._sessions[id] = session
-            self._current_session_id = id
-        return session
+    def use_session(self, id: int, history: list[Content] | None = None) -> Chat:
+        """Use chat session with given id. If nonexistent, create and initialize with given history."""
+        chat = self._chats.get(id)
+        if not chat:
+            if history:
+                history = [
+                    Content(**content) if not isinstance(content, Content) else content
+                    for content in history
+                ]  # Sanitize history to ensure correct dumping in dump_history()
+            chat = self._client.chats.create(model=self.model_name, history=history)  # type: ignore
+            self._chats[id] = chat
+            self._current_chat_id = id
+        return chat
 
-    def dump_session(self, id: int = None):
-        """Dump session with given id or current sesssion if no given id."""
-        id = id or self._current_session_id
-        session = self.use_session(id)
-        history = [
-            genai.protos.Content.to_dict(content)
-            for content in self._sessions[id].history
+    def dump_history(self, id: int | None = None, history_max_items=20) -> list[dict]:
+        """Dump chat session history of given id. If no id, dump current."""
+        id = id or self._current_chat_id
+        chat = self.use_session(id)
+        return [
+            content.model_dump(exclude_unset=True)
+            for content in chat._curated_history[-history_max_items:]
         ]
-        return {"id": id, "history": history}
-
-    # ----------------------------------------------------------------------------------------------------
-
-    @staticmethod
-    def _create_content(text: str, image: bytes = None, role="user") -> str:
-        parts = [text]
-        if image:
-            parts.append({"mime_type": "image/png", "data": image})
-        content = {
-            "role": role,
-            "parts": parts,
-        }
-        return content

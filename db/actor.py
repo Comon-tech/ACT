@@ -31,7 +31,7 @@ class Actor(Model):
 
     RANK_BASE_LEVEL: ClassVar[int] = 30
     RANK_EXPONENT: ClassVar[float] = 1
-    RANK_NAMES: ClassVar[str] = [
+    RANK_NAMES: ClassVar[list[str]] = [
         "Unranked",
         "Iron",
         "Bronze",

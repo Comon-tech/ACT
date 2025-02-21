@@ -11,7 +11,7 @@ from io import StringIO
 # ----------------------------------------------------------------------------------------------------
 # * Import Classes
 # ----------------------------------------------------------------------------------------------------
-def import_classes(folder_name: str, class_type: type = None) -> list[type]:
+def import_classes(folder_name: str, class_type: type | None = None) -> list[type]:
     """
     Import and return all classes defined inside modules in the given folder and its subfolders.
 

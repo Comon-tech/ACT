@@ -51,49 +51,49 @@ async def main():
         )
 
         # Get components to enable
-        db, bot, api = get_components(TOOL_ACT_COMPONENTS)
+        db_enabled, bot_enabled, api_enabled = get_components(TOOL_ACT_COMPONENTS)
 
         # Prepare list of components to run
         coroutines = []
 
-        # Create & add database
-        if db:
+        # Create & add database component
+        db = None
+        if db_enabled:
             db = ActDb(host=db_uri, name=name)
         else:
-            db = None
             log.warning("Database component is turned off.")
 
         # Create & add bot component
-        if bot:
+        bot = None
+        if bot_enabled:
             intents = Intents.default()
             intents.message_content = True
             bot = ActBot(
-                token=bot_token,
+                token=bot_token or "",
                 command_prefix="!",
                 intents=intents,
-                db_api=db,
-                api_keys={"gemini": ai_api_key},
+                db=db,
+                api_keys={"gemini": ai_api_key or ""},
                 title=name,
                 version=version,
                 description=description,
             )
             coroutines.append(bot.open())
         else:
-            bot = None
             log.warning("Bot component is turned off.")
 
         # Create & add api component
-        if api:
+        api = None
+        if api_enabled:
             api = ActApi(
                 bot=bot,
-                url=server_url,
+                url=server_url or "",
                 title=name,
                 version=version,
                 description=description,
             )
             coroutines.append(api.open())
         else:
-            api = None
             log.warning("API component is turned off.")
 
         # Run all components asynchronously
@@ -130,15 +130,15 @@ def get_components(config: dict[str, bool]):
         "-a", "--api", action="store_true", help="enable api server component"
     )
     args = parser.parse_args()
-    db = args.db if args.db else config.get("db", False)
-    bot = args.bot if args.bot else config.get("bot", False)
-    api = args.api if args.api else config.get("api", False)
-    if not (bot or api):
+    db_enabled = args.db if args.db else config.get("db", False)
+    bot_enabled = args.bot if args.bot else config.get("bot", False)
+    api_enabled = args.api if args.api else config.get("api", False)
+    if not (bot_enabled or api_enabled):
         log.warning(
             f"No app component specified in command options or project settings.\n\n{parser.format_help()}"
         )
         raise SystemExit(1)
-    return (db, bot, api)
+    return (db_enabled, bot_enabled, api_enabled)
 
 
 # ----------------------------------------------------------------------------------------------------
