@@ -1,19 +1,9 @@
 import pathlib
 
 from colorama import Fore
-from discord import Color, Embed, Guild, Interaction, Message, Status, app_commands
-from discord.ext.commands import (
-    Bot,
-    Cog,
-    CommandError,
-    CommandNotFound,
-    CommandOnCooldown,
-    Context,
-    MissingPermissions,
-    MissingRequiredArgument,
-)
+from discord import Guild, Interaction, Message, VoiceClient, app_commands
+from discord.ext.commands import Bot, Cog
 from odmantic import SyncEngine
-from pymongo.database import Database
 
 from bot.ui import EmbedX
 from db.main import ActDb
@@ -21,6 +11,7 @@ from utils.log import logger
 from utils.misc import import_classes, text_block
 
 log = logger(__name__)
+VoiceClient.warn_nacl = False  # Hide "PyNaCl" warning
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -31,7 +22,7 @@ class ActBot(Bot):
         self,
         *args,
         token="",
-        db_api: ActDb = None,
+        db: ActDb | None = None,
         api_keys: dict[str, str] = {},
         title="",
         version="",
@@ -39,8 +30,8 @@ class ActBot(Bot):
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
-        self.token = token
-        self.db_api = db_api
+        self._token = token
+        self._db = db
         self.api_keys = api_keys
         self.title = title
         self.version = version
@@ -178,13 +169,20 @@ class ActBot(Bot):
 
     # ----------------------------------------------------------------------------------------------------
 
-    def db_engine(self, guild: Guild) -> SyncEngine:
-        """Retrieve database engine instance by guild. Create if nonexistent."""
-        return self.db_api.get_engine(guild.id, guild.name)
+    def db_engine(self, guild: Guild | None = None) -> SyncEngine | None:
+        """Get engine with database of given guild. If no guild, get engine with main database.
+        If nonexistent, create database with given name, if no name, return None."""
+        if self._db:
+            return (
+                self._db.get_engine(guild.id, guild.name)
+                if guild
+                else self._db.get_engine()
+            )
+        log.error("No database access. Missing database engine instance.")
 
     async def open(self):
         log.loading(f"Bot client opening...")
-        await self.start(token=self.token)
+        await self.start(token=self._token)
 
     async def close(self):
         log.loading(f"Bot client closing...")

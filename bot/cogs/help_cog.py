@@ -1,6 +1,5 @@
-from colorama import Fore, Style
-from discord import Color, Embed, Interaction, Status, app_commands
-from discord.ext.commands import Bot, Cog
+from discord import Color, Embed, Interaction, app_commands
+from discord.ext.commands import Cog
 
 from bot.main import ActBot
 
@@ -20,8 +19,13 @@ class Help(Cog, description="Provides help and informations."):
         for cmd in all_cmds:
             embed.add_field(
                 name=f"/{cmd.name}",
-                value=cmd.description,
+                value=(
+                    cmd.description
+                    if not isinstance(cmd, app_commands.commands.ContextMenu)
+                    else ""
+                ),
                 inline=False,
             )
-        embed.set_thumbnail(url=self.bot.user.display_avatar)
+        if self.bot.user:
+            embed.set_thumbnail(url=self.bot.user.display_avatar)
         await interaction.response.send_message(embed=embed)

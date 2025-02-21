@@ -28,5 +28,5 @@ def add_routes(app: FastAPI, bot: Bot):
                 # "id": user.id,
                 "name": user.name,
                 "display_name": user.display_name,
-                "avatar": user.avatar.url,
+                "avatar": user.avatar.url if user.avatar else "",
             }

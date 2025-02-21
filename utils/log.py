@@ -1,31 +1,35 @@
 import logging
+import logging.config
+from typing import cast
 
 from colorama import Fore, init
 from uvicorn.logging import AccessFormatter, DefaultFormatter
 
 init(autoreset=True)
 
+
 # ----------------------------------------------------------------------------------------------------
-# * Logger
+# * Act Logger
 # ----------------------------------------------------------------------------------------------------
-logging.__dict__["SUCCESS"] = 21
-logging.__dict__["LOADING"] = 22
-logging.addLevelName(logging.SUCCESS, "SUCCESS")
-logging.addLevelName(logging.LOADING, "LOADING")
+class ActLogger(logging.Logger):
+    DEBUG = logging.DEBUG
+    INFO = logging.INFO
+    SUCCESS = 21
+    LOADING = 22
+    WARNING = logging.WARNING
+    ERROR = logging.ERROR
+    CRITICAL = logging.CRITICAL
 
+    def __init__(self, name, level=logging.NOTSET):
+        super().__init__(name, level)
+        logging.addLevelName(self.SUCCESS, "SUCCESS")
+        logging.addLevelName(self.LOADING, "LOADING")
 
-def success(self, message, *args, **kwargs):
-    if self.isEnabledFor(logging.SUCCESS):
-        self._log(logging.SUCCESS, message, args, **kwargs)
+    def success(self, msg, *args, **kwargs):
+        self.log(self.SUCCESS, msg, *args, **kwargs)
 
-
-def loading(self, message, *args, **kwargs):
-    if self.isEnabledFor(logging.LOADING):
-        self._log(logging.LOADING, message, args, **kwargs)
-
-
-logging.Logger.success = success
-logging.Logger.loading = loading
+    def loading(self, msg, *args, **kwargs):
+        self.log(self.LOADING, msg, *args, **kwargs)
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -33,23 +37,23 @@ logging.Logger.loading = loading
 # ----------------------------------------------------------------------------------------------------
 class ActDefaultFormatter(DefaultFormatter):
     LEVEL_ICONS = {
-        logging.DEBUG: "🐞",
-        logging.INFO: "ℹ️",
-        logging.SUCCESS: "✅",
-        logging.LOADING: "⏳",
-        logging.WARNING: "⚠️",
-        logging.ERROR: "❌",
-        logging.CRITICAL: "💀",
+        ActLogger.DEBUG: "🐞",
+        ActLogger.INFO: "ℹ️",
+        ActLogger.SUCCESS: "✅",
+        ActLogger.LOADING: "⏳",
+        ActLogger.WARNING: "⚠️",
+        ActLogger.ERROR: "❌",
+        ActLogger.CRITICAL: "💀",
     }
 
     LEVEL_COLORS = {
-        logging.DEBUG: Fore.LIGHTBLACK_EX,
-        logging.INFO: Fore.LIGHTBLUE_EX,
-        logging.SUCCESS: Fore.LIGHTGREEN_EX,
-        logging.LOADING: Fore.LIGHTBLACK_EX,
-        logging.WARNING: Fore.LIGHTYELLOW_EX,
-        logging.ERROR: Fore.LIGHTRED_EX,
-        logging.CRITICAL: Fore.MAGENTA,
+        ActLogger.DEBUG: Fore.LIGHTBLACK_EX,
+        ActLogger.INFO: Fore.LIGHTBLUE_EX,
+        ActLogger.SUCCESS: Fore.LIGHTGREEN_EX,
+        ActLogger.LOADING: Fore.LIGHTBLACK_EX,
+        ActLogger.WARNING: Fore.LIGHTYELLOW_EX,
+        ActLogger.ERROR: Fore.LIGHTRED_EX,
+        ActLogger.CRITICAL: Fore.MAGENTA,
     }
 
     def format(self, record):
@@ -60,9 +64,9 @@ class ActDefaultFormatter(DefaultFormatter):
         record.name = f"{level_color}[{record.name}]{Fore.RESET}"
         record.levelname = level_icon
         if (
-            record.levelno == logging.SUCCESS
-            or record.levelno == logging.LOADING
-            or record.levelno >= logging.ERROR
+            record.levelno == ActLogger.SUCCESS
+            or record.levelno == ActLogger.LOADING
+            or record.levelno >= ActLogger.ERROR
         ):
             record.msg = f"{level_color}{record.msg}{Fore.RESET}"
         return super().format(record)
@@ -138,11 +142,15 @@ LOG_CONFIG = {
 }
 
 # ----------------------------------------------------------------------------------------------------
-# * Ceeate Logger
+# * Apply Logging Configuration
 # ----------------------------------------------------------------------------------------------------
+logging.setLoggerClass(ActLogger)
 logging.config.dictConfig(LOG_CONFIG)
 
 
+# ----------------------------------------------------------------------------------------------------
+# * Create Logger
+# ----------------------------------------------------------------------------------------------------
 def logger(name=""):
     """Return a logger. The name is recommended to be __name__ for the current module."""
-    return logging.getLogger(name)
+    return cast(ActLogger, logging.getLogger(name))
