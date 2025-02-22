@@ -10,6 +10,7 @@ from bot.main import ActBot
 from db.actor import Actor
 from db.main import DbRef
 from utils.ai import ActAi
+from utils.file import ActFile
 from utils.log import logger
 from utils.misc import text_csv
 
@@ -48,38 +49,44 @@ class AI(Cog, description="Integrated generative AI chat bot."):
             return
 
         # Prepare prompts
-        text_prompt = f"{message.author.name}: {message.content.replace(self.bot.user.mention, "").strip()}"
-        image_prompt: bytes = bytes(0)
+        text_prompt = f"{message.author.name}:"
+        file_prompt = None
 
-        # Load all members who interacted before
+        # Add message attachment
+        _big = ""
+        if message.attachments:
+            attachment = message.attachments[0]
+            text_prompt += f"_sent file:{attachment.filename}_"
+            file_size_limit = 524288  # 512 KB (0.5 MB)
+            if attachment.size <= file_size_limit:
+                async with message.channel.typing():
+                    file_prompt = ActFile(
+                        data=await attachment.read(),
+                        mime_type=attachment.content_type,
+                        name=attachment.filename,
+                    )
+            else:
+                text_prompt += f"(but u can't receive it cuz it's larger than ur allowed min size limit of {file_size_limit}byte)"
+
+        # Add message content
+        text_prompt += f"{message.content.replace(self.bot.user.mention, "").strip()}"
+
+        # Add members who interacted before
         actors = self.load_actors(message.guild)
         if actors:
             text_prompt += f"\n{text_csv(actors, "|")}"
 
-        # Add attachment
-        if message.attachments:
-            attachment = message.attachments[0]
-            content_type, content = await self.process_attachment(attachment)
-            match content_type:
-                case "text":
-                    text_prompt += f"_sent text file:{attachment.filename}_"
-                    text_prompt += content  # type: ignore
-                case "image":
-                    text_prompt += f"_sent image:{attachment.filename}_"
-                    image_prompt = content  # type: ignore
-                case "video":
-                    text_prompt += f"_sent video:{attachment.filename}_"
-                case _:
-                    text_prompt += f"_sent file:{attachment.filename}_"
-
         # Prompt AI
-        log.info(f"[Prompt] {text_prompt} <image:{len(image_prompt)}bytes>")
+        log.info(f"[Prompt] {text_prompt} <{file_prompt}>")
         try:
             self.ai.use_session(
                 message.guild.id, history=self.load_history(message.guild)
             )
             async with message.channel.typing():
-                reply = self.ai.prompt(text=text_prompt, data=image_prompt)
+                reply = self.ai.prompt(
+                    text=text_prompt,
+                    file=file_prompt,
+                )
         except APIError as e:
             reply = "Oops! 😵‍💫 I'm out of energy for now. Give me a moment! 🙏"
             log.exception(e)
@@ -98,18 +105,6 @@ class AI(Cog, description="Integrated generative AI chat bot."):
         self.save_history(message.guild)
 
     # ----------------------------------------------------------------------------------------------------
-
-    @staticmethod
-    async def process_attachment(attachment: Attachment) -> tuple[str, str | bytes]:
-        file_type = attachment.content_type.strip() if attachment.content_type else ""
-        content_type = file_type.split("/")[0]
-        if content_type == "text":
-            content = (await attachment.read()).decode("utf-8")
-        elif content_type in ("image", "audio", "video"):
-            content = await attachment.read()
-        else:
-            content = file_type
-        return (content_type, content)
 
     def load_actors(self, guild: Guild) -> list | None:
         db = self.bot.db_engine(guild)
