@@ -1,9 +1,13 @@
+from enum import Enum
+from typing import Optional
+
 from google.genai import Client
 from google.genai.chats import Chat
 from google.genai.types import Content, GenerateContentConfig, Part
 from pydantic import BaseModel, Field, StringConstraints, field_validator
 from typing_extensions import Annotated
 
+from utils.file import ActFile
 from utils.log import logger
 
 log = logger(__name__)
@@ -16,16 +20,20 @@ NonEmptyStr = Annotated[str, StringConstraints(min_length=1, strip_whitespace=Tr
 class ActAi(BaseModel):
     """Multi-session AI chat bot interface."""
 
+    # ----------------------------------------------------------------------------------------------------
+
     api_key: NonEmptyStr
     instructions: NonEmptyStr | list[NonEmptyStr] | None = None
     model_name: str = Field(alias="model", default="gemini-1.5-flash")
 
     _client: Client | None = None
+    _config: GenerateContentConfig | None = None
     _chats: dict[int | str, Chat | None] = {}
     _current_chat_id: int = 0
 
     def model_post_init(self, __context):
         self._client = Client(api_key=self.api_key)
+        self._config = GenerateContentConfig(system_instruction=self.instructions)
         return super().model_post_init(__context)
 
     # ----------------------------------------------------------------------------------------------------
@@ -39,13 +47,14 @@ class ActAi(BaseModel):
 
     # ----------------------------------------------------------------------------------------------------
 
-    def prompt(self, text: str, data: bytes | None = None, mime_type="") -> str | None:
+    def prompt(self, text: str, file: ActFile | None = None) -> str | None:
         chat = self.use_session(self._current_chat_id)
         message = [Part(text=text)]
-        if data:
-            message.append(Part.from_bytes(data=data, mime_type=mime_type))
-        config = GenerateContentConfig(system_instruction=self.instructions)
-        response = chat.send_message(message, config)
+        if file and file.major_type == "image":
+            message.append(
+                Part.from_bytes(data=file.data, mime_type=file.mime_type or "")
+            )
+        response = chat.send_message(message, self._config)
         return response.text if response else None
 
     # ----------------------------------------------------------------------------------------------------
@@ -72,3 +81,5 @@ class ActAi(BaseModel):
             content.model_dump(exclude_unset=True)
             for content in chat._curated_history[-history_max_items:]
         ]
+
+    # ----------------------------------------------------------------------------------------------------
