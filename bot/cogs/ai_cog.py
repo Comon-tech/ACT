@@ -24,7 +24,7 @@ log = logger(__name__)
 class AI(Cog, description="Integrated generative AI chat bot."):
     CONFIG_PATH = pathlib.Path(__file__).parent / "ai_cog.toml"
     MAX_FILE_SIZE = 524288  # 512 KB (0.5 MB)
-    COOLDOWN_SECONDS = 60
+    COOLDOWN_TIME = 60  # 1 min
 
     def __init__(self, bot: ActBot):
         self.bot = bot
@@ -38,7 +38,7 @@ class AI(Cog, description="Integrated generative AI chat bot."):
         log.info(
             f"AI persona @{persona_name} with {len(persona_desc)} characters instructions used."
         )
-        self.guilds_remaining_cooldown_seconds: dict[int, int] = {}  # { id : seconds }
+        self.guilds_cooldown_time_left: dict[int, int] = {}  # { id : seconds }
 
     def cog_unload(self):
         self.cooldown_guild.cancel()
@@ -51,21 +51,15 @@ class AI(Cog, description="Integrated generative AI chat bot."):
         if self.bot.user == message.author or self.bot.user not in message.mentions:
             return
 
-        # ⛔ TODO: Not from a guid? what to do ?
-        # ⛔ TODO: Fix image attachement (maybe implement compression)
+        # TODO: ⛔ Should we support Direct messages ?
         if not message.guild:
-            await message.reply(
-                f"Wa are in DM right? 🤔\nChannel: {message.channel} (id#{message.channel.id})"
-            )
+            # await message.reply(f"Wa are in DM right? 🤔")
             return
 
-        remaining_cooldown_seconds = self.guilds_remaining_cooldown_seconds.get(
-            message.guild.id
-        )
-        if remaining_cooldown_seconds:
-            reply = (
-                f"Please! 🙏 Give me about {remaining_cooldown_seconds} seconds... ⏳"
-            )
+        # Check cooldown
+        cooldown_time_left = self.guilds_cooldown_time_left.get(message.guild.id)
+        if cooldown_time_left:
+            reply = f"Please! 🙏 Give me about {cooldown_time_left} seconds... ⏳"
 
         else:
             # Prepare prompts
@@ -184,21 +178,16 @@ class AI(Cog, description="Integrated generative AI chat bot."):
     @tasks.loop(seconds=1)
     async def cooldown_guild(self, guild: Guild):
         """Cooldown to prevent spamming when needed."""
-        remaining_seconds = self.guilds_remaining_cooldown_seconds.get(guild.id)
-        if remaining_seconds is None:
-            remaining_seconds = self.COOLDOWN_SECONDS + 1
-            log.info(
-                f"[{guild.name}] {self.COOLDOWN_SECONDS} seconds cooldown started."
-            )
-        remaining_seconds -= 1
-        self.guilds_remaining_cooldown_seconds[guild.id] = remaining_seconds
-
-        if remaining_seconds <= 0:
-            self.guilds_remaining_cooldown_seconds.pop(guild.id, None)
+        time_left = self.guilds_cooldown_time_left.get(guild.id)
+        if time_left is None:
+            time_left = self.COOLDOWN_TIME + 1
+            log.info(f"[{guild.name}] {self.COOLDOWN_TIME} seconds cooldown started.")
+        time_left -= 1
+        self.guilds_cooldown_time_left[guild.id] = time_left
+        if time_left <= 0:
+            self.guilds_cooldown_time_left.pop(guild.id, None)
             self.cooldown_guild.cancel()
-            log.info(
-                f"[{guild.name}] {self.COOLDOWN_SECONDS} seconds cooldown finished."
-            )
+            log.info(f"[{guild.name}] {self.COOLDOWN_TIME} seconds cooldown finished.")
 
     @cooldown_guild.before_loop
     async def before_sleep_in_guild(self):
