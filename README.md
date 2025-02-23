@@ -1,106 +1,112 @@
-# TACT (The Assistant of Common Tech) Discord Bot
+# 🤖 Assistant of Common Tech (ACT)
 
-TACT is a feature-rich, open-source Discord bot designed to gamify and enhance server engagement by awarding XP, tracking levels, and enabling users to interact through fun commands. This bot is built with Python, Discord.py, and PostgreSQL, and is Dockerized for seamless deployment.
+[![Web](https://img.shields.io/badge/web-blue?logo=googlechrome)](https://github.com/topics/web)
+[![Python](https://img.shields.io/badge/python-blue?logo=python)](https://github.com/topics/python)
+[![Discord](https://img.shields.io/badge/discord-blue?logo=discord)](https://github.com/topics/discord)
+[![FastAPI](https://img.shields.io/badge/fastapi-blue?logo=fastapi)](https://github.com/topics/fastapi)
+[![MongoDB](https://img.shields.io/badge/mongodb-blue?logo=mongodb)](https://github.com/topics/mongo)
 
-## Features
+ACT is a [Discord](http://discord.com) bot designed to boost community engagement and interaction by providing a robust economy system and an array of entertaining commands, all tailored to deliver a dynamic and lively server experience.
 
-- **Leveling System**: Users earn XP by messaging and participating in server activities.
-- **Server Bump Rewards**: Users are awarded XP for bumping the server.
-- **Interactive Fun Commands**: Users can “steal” XP, “shoot” each other, and buy virtual items from a store.
-- **Leaderboard and Server Stats**: Displays top users by level and overall server stats.
-- **Persistent Data**: Uses PostgreSQL for data storage.
-- **Dockerized Setup**: Deploy easily using Docker.
+<!-- ![Screenshot](./screenshot.gif?raw=true) -->
 
-## Installation
+## 🏁 Getting started
 
-### Quick Start
-
-1. **Clone the Repository**:
+1. [Clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) repository:
 
    ```bash
-   git clone https://github.com/comon-tech/TACT.git
-   cd TACT
+    git clone <repository-url>
+    cd <repository-folder>
    ```
 
-2. **Set Up Environment Variables**:
-   Rename `.env.example` to `.env` and replace with your own values:
+2. [Install UV](https://docs.astral.sh/uv/getting-started/installation) for dependency management.
+
+3. [Install MongoDB](https://www.mongodb.com/docs/manual/installation) and run **database** for development:
 
    ```bash
-   DISCORD_TOKEN=your-discord-token
-   DATABASE_URL=postgresql://bot_user:bot_password@db:5432/bot_db
+   uv run task db
    ```
 
-3. **Install Dependencies**:
+   > [!TIP]
+   >
+   > 💡 To access the database using [Mongodb Shell](https://www.mongodb.com/products/tools/shell):
+   >
+   > ```bash
+   > uv run task db-man
+   > ```
+   >
+   > Ensure both the MongoDB **server** and the **shell** are using the same port.
+   >
+   > 💡 To fix a broken database:
+   >
+   > ```bash
+   > uv run task db-fix
+   > ```
+
+4. Run **application** for development :
 
    ```bash
-   python install -r requirements.txt
+   uv run task app
    ```
 
-   If you are using **Python 3.13** you'll probably get this error at runtime: `ModuleNotFoundError: No module named 'audioop'` ([Why?](https://github.com/Rapptz/discord.py/issues/9477))
+   > [!TIP]
+   >
+   > 💡 Virtual environments and dependencies are automatically installed when you run any UV command, such as `uv run`, `uv sync`, or `uv lock`. [Learn more about UV projects](https://docs.astral.sh/uv/guides/projects)
 
-   To fix it install `audioop-lts`:
+## ✈️ Deployment
+
+1. Create and run a live **MongoDB** database using a service like [**MongoDB Atlas**](https://www.mongodb.com/cloud/atlas) and get the **connection string**.
+
+   > 💡 The remote MongoDB **connection string** (URI) usually looks something like this:
+   >
+   > ```
+   > mongodb+srv://username:password@host-address/database-name?retryWrites=true&w=majority
+   > ```
+   >
+   > where **username**, **password**, **host-address**, and **database-name** are placeholders for the values provided by the service and specific to the user.
+
+2. Push the repository to a **Python server** using a service like [**Heroku**](https://heroku.com).
+
+3. In the remote python server:
+
+   a. Set the environment variable `MONGO_DB_URI` to the obtained mongoDB **connection string**:
+
+   ```
+   MONGO_DB_URI=mongodb+srv://...etc
+   ```
+
+   b. Run **application** for production:
 
    ```bash
-   pip install audioop-lts
+   uv run task app-prod
    ```
 
-4. **Run**:
-   ```bash
-   python app.py
-   ```
+   🎉 Now your bot should be live and connected to the remote database!
 
-## Commands
+## 🚀 Development
 
-### General Commands
+### 🏭 Environment
 
-| Command         | Description                                                                  | Usage                       |
-| --------------- | ---------------------------------------------------------------------------- | --------------------------- |
-| `/level`        | Displays your current level and XP.                                          | `/level`                    |
-| `/leaderboard`  | Shows the top users by level in the server.                                  | `/leaderboard`              |
-| `/server_stats` | Displays the server's total users, total XP, and average level (admin-only). | `/server_stats`             |
-| `/give_xp`      | Grants XP to a user.                                                         | `/give_xp <@user> <amount>` |
-| `/reset_xp`     | Resets a user's XP and level (admin-only).                                   | `/reset_xp <@user>`         |
+- Runtime: [**Python**](https://github.com/python)
+  - Package Manager: [**UV**](https://github.com/astral-sh/uv)
+  - Task Runner: [**Taskipy**](https://github.com/taskipy/taskipy)
+- Editor: [**Visual Studio Code**](https://code.visualstudio.com)
 
-### Fun Interaction Commands
+### 🌑 Backend
 
-| Command          | Description                              | Usage            |
-| ---------------- | ---------------------------------------- | ---------------- |
-| `/steal <@user>` | Attempt to steal XP from another user.   | `/steal <@user>` |
-| `/shoot <@user>` | Attempt to shoot another user (for fun). | `/shoot <@user>` |
-| `/inventory`     | Shows the items you currently own.       | `/inventory`     |
+- 🖥 Application:
+  - 🤖 Bot: [**DiscordPy**](https://discordpy.readthedocs.io/en/stable/index.html)
+  - 🌍 API: [**FastAPI**](https://fastapi.tiangolo.com)
+- 💽 Database:
+  - Engine: [**MongoDB**](https://www.mongodb.com)
+  - Driver: [**PyMongo**](https://pymongo.readthedocs.io)
+  - Validator: [**Pydantic**](https://docs.pydantic.dev)
 
-### Store Commands
+### 📔 Convention
 
-| Command       | Description                                             | Usage         |
-| ------------- | ------------------------------------------------------- | ------------- |
-| `/store`      | Displays available items for purchase and their prices. | `/store`      |
-| `/buy <item>` | Buy an item from the store if you have enough XP.       | `/buy <item>` |
+- Style Guide: [**PEP 8**](https://peps.python.org/pep-0008/)
+  - Formatter: [**Black Formatter**](https://black.readthedocs.io/en/stable) / [**Black Formatter for Visual Studio Code**](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter)
 
-## Data Persistence
+## 📄 License
 
-TACT uses (currently a json file but migrating soon) PostgreSQL to store XP, level, and inventory data for persistent tracking across sessions. Docker Compose configures and manages the PostgreSQL container.
-
-## Contributing
-
-We welcome contributions! Please fork this repository, create a branch with your feature or fix, and submit a pull request.
-
-1. Fork the repository.
-2. Clone your fork:
-   ```bash
-   git clone https://github.com/yourusername/TACT.git
-   ```
-3. Create a new branch:
-   ```bash
-   git checkout -b feature-branch
-   ```
-4. Make your changes and commit them:
-   ```bash
-   git commit -m "Add new feature"
-   ```
-5. Push to your fork and submit a pull request.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
----
+Licensed under [GNU GPL](./LICENSE).

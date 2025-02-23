@@ -1,0 +1,40 @@
+[project]
+name = "ACT"
+version = "0.0.1"
+description = "Assistant of Comon Tech"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "audioop-lts>=0.2.1",
+    "discord-py>=2.4.0",
+    "fastapi[standard]>=0.115.8",
+    "filetype>=1.2.0",
+    "google-genai>=1.2.0",
+    "humanize>=4.11.0",
+    "odmantic>=1.0.2",
+    "pydantic>=2.10.6",
+    "python-dotenv>=1.0.1",
+]
+#----------------------------------------------------------------------------------------------------
+[dependency-groups]
+dev = [
+    "py-mon>=2.0.5",
+    "taskipy>=1.14.1",
+    "ipykernel>=6.29.5",
+    "ipywidgets>=8.1.5",
+]
+#----------------------------------------------------------------------------------------------------
+[tool.uv]
+cache-dir = "./.uv_cache"
+#----------------------------------------------------------------------------------------------------
+[tool.taskipy.tasks]
+db = { cmd = "mongod --port 1717 --dbpath .mongodb ", help = "run mongodb server" }
+db-fix = { cmd = "mongod --repair --dbpath .mongodb", help = "repair mongodb dbs" }
+db-man = { cmd = "mongosh --port 1717", help = "run mongodb shell" }
+app = { cmd = "pymon main.py", help = "run app for development (hot reload)" }
+app-prod = { cmd = "python main.py", help = "run app for production" }
+#----------------------------------------------------------------------------------------------------
+[tool.act.components]
+bot = true
+api = true
+db = true
