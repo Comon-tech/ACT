@@ -1,12 +1,13 @@
 import pathlib
 
 from colorama import Fore
-from discord import Guild, Interaction, Message, VoiceClient, app_commands
+from discord import Guild, Interaction, Member, Message, User, VoiceClient, app_commands
 from discord.ext.commands import Bot, Cog
 from odmantic import SyncEngine
 
 from bot.ui import EmbedX
-from db.main import ActDb
+from db.actor import Actor
+from db.main import ActDb, DbRef
 from utils.log import logger
 from utils.misc import import_classes, text_block
 
@@ -169,9 +170,8 @@ class ActBot(Bot):
 
     # ----------------------------------------------------------------------------------------------------
 
-    def db_engine(self, guild: Guild | None = None) -> SyncEngine | None:
-        """Get engine with database of given guild. If no guild, get engine with main database.
-        If nonexistent, create database with given name, if no name, return None."""
+    def get_db(self, guild: Guild | None = None) -> SyncEngine | None:
+        """Get database engine with database of given guild. If no guild, get engine with main database. If nonexistent, create."""
         if self._db:
             return (
                 self._db.get_engine(guild.id, guild.name)
@@ -179,6 +179,16 @@ class ActBot(Bot):
                 else self._db.get_engine()
             )
         log.error("No database access. Missing database engine instance.")
+
+    def create_db_ref(self, guild: Guild) -> DbRef:
+        """Get database reference of given guild. If nonexistent, create."""
+        return DbRef(id=guild.id, name=guild.name)
+
+    def create_actor(self, member: Member | User) -> Actor:
+        """Create actor from given member."""
+        return Actor(id=member.id, name=member.name, display_name=member.display_name)
+
+    # ----------------------------------------------------------------------------------------------------
 
     async def open(self):
         log.loading(f"Bot client opening...")

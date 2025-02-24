@@ -75,7 +75,16 @@ ACT is a [Discord](http://discord.com) bot designed to boost community engagemen
    MONGO_DB_URI=mongodb+srv://...etc
    ```
 
-   b. Run **application** for production:
+   b. Set all other needed environment variables:
+
+   ```
+   DISCORD_BOT_TOKEN=PLACE_VALUE_HERE
+   GEMINI_AI_API_KEY=PLACE_VALUE_HERE
+   MONGO_DB_URI=mongodb://localhost:1717
+   APP_SERVER_URL=http://localhost:8000
+   ```
+
+   c. Run **application** for production:
 
    ```bash
    uv run task app-prod
@@ -101,6 +110,7 @@ ACT is a [Discord](http://discord.com) bot designed to boost community engagemen
   - Engine: [**MongoDB**](https://www.mongodb.com)
   - Driver: [**PyMongo**](https://pymongo.readthedocs.io)
   - Validator: [**Pydantic**](https://docs.pydantic.dev)
+  - ODM: [**ODMantic**](https://art049.github.io/odmantic)
 
 ### 📔 Convention
 
