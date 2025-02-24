@@ -27,7 +27,7 @@ class Filter(Cog, description="Filters blacklisted message content."):
     async def on_message(self, message: Message):
         # Ignore DM & bot messages
         member = message.author
-        if not isinstance(member, Member) or member.bot:
+        if not message.guild or not isinstance(member, Member) or member.bot:
             return
 
         # Identify profane words
