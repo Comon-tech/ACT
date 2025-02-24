@@ -128,7 +128,7 @@ class AI(Cog, description="Integrated generative AI chat bot."):
     # ----------------------------------------------------------------------------------------------------
 
     def load_actors(self, guild: Guild) -> list | None:
-        db = self.bot.db_engine(guild)
+        db = self.bot.get_db(guild)
         if not db:
             return
         actors = db.find(
@@ -142,21 +142,19 @@ class AI(Cog, description="Integrated generative AI chat bot."):
         ]
 
     def save_actor_interaction(self, guild: Guild, member: Member | User) -> None:
-        db = self.bot.db_engine(guild)
+        db = self.bot.get_db(guild)
         if not db:
             return
         actor = db.find_one(Actor, Actor.id == member.id)
         if not actor:
-            actor = Actor(
-                id=member.id, name=member.name, display_name=member.display_name
-            )
+            actor = self.bot.create_actor(member)
         actor.ai_interacted_at = datetime.now(UTC)
         db.save(actor)
 
     # ----------------------------------------------------------------------------------------------------
 
     def load_history(self, guild: Guild) -> list | None:
-        main_db = self.bot.db_engine()
+        main_db = self.bot.get_db()
         if not main_db:
             return
         db_ref = main_db.find_one(DbRef, DbRef.id == guild.id)
@@ -164,12 +162,12 @@ class AI(Cog, description="Integrated generative AI chat bot."):
             return db_ref.ai_chat_history
 
     def save_history(self, guild: Guild) -> None:
-        main_db = self.bot.db_engine()
+        main_db = self.bot.get_db()
         if not main_db:
             return
         db_ref = main_db.find_one(DbRef, DbRef.id == guild.id)
         if not db_ref:
-            db_ref = DbRef(id=guild.id, name=guild.name)
+            db_ref = self.bot.create_db_ref(guild)
         db_ref.ai_chat_history = self.ai.dump_history(guild.id)
         main_db.save(db_ref)
 
