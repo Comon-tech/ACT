@@ -2,7 +2,7 @@ import pathlib
 import tomllib
 from datetime import UTC, datetime
 
-from discord import Attachment, Guild, Member, Message, User
+from discord import Guild, Member, Message, User
 from discord.ext import tasks
 from discord.ext.commands import Cog
 from google.genai.errors import APIError

@@ -1,15 +1,11 @@
-import logging
-import pathlib
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import timedelta
 
-import discord
 from discord import Color, Embed, Member, Message
-from discord.ext.commands import Bot, Cog
-from profanity_check import predict
+from discord.ext.commands import Cog
+from profanity_check import predict_prob
 
 from bot.main import ActBot
-from bot.ui import EmbedX
 from db.actor import Actor
 from utils.log import logger
 
@@ -103,9 +99,9 @@ class Filter(Cog, description="Filters blacklisted message content."):
     @staticmethod
     def get_profane_words(words: list[str]) -> list[str]:
         """Get list of profane words from given list. If non found, get empty list."""
-        predictions = predict(words)
+        predictions = predict_prob(words)
         profane_words = []
         for i, word in enumerate(words):
-            if predictions[i] == 1:  # 1 means profane, 0 means clean
+            if predictions[i] >= 0.8:  # 1 means profane, 0 means clean
                 profane_words.append(word)
         return profane_words
