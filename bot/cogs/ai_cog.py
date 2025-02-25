@@ -6,6 +6,7 @@ from discord import Guild, Member, Message, User
 from discord.ext import tasks
 from discord.ext.commands import Cog
 from google.genai.errors import APIError
+from odmantic import AIOEngine, Model, query
 
 from bot.main import ActBot
 from db.actor import Actor
@@ -133,8 +134,10 @@ class AI(Cog, description="Integrated generative AI chat bot."):
             return
         actors = db.find(
             Actor,
-            sort=Actor.ai_interacted_at,  # Sort by interaction time (most recent first)
-            limit=5,
+            sort=query.desc(
+                Actor.ai_interacted_at
+            ),  # Sort by interaction time (most recent first)
+            limit=10,
         )
         return [
             actor.model_dump(include={"id": True, "name": True, "display_name": True})
