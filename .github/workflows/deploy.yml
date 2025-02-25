@@ -20,9 +20,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            pkill -f "uv"
             cd /home/ubuntu/TACT/
-            sudo -u ubuntu kill -9 $(pgrep -o -f "uv") || true
-            sleep 3
             git pull fork ft-rework
-            sleep 3
             nohup uv run task app-prod &

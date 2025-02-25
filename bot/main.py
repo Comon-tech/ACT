@@ -52,7 +52,7 @@ class ActBot(Bot):
         log.info("\n" + self.app_commands_info_text)
         log.info("\n" + await self.app_commands_remote_info_text)
         log.info("\n" + self.commands_info_text)
-        await self.sync_commands()
+        # await self.sync_commands()
 
     @Cog.listener()
     async def on_message(self, message: Message):

@@ -1,3 +1,5 @@
+import asyncio
+
 from discord import Color, Embed, Interaction, Member, User, app_commands
 from discord.app_commands import command, guild_only
 from discord.ext.commands import Cog
@@ -57,6 +59,12 @@ class Board(Cog, description="Allows players to view their data."):
     @app_commands.guild_only()
     @app_commands.command(description="View leaderboard")
     async def leaderboard(self, interaction: Interaction):
+        # Check guild (not needed but just for type-checking)
+        guild = interaction.guild
+        if not guild:
+            return
+
+        # Get top actors
         await interaction.response.defer()
         db = self.bot.get_db(interaction.guild)
         actors = (
@@ -77,14 +85,41 @@ class Board(Cog, description="Allows players to view their data."):
                 embed=EmbedX.info("", "No members found for the leaderboard.")
             )
             return
+
+        # Get associated members
+        members = []
+        for actor in actors:
+            member = guild.get_member(actor.id)  # Try get from cache
+            if member:
+                members.append(member)
+            else:
+                members.append(None)  # placeholder to fetch later concurrently
+
+        # Fetch missing members concurrently
+        members_futures = [
+            guild.fetch_member(actor.id)
+            for i, actor in enumerate(actors)
+            if members[i] is None
+        ]
+        try:
+            fetched_members = await asyncio.gather(*members_futures)
+        except Exception as e:
+            await interaction.followup.send(
+                embed=EmbedX.error(description="Could not fetch members.")
+            )
+            return
+
+        # Update members list with fetched members
+        fetched_index = 0
+        for i, actor in enumerate(actors):
+            if members[i] is None:
+                members[i] = fetched_members[fetched_index]
+                fetched_index += 1
+
+        # Create embed
         embed = Embed(title="🏆 Leaderboard", color=Color.blue())
         for i, actor in enumerate(actors):
-            guild = interaction.guild
-            member = (
-                (guild.get_member(actor.id) or await guild.fetch_member(actor.id))
-                if guild
-                else None
-            )
+            member = members[i]
             member_name = member.display_name if member else f"{actor.display_name} (⚠)"
             embed.add_field(
                 name="",
