@@ -2,7 +2,7 @@ import asyncio
 import random
 import re
 
-from discord import Member, Message, TextChannel, User, utils
+from discord import Color, Embed, Member, Message, TextChannel, User, utils
 from discord.ext.commands import Bot, Cog
 
 from bot.main import ActBot
@@ -47,9 +47,16 @@ class Farm(Cog, description="Allows players to gain stats and roles."):
         if actor.try_level_up():
             gold_reward = random.randint(1, 500) * actor.level
             actor.gold += gold_reward
-            await message.channel.send(
-                f"🎉 {member.mention}! You have reached **🏅 Level {actor.level}** and earned **💰 {gold_reward} Gold**."
+            embed = Embed(
+                title=f"🎉 Level Up",
+                description=f"{member.display_name} {member.mention} has reached a new level and has been rewarded.",
+                color=Color.green(),
             )
+            embed.add_field(name="", value="", inline=False)
+            embed.add_field(name="Level", value=f"🏅 **{actor.level}**")
+            embed.add_field(name="Gold 🔼", value=f"💰 **+{gold_reward}**")
+            embed.set_thumbnail(url=member.display_avatar.url)
+            await message.channel.send(embed=embed)
 
         # Try role-up
         awarded_role = await self.award_role(member, actor.rank_name)

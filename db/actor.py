@@ -94,7 +94,7 @@ class Actor(Model):
 
     @property
     def level_bar(self) -> str:
-        return text_progress_bar(self.level, self.MAX_LEVEL, 5, "⭐", "☆")
+        return text_progress_bar(self.level, self.next_rank_level, 5, "⭐", "☆")
 
     @property
     def xp_bar(self) -> str:

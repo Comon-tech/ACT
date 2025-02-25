@@ -83,7 +83,7 @@ class Filter(Cog, description="Filters blacklisted message content."):
         # Notice
         embed = Embed(
             title=f"🚨 Penalty",
-            description=f"{member.display_name} ({member.mention}) has been penalized for repeated use of offensive language.",
+            description=f"{member.display_name} {member.mention} has been penalized for repeated use of offensive language.",
             color=Color.red(),
         )
         embed.add_field(name="", value="", inline=False)

@@ -1,13 +1,11 @@
 import asyncio
 
 from discord import Color, Embed, Interaction, Member, User, app_commands
-from discord.app_commands import command, guild_only
 from discord.ext.commands import Cog
 from humanize import naturaltime
-from odmantic import AIOEngine, Model, query
+from odmantic import query
 
 from bot.main import ActBot
-from bot.ui import EmbedX
 from db.actor import Actor
 
 
@@ -16,7 +14,9 @@ class Board(Cog, description="Allows players to view their data."):
         self.bot = bot
 
     @app_commands.guild_only()
-    @app_commands.command(description="Get your or another member's information")
+    @app_commands.command(
+        description="View your or another member's profile information"
+    )
     async def profile(
         self, interaction: Interaction, member: Member | User | None = None
     ):
@@ -57,7 +57,7 @@ class Board(Cog, description="Allows players to view their data."):
         await interaction.followup.send(embed=embed)
 
     @app_commands.guild_only()
-    @app_commands.command(description="View leaderboard")
+    @app_commands.command(description="View top members")
     async def leaderboard(self, interaction: Interaction):
         # Check guild (not needed but just for type-checking)
         guild = interaction.guild
@@ -82,56 +82,26 @@ class Board(Cog, description="Allows players to view their data."):
         )
         if not actors:
             await interaction.followup.send(
-                embed=EmbedX.info("", "No members found for the leaderboard.")
+                embed=Embed(
+                    title="❔",
+                    description="No members found.",
+                    color=Color.yellow(),
+                )
             )
             return
 
-        # Get associated members
-        members = []
-        for actor in actors:
-            member = guild.get_member(actor.id)  # Try get from cache
-            if member:
-                members.append(member)
-            else:
-                members.append(None)  # placeholder to fetch later concurrently
-
-        # Fetch missing members concurrently
-        members_futures = [
-            guild.fetch_member(actor.id)
-            for i, actor in enumerate(actors)
-            if members[i] is None
-        ]
-        try:
-            fetched_members = await asyncio.gather(*members_futures)
-        except Exception as e:
-            await interaction.followup.send(
-                embed=EmbedX.error(description="Could not fetch members.")
-            )
-            return
-
-        # Update members list with fetched members
-        fetched_index = 0
-        for i, actor in enumerate(actors):
-            if members[i] is None:
-                members[i] = fetched_members[fetched_index]
-                fetched_index += 1
-
-        # Create embed
+        # Create embed while fetching memebrs associated with actors
         embed = Embed(title="🏆 Leaderboard", color=Color.blue())
         for i, actor in enumerate(actors):
-            member = members[i]
-            member_name = member.display_name if member else f"{actor.display_name} (⚠)"
+            separator = 10 * "‎ "
+            embed.add_field(name="", value="", inline=False)
             embed.add_field(
-                name="",
-                value=10 * "➖",
-                inline=False,
+                name=f"# **{i + 1}** {separator} {actor.display_name}",
+                value=f"",
             )
+            embed.add_field(name="", value="")
             embed.add_field(
-                name=f"**{i + 1}** ✨ {member_name}",
-                value=f" ",
-            )
-            embed.add_field(
-                name=f"🏅 {actor.level} ⏫ {actor.xp} 💰 {actor.gold}",
-                value="",
+                name=f"",
+                value=f"-# 🏅 {actor.level} {separator} ⏫ {actor.xp} {separator} 💰 {actor.gold}",
             )
         await interaction.followup.send(embed=embed)

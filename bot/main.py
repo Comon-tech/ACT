@@ -1,11 +1,20 @@
 import pathlib
 
 from colorama import Fore
-from discord import Guild, Interaction, Member, Message, User, VoiceClient, app_commands
+from discord import (
+    Color,
+    Embed,
+    Guild,
+    Interaction,
+    Member,
+    Message,
+    User,
+    VoiceClient,
+    app_commands,
+)
 from discord.ext.commands import Bot, Cog
 from odmantic import SyncEngine
 
-from bot.ui import EmbedX
 from db.actor import Actor
 from db.main import ActDb, DbRef
 from utils.log import logger
@@ -48,10 +57,10 @@ class ActBot(Bot):
     @Cog.listener()
     async def on_ready(self):
         log.success(f"🎮 Bot client connected as {self.user}.")
-        log.info("\n" + self.cogs_info_text)
+        # log.info("\n" + self.cogs_info_text)
         log.info("\n" + self.app_commands_info_text)
-        log.info("\n" + await self.app_commands_remote_info_text)
-        log.info("\n" + self.commands_info_text)
+        # log.info("\n" + await self.app_commands_remote_info_text)
+        # log.info("\n" + self.commands_info_text)
         # await self.sync_commands()
 
     @Cog.listener()
@@ -62,7 +71,11 @@ class ActBot(Bot):
     async def on_error(
         self, interaction: Interaction, error: app_commands.AppCommandError
     ):
-        await interaction.response.send_message(embed=EmbedX.error("Error", f"{error}"))
+        embed = Embed(title="⛔ Error", description=f"{error}")
+        if not interaction.response.is_done():
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+        else:
+            await interaction.followup.send(embed=embed, ephemeral=True)
 
     # ----------------------------------------------------------------------------------------------------
 

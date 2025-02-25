@@ -1,9 +1,8 @@
-from discord import Interaction, Message, app_commands
+from discord import Color, Embed, Interaction, Message, app_commands
 from discord.ext import commands
 from discord.ext.commands import Cog
 
 from bot.main import ActBot
-from bot.ui import EmbedX
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -18,8 +17,10 @@ class Test(Cog, description="For test only."):
     async def sync(self, interaction: Interaction):
         count = await self.bot.sync_commands()
         await interaction.response.send_message(
-            embed=EmbedX.success(
-                "Commands Sync", f"{count[0]}/{count[1]} commands synced."
+            embed=Embed(
+                title="Commands Sync",
+                description=f"{count[0]}/{count[1]} commands synced.",
+                color=Color.green(),
             )
         )
 
@@ -28,7 +29,9 @@ class Test(Cog, description="For test only."):
         self, interaction: Interaction, error: app_commands.AppCommandError
     ):
         await interaction.response.send_message(
-            embed=EmbedX.error("Commands Sync", f"{error}.")
+            embed=Embed(
+                title="Commands Sync", description=f"{error}.", color=Color.red()
+            )
         )
 
     # ----------------------------------------------------------------------------------------------------

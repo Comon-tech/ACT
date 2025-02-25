@@ -19,8 +19,11 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: "20m"
           script: |
-            pkill -f "uv"
-            cd /home/ubuntu/TACT/
-            git pull fork ft-rework
-            nohup uv run task app-prod &
+            cd /home/ubuntu/ACT/
+            git fetch fork ft-rework
+            git reset --hard fork/ft-rework
+            sudo systemctl restart act-app.service
+            sleep 3
+            sudo systemctl status act-app.service --no-pager
