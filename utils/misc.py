@@ -97,10 +97,7 @@ def text_progress_bar(
     empty_char="░",
 ) -> str:
     """Render text progress bar using unicode characters."""
-    if max == 0:
-        max = current if current != 0 else 1
-    normalized_value = int((current / max) * length)
-    type(normalized_value)
+    normalized_value = min(int((current / (max or current or 1)) * length), length)
     return (normalized_value * filled_char) + ((length - normalized_value) * empty_char)
 
 

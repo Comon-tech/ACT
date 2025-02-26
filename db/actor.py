@@ -32,7 +32,7 @@ class Actor(Model):
     RANK_BASE_LEVEL: ClassVar[int] = 30
     RANK_EXPONENT: ClassVar[float] = 1
     RANK_NAMES: ClassVar[list[str]] = [
-        "Unranked",
+        "?",
         "Iron",
         "Bronze",
         "Silver",
@@ -51,7 +51,7 @@ class Actor(Model):
     @property
     def rank_name(self) -> str:
         """Get name of current rank."""
-        return self.RANK_NAMES[self.rank - 1]
+        return self.RANK_NAMES[self.rank]
 
     # ----------------------------------------------------------------------------------------------------
 
@@ -86,15 +86,19 @@ class Actor(Model):
     def try_rank_up(self) -> bool:
         """Check if player has enough level to rank up and increment rank if so."""
         initial_rank = self.rank
-        if self.level >= self.next_rank_level and self.rank < self.MAX_RANKS:
+        while self.level >= self.next_rank_level and self.rank < self.MAX_RANKS:
             self.rank += 1
         return self.rank > initial_rank
 
     # ----------------------------------------------------------------------------------------------------
 
     @property
+    def rank_bar(self) -> str:
+        return text_progress_bar(self.rank, self.MAX_RANKS, 5, "⭐", "☆")
+
+    @property
     def level_bar(self) -> str:
-        return text_progress_bar(self.level, self.next_rank_level, 5, "⭐", "☆")
+        return text_progress_bar(self.level, self.next_rank_level, 5, "▰", "▱")
 
     @property
     def xp_bar(self) -> str:

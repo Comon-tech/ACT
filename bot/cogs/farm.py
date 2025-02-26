@@ -2,7 +2,17 @@ import asyncio
 import random
 import re
 
-from discord import Color, Embed, Member, Message, TextChannel, User, utils
+from discord import (
+    Color,
+    Embed,
+    Member,
+    Message,
+    Permissions,
+    Role,
+    TextChannel,
+    User,
+    utils,
+)
 from discord.ext.commands import Bot, Cog
 
 from bot.main import ActBot
@@ -48,24 +58,32 @@ class Farm(Cog, description="Allows players to gain stats and roles."):
             gold_reward = random.randint(1, 500) * actor.level
             actor.gold += gold_reward
             embed = Embed(
-                title=f"🎉 Level Up",
+                title=f"🏅 Level Up",
                 description=f"{member.display_name} {member.mention} has reached a new level and has been rewarded.",
                 color=Color.green(),
             )
             embed.add_field(name="", value="", inline=False)
-            embed.add_field(name="Level", value=f"🏅 **{actor.level}**")
+            embed.add_field(name="Level ✨", value=f"🏅 **{actor.level}**")
             embed.add_field(name="Gold 🔼", value=f"💰 **+{gold_reward}**")
             embed.set_thumbnail(url=member.display_avatar.url)
             await message.channel.send(embed=embed)
 
         # Try role-up
-        awarded_role = await self.award_role(member, actor.rank_name)
-        if awarded_role:
+        if actor.try_rank_up():
+            # awarded_role = await self.award_role(member, actor.rank_name)
+            # if awarded_role:
             gold_reward = random.randint(1, 1000) * actor.level
             actor.gold += gold_reward
-            await message.channel.send(
-                f"🎉 {member.mention}! You have been awarded **{awarded_role.name} Role** and earned **💰 {gold_reward} Gold**."
+            embed = Embed(
+                title=f"🏆 Rank Up",
+                description=f"{member.display_name} {member.mention} has reached a new rank and has been rewarded.",
+                color=Color.green(),
             )
+            embed.add_field(name="", value="", inline=False)
+            embed.add_field(name="Rank ✨", value=f"🏆 **{actor.rank_name}**")
+            embed.add_field(name="Gold 🔼", value=f"💰 **+{gold_reward}**")
+            embed.set_thumbnail(url=member.display_avatar.url)
+            await message.channel.send(embed=embed)
 
         # Save changes
         db.save(actor)
@@ -95,10 +113,11 @@ class Farm(Cog, description="Allows players to gain stats and roles."):
         return random.randint(1, word_count)
 
     @staticmethod
-    async def award_role(user: Member, role_name: str):
-        if role_name:
-            role = utils.get(user.guild.roles, name=role_name)
-            if role and role not in user.roles:
-                await user.add_roles(role)
-                return role
-        return None
+    async def try_award_role(member: Member, role_name: str) -> Role | None:
+        role = utils.get(member.guild.roles, name=role_name)
+        if role in member.roles:
+            return None
+        elif not role:
+            role = await member.guild.create_role(name=role_name)
+        await member.add_roles(role)
+        return role
