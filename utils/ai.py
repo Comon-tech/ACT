@@ -1,6 +1,3 @@
-from enum import Enum
-from typing import Optional
-
 from google.genai import Client
 from google.genai.chats import Chat
 from google.genai.types import Content, GenerateContentConfig, Part

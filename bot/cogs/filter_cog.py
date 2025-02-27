@@ -16,6 +16,7 @@ log = logger(__name__)
 # * Filter Cog
 # ----------------------------------------------------------------------------------------------------
 class Filter(Cog, description="Filters blacklisted message content."):
+    TOLERANCE = 0.99  # Between 0 and 1
     MAX_OFFENSES = 5
     GOLD_PENALTY = 500
 
@@ -96,12 +97,12 @@ class Filter(Cog, description="Filters blacklisted message content."):
         embed.set_thumbnail(url=member.display_avatar.url)
         await censored_message.reply(embed=embed)
 
-    @staticmethod
-    def get_profane_words(words: list[str]) -> list[str]:
+    @classmethod
+    def get_profane_words(cls, words: list[str]) -> list[str]:
         """Get list of profane words from given list. If non found, get empty list."""
         predictions = predict_prob(words)
         profane_words = []
         for i, word in enumerate(words):
-            if predictions[i] >= 0.8:  # 1 means profane, 0 means clean
+            if predictions[i] >= cls.TOLERANCE:  # 1 means profane, 0 means clean
                 profane_words.append(word)
         return profane_words

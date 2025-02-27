@@ -8,6 +8,7 @@ from discord import (
     Interaction,
     Member,
     Message,
+    Permissions,
     User,
     VoiceClient,
     app_commands,
@@ -71,7 +72,7 @@ class ActBot(Bot):
     async def on_error(
         self, interaction: Interaction, error: app_commands.AppCommandError
     ):
-        embed = Embed(title="⛔ Error", description=f"{error}")
+        embed = Embed(title="⛔ Error", description=f"{error}", color=Color.red())
         if not interaction.response.is_done():
             await interaction.response.send_message(embed=embed, ephemeral=True)
         else:

@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord.ext.commands import Cog
 
 from bot.main import ActBot
+from db.actor import Actor
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -12,7 +13,23 @@ class Test(Cog, description="For test only."):
     def __init__(self, bot: ActBot):
         self.bot = bot
 
+    async def cog_app_command_error(
+        self, interaction: Interaction, error: app_commands.AppCommandError
+    ):
+        if isinstance(error, app_commands.CheckFailure):
+            # This is optional - handle unauthorized attempts
+            if not interaction.response.is_done():
+                await interaction.response.send_message(
+                    "You don't have permission to use this command.", ephemeral=True
+                )
+
+    @app_commands.check(lambda interaction: interaction.user.id == 304721494276308992)
+    @app_commands.command(description="...")
+    async def who_am_i(self, interaction: Interaction):
+        await interaction.response.send_message(f"You are {interaction.user.name}")
+
     @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.check(lambda interaction: interaction.user.id == 304721494276308992)
     @app_commands.command(description="Syncs app commands to Discord")
     async def sync(self, interaction: Interaction):
         count = await self.bot.sync_commands()
@@ -24,22 +41,19 @@ class Test(Cog, description="For test only."):
             )
         )
 
-    @sync.error
-    async def sync_error(
-        self, interaction: Interaction, error: app_commands.AppCommandError
-    ):
-        await interaction.response.send_message(
-            embed=Embed(
-                title="Commands Sync", description=f"{error}.", color=Color.red()
-            )
-        )
-
     # ----------------------------------------------------------------------------------------------------
     # * App Commands (/ Slash Commands)
     # ----------------------------------------------------------------------------------------------------
     @app_commands.command(name="test", description="App command test")
-    async def app_cmd_test(self, interaction: Interaction):
-        await interaction.response.send_message(f"/ App command")
+    async def app_cmd_test(self, interaction: Interaction, query: str):
+        if "xp" in query:
+            actor = Actor(id=0)
+            numbers = [int(word) for word in query.split(" ") if word.isdigit()]
+            embed = Embed()
+            embed.add_field(name=f"Level ➡ Experience", value="", inline=True)
+            for level, xp in actor.level_xp_table(numbers[0], numbers[1]):
+                embed.add_field(name=f"{level} ➡ {xp}", value="", inline=False)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
     # ----------------------------------------------------------------------------------------------------
     # * Commands (* Prefix Commands)
@@ -94,16 +108,6 @@ class Test(Cog, description="For test only."):
         #     db_refs = "\n".join([f"- {dbref.get("name")}" for dbref in db_refs])
         #     msg += f"\nDatabases that were generated and indexed:\n{db_refs}"
         #     await message.channel.send(msg)
-        # if "xp" in message.content:
-        #     actor = Actor(None, id=0)
-        #     numbers = [
-        #         int(word) for word in message.content.split(" ") if word.isdigit()
-        #     ]
-        #     embed = Embed()
-        #     embed.add_field(name=f"Level ➡ Experience", value="", inline=True)
-        #     for level, xp in actor.level_xp_table(numbers[0], numbers[1]):
-        #         embed.add_field(name=f"{level} ➡ {xp}", value="", inline=False)
-        #     await message.channel.send(embed=embed)
         # if "rnk" in message.content:
         #     actor = Actor(None, id=0)
         #     numbers = [

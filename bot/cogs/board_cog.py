@@ -2,12 +2,12 @@ import asyncio
 
 from discord import Color, Embed, Interaction, Member, User, app_commands
 from discord.ext.commands import Cog
-from humanize import intcomma, naturaltime
+from humanize import intcomma, intword, metric, naturalsize, naturaltime, ordinal
 from odmantic import query
+from tabulate import tabulate
 
 from bot.main import ActBot
 from db.actor import Actor
-from humanize import intword, metric, ordinal
 
 
 class Board(Cog, description="Allows players to view their data."):
@@ -49,11 +49,11 @@ class Board(Cog, description="Allows players to view their data."):
         )
         embed.add_field(
             name="Experience",
-            value=f"⏫ **{actor.xp}** / {actor.next_level_xp}\n{actor.xp_bar}",
+            value=f"⏫ **{intcomma(actor.xp)}** / {actor.next_level_xp}\n{actor.xp_bar}",
         )
         embed.add_field(name="", value="", inline=False)
-        embed.add_field(name="Gold", value=f"💰 **{actor.gold}**")
-        embed.add_field(name="Items", value=f"🎒 **{len(actor.items)}**")
+        embed.add_field(name="Gold", value=f"💰 **{intcomma(actor.gold)}**")
+        embed.add_field(name="Items", value=f"🎒 **{intcomma(len(actor.items))}**")
         if isinstance(member, Member):
             embed.add_field(
                 name="Joined",
@@ -105,22 +105,24 @@ class Board(Cog, description="Allows players to view their data."):
         for i, actor in enumerate(actors):
             if i == 0:
                 top_actor = actor
-            name = f"{actor.display_name} ({actor.name})"
+            name = f"{actor.display_name} @{actor.name}"
             rank = actor.rank_name
             level = str(actor.level)
-            xp = intcomma(actor.xp)
-            gold = intcomma(actor.gold)
-            leaderboard_text += (
-                f"# {(i+1):<2} {name}\n\t 🏆{rank:<2}  🏅{level}  ⏫{xp}  💰{gold}\n\n"
-            )
+            xp = naturalsize(actor.xp, binary=False, gnu=True).replace("B", "")
+            gold = naturalsize(actor.gold, binary=False, gnu=True).replace("B", "")
+            leaderboard_text += f"#{(i+1):<2} {name}\n\t 🏆{rank:<2} 🏅{level:<2} ⏫{xp:<8} 💰{gold}\n\n"
         leaderboard_text += "```"
 
         # Create embed
         embed = Embed(title="🏆 Leaderboard", color=Color.blue())
-        top_member = guild.get_member(top_actor.id) or await guild.fetch_member(
-            top_actor.id
-        )
-        if top_member:
-            embed.set_thumbnail(url=top_member.display_avatar)
+        try:
+            top_member = guild.get_member(top_actor.id) or await guild.fetch_member(
+                top_actor.id
+            )
+            if top_member:
+                embed.set_thumbnail(url=top_member.display_avatar)
+        except:
+            pass
         embed.add_field(name="", value=leaderboard_text, inline=False)
+        await interaction.followup.send(embed=embed)
         await interaction.followup.send(embed=embed)

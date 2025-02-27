@@ -93,11 +93,9 @@ class Farm(Cog, description="Allows players to gain stats and roles."):
     @staticmethod
     def calculate_xp_reward(message: Message):
         word_count = 0
-        message_content = message.content
 
         # Exclude URLs
-        message_content = re.sub(r"https?://\S+", "", message_content)  # Remove URLs
-        word_count += len(message_content.split())
+        word_count += len(re.sub(r"https?://\S+", "", message.content).split())
 
         # Handle embeds
         if message.embeds:

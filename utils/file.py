@@ -15,6 +15,9 @@ NonEmptyStr = Annotated[str, StringConstraints(min_length=1, strip_whitespace=Tr
 log = logger(__name__)
 
 
+# ----------------------------------------------------------------------------------------------------
+# * Act File
+# ----------------------------------------------------------------------------------------------------
 class ActFile(BaseModel):
     """General-purpose simple file interface."""
 
