@@ -16,6 +16,7 @@ from discord import (
 from discord.ext.commands import Bot, Cog
 from odmantic import SyncEngine
 
+from bot.ui import EmbedX
 from db.actor import Actor
 from db.main import ActDb, DbRef
 from utils.log import logger
@@ -54,7 +55,8 @@ class ActBot(Bot):
         log.loading("Bot client connecting...")
 
     # ----------------------------------------------------------------------------------------------------
-
+    # * On Ready
+    # ----------------------------------------------------------------------------------------------------
     @Cog.listener()
     async def on_ready(self):
         log.success(f"🎮 Bot client connected as {self.user}.")
@@ -64,15 +66,21 @@ class ActBot(Bot):
         # log.info("\n" + self.commands_info_text)
         # await self.sync_commands()
 
+    # ----------------------------------------------------------------------------------------------------
+    # * On Message
+    # ----------------------------------------------------------------------------------------------------
     @Cog.listener()
     async def on_message(self, message: Message):
         self.log_message(message)
         await self.process_commands(message)
 
+    # ----------------------------------------------------------------------------------------------------
+    # * On Error
+    # ----------------------------------------------------------------------------------------------------
     async def on_error(
         self, interaction: Interaction, error: app_commands.AppCommandError
     ):
-        embed = Embed(title="⛔ Error", description=f"{error}", color=Color.red())
+        embed = EmbedX.error(f"{error}", "Unexpected Error")
         if not interaction.response.is_done():
             await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
@@ -184,15 +192,17 @@ class ActBot(Bot):
 
     # ----------------------------------------------------------------------------------------------------
 
-    def get_db(self, guild: Guild | None = None) -> SyncEngine | None:
+    def get_db(self, guild: Guild | None = None) -> SyncEngine:
         """Get database engine with database of given guild. If no guild, get engine with main database. If nonexistent, create."""
         if self._db:
-            return (
+            db = (
                 self._db.get_engine(guild.id, guild.name)
                 if guild
                 else self._db.get_engine()
             )
-        log.error("No database access. Missing database engine instance.")
+            if db:
+                return db
+        raise ValueError("Missing database.")
 
     def create_db_ref(self, guild: Guild) -> DbRef:
         """Get database reference of given guild. If nonexistent, create."""

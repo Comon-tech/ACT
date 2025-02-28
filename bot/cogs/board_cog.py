@@ -7,13 +7,20 @@ from odmantic import query
 from tabulate import tabulate
 
 from bot.main import ActBot
+from bot.ui import EmbedX
 from db.actor import Actor
 
 
+# ----------------------------------------------------------------------------------------------------
+# * Board Cog
+# ----------------------------------------------------------------------------------------------------
 class Board(Cog, description="Allows players to view their data."):
     def __init__(self, bot: ActBot):
         self.bot = bot
 
+    # ----------------------------------------------------------------------------------------------------
+    # * Profile
+    # ----------------------------------------------------------------------------------------------------
     @app_commands.guild_only()
     @app_commands.command(
         description="View your or another member's profile information"
@@ -23,10 +30,7 @@ class Board(Cog, description="Allows players to view their data."):
     ):
         await interaction.response.defer()
         member = member or interaction.user
-        embed = Embed(
-            title=f"👤 {member.display_name}",
-            color=Color.blue(),
-        )
+        embed = EmbedX.info(icon="👤", title=member.display_name)
         if isinstance(member, Member):
             embed.description = " ".join(
                 [
@@ -36,7 +40,7 @@ class Board(Cog, description="Allows players to view their data."):
                 ]
             )
         db = self.bot.get_db(interaction.guild)
-        actor = db.find_one(Actor, Actor.id == member.id) if db else None
+        actor = db.find_one(Actor, Actor.id == member.id)
         if not actor:
             actor = self.bot.create_actor(member)
         embed.add_field(name="", value="", inline=False)
@@ -64,6 +68,9 @@ class Board(Cog, description="Allows players to view their data."):
         embed.set_thumbnail(url=member.display_avatar.url)
         await interaction.followup.send(embed=embed)
 
+    # ----------------------------------------------------------------------------------------------------
+    # * Leaderboard
+    # ----------------------------------------------------------------------------------------------------
     @app_commands.guild_only()
     @app_commands.command(description="View top members")
     async def leaderboard(self, interaction: Interaction):
@@ -75,19 +82,15 @@ class Board(Cog, description="Allows players to view their data."):
         # Get top actors
         await interaction.response.defer()
         db = self.bot.get_db(interaction.guild)
-        actors = (
-            db.find(
-                Actor,
-                sort=(
-                    query.desc(Actor.rank),
-                    query.desc(Actor.level),
-                    query.desc(Actor.xp),
-                    query.desc(Actor.gold),
-                ),
-                limit=10,
-            )
-            if db
-            else None
+        actors = db.find(
+            Actor,
+            sort=(
+                query.desc(Actor.rank),
+                query.desc(Actor.level),
+                query.desc(Actor.xp),
+                query.desc(Actor.gold),
+            ),
+            limit=10,
         )
         if not actors:
             await interaction.followup.send(
@@ -114,7 +117,7 @@ class Board(Cog, description="Allows players to view their data."):
         leaderboard_text += "```"
 
         # Create embed
-        embed = Embed(title="🏆 Leaderboard", color=Color.blue())
+        embed = EmbedX.info(icon="🏆", title="Leaderboard")
         try:
             top_member = guild.get_member(top_actor.id) or await guild.fetch_member(
                 top_actor.id
@@ -124,5 +127,4 @@ class Board(Cog, description="Allows players to view their data."):
         except:
             pass
         embed.add_field(name="", value=leaderboard_text, inline=False)
-        await interaction.followup.send(embed=embed)
         await interaction.followup.send(embed=embed)

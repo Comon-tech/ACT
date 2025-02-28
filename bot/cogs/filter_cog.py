@@ -6,6 +6,7 @@ from discord.ext.commands import Cog
 from profanity_check import predict_prob
 
 from bot.main import ActBot
+from bot.ui import EmbedX
 from db.actor import Actor
 from utils.log import logger
 
@@ -24,6 +25,9 @@ class Filter(Cog, description="Filters blacklisted message content."):
         self.bot = bot
         self.offenses = defaultdict(int)  # { user_id : offense_count }
 
+    # ----------------------------------------------------------------------------------------------------
+    # * On Message
+    # ----------------------------------------------------------------------------------------------------
     @Cog.listener()
     async def on_message(self, message: Message):
         # Ignore DM & bot messages
@@ -43,11 +47,7 @@ class Filter(Cog, description="Filters blacklisted message content."):
 
         # Delete & replace message
         await message.delete()
-        embed = Embed(
-            title="",
-            description=censored_content,
-            color=Color.red(),
-        )
+        embed = EmbedX.error(censored_content, "", "")
         embed.add_field(name="", value="")
         embed.set_author(name=member.display_name, icon_url=member.avatar)
         embed.set_footer(text="🚫 Censored Message")
@@ -62,8 +62,6 @@ class Filter(Cog, description="Filters blacklisted message content."):
 
         # Penalize by gold
         db = self.bot.get_db(message.guild)
-        if not db:
-            return
         actor = db.find_one(Actor, Actor.id == member.id)
         if not actor:
             actor = self.bot.create_actor(member)
@@ -82,10 +80,10 @@ class Filter(Cog, description="Filters blacklisted message content."):
             await member.timeout(time, reason="Filter")
 
         # Notice
-        embed = Embed(
-            title=f"🚨 Penalty",
-            description=f"{member.display_name} {member.mention} has been penalized for repeated use of offensive language.",
-            color=Color.red(),
+        embed = EmbedX.error(
+            icon="🚨",
+            title="Penalty",
+            description=f"{member.mention} has been penalized for repeated use of offensive language.",
         )
         embed.add_field(name="", value="", inline=False)
         embed.add_field(name="Gold 🔻", value=f"💰 **-{self.GOLD_PENALTY}**")
@@ -95,7 +93,11 @@ class Filter(Cog, description="Filters blacklisted message content."):
                 value=f"⏳ **{time}**\n💰 **{debt_gold}** _Debt Converted_",
             )
         embed.set_thumbnail(url=member.display_avatar.url)
-        await censored_message.reply(embed=embed)
+        await censored_message.reply(
+            content=f"Sorry, {member.mention}! 💀", embed=embed
+        )
+
+    # ----------------------------------------------------------------------------------------------------
 
     @classmethod
     def get_profane_words(cls, words: list[str]) -> list[str]:

@@ -1,28 +1,24 @@
-import asyncio
-import random
 import re
+from random import randint
 
-from discord import (
-    Color,
-    Embed,
-    Member,
-    Message,
-    Permissions,
-    Role,
-    TextChannel,
-    User,
-    utils,
-)
-from discord.ext.commands import Bot, Cog
+from discord import Color, Embed, Member, Message, Role, utils
+from discord.ext.commands import Cog
 
 from bot.main import ActBot
+from bot.ui import EmbedX
 from db.actor import Actor
 
 
+# ----------------------------------------------------------------------------------------------------
+# * Farm Cog
+# ----------------------------------------------------------------------------------------------------
 class Farm(Cog, description="Allows players to gain stats and roles."):
     def __init__(self, bot: ActBot):
         self.bot = bot
 
+    # ----------------------------------------------------------------------------------------------------
+    # * On Message
+    # ----------------------------------------------------------------------------------------------------
     @Cog.listener()
     async def on_message(self, message: Message):
         # Ignore DM & bot messages
@@ -32,8 +28,6 @@ class Farm(Cog, description="Allows players to gain stats and roles."):
 
         # Get or create actor
         db = self.bot.get_db(message.guild)
-        if not db:
-            return
         actor = db.find_one(Actor, Actor.id == member.id)
         if not actor:
             actor = self.bot.create_actor(member)
@@ -55,35 +49,39 @@ class Farm(Cog, description="Allows players to gain stats and roles."):
 
         # Try level-up
         if actor.try_level_up():
-            gold_reward = random.randint(1, 500) * actor.level
+            gold_reward = randint(1, 500) * actor.level
             actor.gold += gold_reward
-            embed = Embed(
-                title=f"🏅 Level Up",
-                description=f"{member.display_name} {member.mention} has reached a new level and has been rewarded.",
-                color=Color.green(),
+            embed = EmbedX.success(
+                icon="🏅",
+                title="Level Up",
+                description=f"{member.mention} has reached a new level and has been rewarded.",
             )
             embed.add_field(name="", value="", inline=False)
             embed.add_field(name="Level ✨", value=f"🏅 **{actor.level}**")
             embed.add_field(name="Gold 🔼", value=f"💰 **+{gold_reward}**")
             embed.set_thumbnail(url=member.display_avatar.url)
-            await message.channel.send(embed=embed)
+            await message.channel.send(
+                content=f"Congratulations, {member.mention}! 🎉", embed=embed
+            )
 
         # Try role-up
         if actor.try_rank_up():
             # awarded_role = await self.award_role(member, actor.rank_name)
             # if awarded_role:
-            gold_reward = random.randint(1, 1000) * actor.level
+            gold_reward = randint(1, 1000) * actor.level
             actor.gold += gold_reward
-            embed = Embed(
-                title=f"🏆 Rank Up",
-                description=f"{member.display_name} {member.mention} has reached a new rank and has been rewarded.",
-                color=Color.green(),
+            embed = EmbedX.success(
+                icon="🏆",
+                title="Rank Up",
+                description=f"{member.mention} has reached a new rank and has been rewarded.",
             )
             embed.add_field(name="", value="", inline=False)
             embed.add_field(name="Rank ✨", value=f"🏆 **{actor.rank_name}**")
             embed.add_field(name="Gold 🔼", value=f"💰 **+{gold_reward}**")
             embed.set_thumbnail(url=member.display_avatar.url)
-            await message.channel.send(embed=embed)
+            await message.channel.send(
+                content=f"Congratulations, {member.mention}! 🎉", embed=embed
+            )
 
         # Save changes
         db.save(actor)
@@ -108,7 +106,7 @@ class Farm(Cog, description="Allows players to gain stats and roles."):
         # Minimum word count (to avoid 0 XP rewards)
         word_count = max(1, word_count)  # Ensure at least 1 word is counted
 
-        return random.randint(1, word_count)
+        return randint(1, word_count)
 
     @staticmethod
     async def try_award_role(member: Member, role_name: str) -> Role | None:
