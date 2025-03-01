@@ -10,7 +10,9 @@ from db.actor import Actor
 # ----------------------------------------------------------------------------------------------------
 # * Help Cog
 # ----------------------------------------------------------------------------------------------------
-class Help(GroupCog, description="Provides help and information interface."):
+class HelpCog(
+    GroupCog, name="help", description="Provides help and information interface."
+):
     def __init__(self, bot: ActBot):
         self.bot = bot
 

@@ -2,11 +2,11 @@ import pathlib
 import tomllib
 from datetime import UTC, datetime
 
-from discord import Guild, Member, Message, User
+from discord import Guild, Interaction, Member, Message, User, app_commands
 from discord.ext import tasks
 from discord.ext.commands import Cog
 from google.genai.errors import APIError
-from odmantic import AIOEngine, Model, query
+from odmantic import query
 
 from bot.main import ActBot
 from db.actor import Actor
@@ -45,7 +45,16 @@ class AI(Cog, description="Integrated generative AI chat bot."):
         self.cooldown_guild.cancel()
 
     # ----------------------------------------------------------------------------------------------------
+    # * Incite
+    # ----------------------------------------------------------------------------------------------------
+    # @app_commands.checks.has_permissions(administrator=True)
+    # @app_commands.command(description="")
+    # async def incite(self, interaction: Interaction, member: Member):
+    #     pass
 
+    # ----------------------------------------------------------------------------------------------------
+    # * On Message
+    # ----------------------------------------------------------------------------------------------------
     @Cog.listener()
     async def on_message(self, message: Message):
         # Ignore if bot own message or bot not mentioned

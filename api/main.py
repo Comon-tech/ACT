@@ -1,3 +1,4 @@
+import pathlib
 from contextlib import asynccontextmanager
 from typing import cast
 from urllib.parse import urlparse
@@ -5,14 +6,12 @@ from urllib.parse import urlparse
 import uvicorn
 import uvicorn.server
 from colorama import Fore
-from discord.ext.commands import Bot
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 from starlette.routing import Route
 
+from bot.main import ActBot
 from utils.log import LOG_CONFIG, logger
-from utils.misc import text_block
-
-from .routes import add_routes
+from utils.misc import import_classes, text_block
 
 log = logger(__name__)
 
@@ -21,7 +20,7 @@ log = logger(__name__)
 # * ACT API
 # ----------------------------------------------------------------------------------------------------
 class ActApi(FastAPI):
-    def __init__(self, bot: Bot | None = None, url="", *args, **kwargs):
+    def __init__(self, bot: "ActBot | None" = None, url="", *args, **kwargs):
         @asynccontextmanager
         async def lifespan(self: ActApi):
             try:
@@ -47,8 +46,7 @@ class ActApi(FastAPI):
                 log_config=LOG_CONFIG,
             )
         )
-        if bot:
-            add_routes(self, bot)
+        self.load_routers()
 
     # ----------------------------------------------------------------------------------------------------
 
@@ -68,6 +66,29 @@ class ActApi(FastAPI):
                 f"\n• [{methods}] {Fore.CYAN}{route.path}{Fore.RESET} ({route.name})"
             )
         return text_block(output)
+
+    # ----------------------------------------------------------------------------------------------------
+
+    def load_routers(self):
+        router_classes = import_classes(
+            f"{pathlib.Path(__file__).parent}/routers", APIRouter
+        )
+        log.loading("Loading routers...")
+        loaded_routers_count = 0
+        for router_class in router_classes:
+            try:
+                router: APIRouter = router_class(self.bot)
+                self.include_router(router)
+                log.info(
+                    f"{router.__class__.__name__} router loaded from {router.__module__} module."
+                )
+                loaded_routers_count += 1
+            except Exception as e:
+                log.error(
+                    f"Error loading {router_class.__class__.__name__} router from {router_class.__module__} module:\t",
+                    e,
+                )
+        log.success(f"{loaded_routers_count}/{len(router_classes)} routers loaded.")
 
     # ----------------------------------------------------------------------------------------------------
 

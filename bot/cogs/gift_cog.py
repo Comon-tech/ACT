@@ -11,7 +11,7 @@ from db.actor import Actor
 # ----------------------------------------------------------------------------------------------------
 # * Gift Cog
 # ----------------------------------------------------------------------------------------------------
-class Gift(Cog, description="Allows players to gift eachother."):
+class GiftCog(Cog, description="Allows players to gift eachother."):
     def __init__(self, bot: ActBot):
         self.bot = bot
 

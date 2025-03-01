@@ -60,10 +60,10 @@ class ActBot(Bot):
     @Cog.listener()
     async def on_ready(self):
         log.success(f"🎮 Bot client connected as {self.user}.")
-        # log.info("\n" + self.cogs_info_text)
+        log.info("\n" + self.cogs_info_text)
         log.info("\n" + self.app_commands_info_text)
-        # log.info("\n" + await self.app_commands_remote_info_text)
-        # log.info("\n" + self.commands_info_text)
+        log.info("\n" + await self.app_commands_remote_info_text)
+        log.info("\n" + self.commands_info_text)
         # await self.sync_commands()
 
     # ----------------------------------------------------------------------------------------------------
@@ -210,7 +210,12 @@ class ActBot(Bot):
 
     def create_actor(self, member: Member | User) -> Actor:
         """Create actor from given member."""
-        return Actor(id=member.id, name=member.name, display_name=member.display_name)
+        return Actor(
+            id=member.id,
+            name=member.name,
+            display_name=member.display_name,
+            avatar_url=member.display_avatar.url if member.avatar else "",
+        )
 
     # ----------------------------------------------------------------------------------------------------
 

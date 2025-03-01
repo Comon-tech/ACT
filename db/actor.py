@@ -16,6 +16,7 @@ class Actor(Model):
     id: int = Field(primary_field=True)
     name: str = ""
     display_name: str = ""
+    avatar_url: str = ""
 
     ai_interacted_at: Optional[datetime] = None  # Last time actor interacted with AI
 

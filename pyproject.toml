@@ -38,5 +38,5 @@ app-prod = { cmd = "python main.py", help = "run app for production" }
 #----------------------------------------------------------------------------------------------------
 [tool.act.components]
 bot = true
-api = false
+api = true
 db = true

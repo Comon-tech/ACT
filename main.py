@@ -67,6 +67,7 @@ async def main():
         bot = None
         if bot_enabled:
             intents = Intents.default()
+            intents.members = True
             intents.message_content = True
             bot = ActBot(
                 token=bot_token or "",

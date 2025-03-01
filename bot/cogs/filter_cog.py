@@ -16,7 +16,7 @@ log = logger(__name__)
 # ----------------------------------------------------------------------------------------------------
 # * Filter Cog
 # ----------------------------------------------------------------------------------------------------
-class Filter(Cog, description="Filters blacklisted message content."):
+class FilterCog(Cog, description="Filters blacklisted message content."):
     TOLERANCE = 0.99  # Between 0 and 1
     MAX_OFFENSES = 5
     GOLD_PENALTY = 500
@@ -57,7 +57,7 @@ class Filter(Cog, description="Filters blacklisted message content."):
         if member.guild_permissions.administrator:
             return
         self.offenses[member.id] += 1
-        if self.offenses[member.id] < Filter.MAX_OFFENSES:
+        if self.offenses[member.id] < FilterCog.MAX_OFFENSES:
             return
 
         # Penalize by gold

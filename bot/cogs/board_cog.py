@@ -1,6 +1,6 @@
 import asyncio
 
-from discord import Color, Embed, Interaction, Member, User, app_commands
+from discord import Color, Embed, Guild, Interaction, Member, User, app_commands
 from discord.ext.commands import Cog
 from humanize import intcomma, intword, metric, naturalsize, naturaltime, ordinal
 from odmantic import query
@@ -14,7 +14,7 @@ from db.actor import Actor
 # ----------------------------------------------------------------------------------------------------
 # * Board Cog
 # ----------------------------------------------------------------------------------------------------
-class Board(Cog, description="Allows players to view their data."):
+class BoardCog(Cog, description="Allows players to view their data."):
     def __init__(self, bot: ActBot):
         self.bot = bot
 
@@ -81,17 +81,7 @@ class Board(Cog, description="Allows players to view their data."):
 
         # Get top actors
         await interaction.response.defer()
-        db = self.bot.get_db(interaction.guild)
-        actors = db.find(
-            Actor,
-            sort=(
-                query.desc(Actor.rank),
-                query.desc(Actor.level),
-                query.desc(Actor.xp),
-                query.desc(Actor.gold),
-            ),
-            limit=10,
-        )
+        actors = self.get_top_actors(interaction.guild)
         if not actors:
             await interaction.followup.send(
                 embed=Embed(
@@ -128,3 +118,18 @@ class Board(Cog, description="Allows players to view their data."):
             pass
         embed.add_field(name="", value=leaderboard_text, inline=False)
         await interaction.followup.send(embed=embed)
+
+    # ----------------------------------------------------------------------------------------------------
+
+    def get_top_actors(self, guild: Guild | None, limit: int = 10):
+        db = self.bot.get_db(guild)
+        return db.find(
+            Actor,
+            sort=(
+                query.desc(Actor.rank),
+                query.desc(Actor.level),
+                query.desc(Actor.xp),
+                query.desc(Actor.gold),
+            ),
+            limit=limit,
+        )
