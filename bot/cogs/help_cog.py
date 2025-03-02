@@ -1,4 +1,4 @@
-from discord import Color, Embed, Interaction, app_commands
+from discord import Color, Embed, Interaction, Member, app_commands
 from discord.ext.commands import Cog, GroupCog
 from tabulate import tabulate
 
@@ -28,15 +28,23 @@ class HelpCog(
             color=Color.blue(),
         )
         for cmd in all_cmds:
-            embed.add_field(
-                name=f"/{cmd.name}",
-                value=(
-                    cmd.description
-                    if not isinstance(cmd, app_commands.commands.ContextMenu)
-                    else ""
-                ),
-                inline=False,
-            )
+            # Check if command has administrator requirement in default_permissions
+            admin_required = False
+            if hasattr(cmd, "default_permissions") and cmd.default_permissions:
+                admin_required = cmd.default_permissions.administrator
+            if not admin_required or (
+                isinstance(interaction.user, Member)
+                and interaction.user.guild_permissions.administrator
+            ):
+                embed.add_field(
+                    name=f"/{cmd.name}",
+                    value=(
+                        cmd.description
+                        if not isinstance(cmd, app_commands.commands.ContextMenu)
+                        else ""
+                    ),
+                    inline=False,
+                )
         if self.bot.user:
             embed.set_thumbnail(url=self.bot.user.display_avatar)
         await interaction.response.send_message(embed=embed)

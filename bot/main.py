@@ -85,6 +85,7 @@ class ActBot(Bot):
             await interaction.response.send_message(embed=embed, ephemeral=True)
         else:
             await interaction.followup.send(embed=embed, ephemeral=True)
+        log.exception(error)
 
     # ----------------------------------------------------------------------------------------------------
 

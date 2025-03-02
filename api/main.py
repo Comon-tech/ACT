@@ -53,7 +53,9 @@ class ActApi(FastAPI):
     @property
     def info_text(self):
         scheme, netloc = self.address.scheme, self.address.netloc
-        full_url = lambda txt=None: f"{Fore.BLUE}{scheme}://{netloc}{txt}{Fore.RESET}"
+        full_url = (
+            lambda txt=None: f"{Fore.GREEN}{scheme}://{netloc}{txt or ""}{Fore.RESET}"
+        )
         output = "Links:"
         output += f"\n• Root: {full_url()}"
         output += f"\n• Swagger: {full_url(self.docs_url)}"

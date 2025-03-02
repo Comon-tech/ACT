@@ -2,13 +2,26 @@ import pathlib
 import tomllib
 from datetime import UTC, datetime
 
-from discord import Guild, Interaction, Member, Message, User, app_commands
+from discord import (
+    DMChannel,
+    GroupChannel,
+    Guild,
+    Interaction,
+    Member,
+    Message,
+    TextChannel,
+    Thread,
+    User,
+    app_commands,
+)
+from discord.abc import Messageable
 from discord.ext import tasks
 from discord.ext.commands import Cog
 from google.genai.errors import APIError
 from odmantic import query
 
 from bot.main import ActBot
+from bot.ui import EmbedX
 from db.actor import Actor
 from db.main import DbRef
 from utils.ai import ActAi
@@ -22,7 +35,7 @@ log = logger(__name__)
 # ----------------------------------------------------------------------------------------------------
 # * AI Cog
 # ----------------------------------------------------------------------------------------------------
-class AI(Cog, description="Integrated generative AI chat bot."):
+class AiCog(Cog, description="Integrated generative AI chat bot."):
     CONFIG_PATH = pathlib.Path(__file__).parent / "ai_cog.toml"
     MAX_FILE_SIZE = 524288  # 512 KB (0.5 MB)
     COOLDOWN_TIME = 60  # 1 min
@@ -47,10 +60,74 @@ class AI(Cog, description="Integrated generative AI chat bot."):
     # ----------------------------------------------------------------------------------------------------
     # * Incite
     # ----------------------------------------------------------------------------------------------------
-    # @app_commands.checks.has_permissions(administrator=True)
-    # @app_commands.command(description="")
-    # async def incite(self, interaction: Interaction, member: Member):
-    #     pass
+    @app_commands.guild_only()
+    @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.default_permissions(administrator=True)
+    @app_commands.command(description="Incite AI chat bot to interact on its own")
+    async def incite(
+        self,
+        interaction: Interaction,
+        prompt: str | None = None,
+        member: Member | None = None,
+    ):
+        # Deny bot-self & DM & non-messageable channel
+        if (
+            self.bot.user == member
+            or not interaction.guild
+            or not isinstance(interaction.channel, Messageable)
+        ):
+            await interaction.response.send_message(
+                embed=EmbedX.warning("This command cannot be used in this context."),
+                ephemeral=True,
+            )
+            return
+
+        # Prepare prompt
+        text_prompt = (
+            f"Begin natural talk{f" w/ {member.mention} " if member else " "}that feels like ur own initiative."
+            f"Absolutely avoid references to instructions, prompts, or being told to message them."
+            f"{ f'follow this prompt:"{prompt.strip()}".' if prompt else "" }"
+        )
+
+        # Defer response to prevent timeout
+        await interaction.response.defer(ephemeral=True)
+
+        # Save current member who interacted to be remembered next time
+        if member:
+            self.save_actor_interaction(interaction.guild, member)
+
+        # Load members who interacted before
+        actors = self.load_actors(interaction.guild)
+        if actors:
+            text_prompt += f"\n{text_csv(actors, "|")}"
+
+        # Perform prompt
+        log.info(f"[Prompt] {text_prompt}")
+        try:
+            self.ai.use_session(
+                interaction.guild.id, history=self.load_history(interaction.guild)
+            )
+            reply = (
+                self.ai.prompt(text=text_prompt)
+                or f"👋 {member.mention if member else ""}"
+            )
+            await interaction.followup.send(
+                embed=EmbedX.success(
+                    title="Incentive",
+                    description=f"{self.bot.user} has been incited to talk {f"with {member.mention}" if member else ""}."
+                    f"\n\n**Prompt:**```{text_prompt}```",
+                ),
+                ephemeral=True,
+            )
+            async with interaction.channel.typing():
+                await interaction.channel.send(reply)
+        except Exception as e:
+            await interaction.followup.send(embed=EmbedX.error(str(e)), ephemeral=True)
+            log.exception(e)
+            return
+
+        # Save history
+        self.save_history(interaction.guild)
 
     # ----------------------------------------------------------------------------------------------------
     # * On Message
@@ -103,12 +180,15 @@ class AI(Cog, description="Integrated generative AI chat bot."):
                 f"{message.content.replace(self.bot.user.mention, "").strip()}"
             )
 
-            # Add members who interacted before
+            # Save current member who interacted to be remembered next time
+            self.save_actor_interaction(message.guild, message.author)
+
+            # Load members who interacted before
             actors = self.load_actors(message.guild)
             if actors:
                 text_prompt += f"\n{text_csv(actors, "|")}"
 
-            # Prompt AI
+            # Perform prompt
             log.info(f"[Prompt] {text_prompt} <{file_prompt}>")
             try:
                 self.ai.use_session(
@@ -131,8 +211,7 @@ class AI(Cog, description="Integrated generative AI chat bot."):
         fallback_reply = "What? 😕"
         await message.reply(reply or fallback_reply)
 
-        # Save current member who interacted to be remembered next time
-        self.save_actor_interaction(message.guild, message.author)
+        # Save current chat session
         self.save_history(message.guild)
 
     # ----------------------------------------------------------------------------------------------------
