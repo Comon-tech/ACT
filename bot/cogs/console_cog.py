@@ -16,6 +16,7 @@ class ConsoleCog(Cog, description="Provides control and management interface."):
     # ----------------------------------------------------------------------------------------------------
     # * Sync
     # ----------------------------------------------------------------------------------------------------
+    @app_commands.default_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.command(description="Synchronize commands")
     async def sync(self, interaction: Interaction):

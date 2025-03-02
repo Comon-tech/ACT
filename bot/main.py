@@ -211,12 +211,7 @@ class ActBot(Bot):
 
     def create_actor(self, member: Member | User) -> Actor:
         """Create actor from given member."""
-        return Actor(
-            id=member.id,
-            name=member.name,
-            display_name=member.display_name,
-            avatar_url=member.display_avatar.url if member.avatar else "",
-        )
+        return Actor(id=member.id, name=member.name, display_name=member.display_name)
 
     # ----------------------------------------------------------------------------------------------------
 

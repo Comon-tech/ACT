@@ -2,18 +2,7 @@ import pathlib
 import tomllib
 from datetime import UTC, datetime
 
-from discord import (
-    DMChannel,
-    GroupChannel,
-    Guild,
-    Interaction,
-    Member,
-    Message,
-    TextChannel,
-    Thread,
-    User,
-    app_commands,
-)
+from discord import Guild, Interaction, Member, Message, User, app_commands
 from discord.abc import Messageable
 from discord.ext import tasks
 from discord.ext.commands import Cog
