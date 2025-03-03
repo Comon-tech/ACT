@@ -27,7 +27,7 @@ class ActApi(FastAPI):
                 log.success(
                     f"🦄 API server connected at {self.address.hostname}:{self.address.port}."
                 )
-                log.info("\n" + self.info_text)
+                # log.info("\n" + self.info_text)
             except Exception as e:
                 log.error(e)
             yield

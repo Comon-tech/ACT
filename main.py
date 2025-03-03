@@ -69,6 +69,7 @@ async def main():
             intents = Intents.default()
             intents.members = True
             intents.message_content = True
+            intents.guilds = True
             bot = ActBot(
                 token=bot_token or "",
                 command_prefix="!",

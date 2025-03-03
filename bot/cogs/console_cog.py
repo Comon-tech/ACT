@@ -19,9 +19,10 @@ class ConsoleCog(Cog, description="Provides control and management interface."):
     @app_commands.default_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.command(description="Synchronize commands")
-    async def sync(self, interaction: Interaction):
-        count = await self.bot.sync_commands()
-        await interaction.response.send_message(
+    async def sync(self, interaction: Interaction, global_sync: bool = True):
+        await interaction.response.defer(ephemeral=True)
+        count = await self.bot.sync_commands(None if global_sync else interaction.guild)
+        await interaction.followup.send(
             embed=EmbedX.success(
                 title="Commands Synchronization",
                 description=f"{count[0]}/{count[1]} commands synchronized.",

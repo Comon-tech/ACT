@@ -1,5 +1,6 @@
 import pathlib
 
+import discord
 from colorama import Fore
 from discord import (
     Color,
@@ -8,6 +9,7 @@ from discord import (
     Interaction,
     Member,
     Message,
+    Object,
     Permissions,
     User,
     VoiceClient,
@@ -60,10 +62,10 @@ class ActBot(Bot):
     @Cog.listener()
     async def on_ready(self):
         log.success(f"🎮 Bot client connected as {self.user}.")
-        log.info("\n" + self.cogs_info_text)
-        log.info("\n" + self.app_commands_info_text)
-        log.info("\n" + await self.app_commands_remote_info_text)
-        log.info("\n" + self.commands_info_text)
+        # log.info("\n" + self.cogs_info_text)
+        # log.info("\n" + self.app_commands_info_text)
+        # log.info("\n" + await self.app_commands_remote_info_text)
+        # log.info("\n" + self.commands_info_text)
         # await self.sync_commands()
 
     # ----------------------------------------------------------------------------------------------------
@@ -106,11 +108,12 @@ class ActBot(Bot):
                 )
         log.success(f"{len(self.cogs)}/{len(cog_classes)} cogs loaded.")
 
-    async def sync_commands(self) -> tuple[int, int]:
+    async def sync_commands(self, guild: Guild | None = None) -> tuple[int, int]:
         """Sync commands and get (synced, all) commands count."""
         log.loading("Syncing commands...")
-        all_cmds = self.tree.get_commands()
-        synced_cmds = await self.tree.sync()
+        guild_obj = Object(id=guild.id) if guild else None
+        all_cmds = self.tree.get_commands(guild=guild_obj)
+        synced_cmds = await self.tree.sync(guild=guild_obj)
         for cmd in synced_cmds:
             log.info(f"{cmd} command synced.")
         count = (len(synced_cmds), len(all_cmds))

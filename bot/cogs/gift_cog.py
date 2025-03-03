@@ -20,6 +20,9 @@ class GiftCog(Cog, description="Allows players to gift eachother."):
     # ----------------------------------------------------------------------------------------------------
     @app_commands.guild_only()
     @app_commands.command(description="Give your gold to another member")
+    @app_commands.describe(
+        member="Member to donate gold to", gold="Amount of gold to donate"
+    )
     async def donate(self, interaction: Interaction, member: Member, gold: int):
         # Validate input
         if gold <= 0:

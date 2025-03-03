@@ -47,7 +47,7 @@ class ActDb:
         self._main_database = self._engine.database
         host, port = self._engine.client.address or ("?", "?")
         log.success(f"🍃 Database client connected to {host}:{port}.")
-        log.info("\n" + self.info_text)
+        # log.info("\n" + self.info_text)
 
     @property
     def info_text(self):

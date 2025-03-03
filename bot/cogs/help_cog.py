@@ -10,9 +10,7 @@ from db.actor import Actor
 # ----------------------------------------------------------------------------------------------------
 # * Help Cog
 # ----------------------------------------------------------------------------------------------------
-class HelpCog(
-    GroupCog, name="help", description="Provides help and information interface."
-):
+class HelpCog(Cog, description="Provides help and information interface."):
     def __init__(self, bot: ActBot):
         self.bot = bot
 
@@ -20,7 +18,7 @@ class HelpCog(
     # * Commands
     # ----------------------------------------------------------------------------------------------------
     @app_commands.command(description="View all commands")
-    async def commands(self, interaction: Interaction):
+    async def help(self, interaction: Interaction):
         all_cmds = self.bot.tree.get_commands()
         embed = Embed(
             title=f"🤖 {self.bot.title} v{self.bot.version}",
