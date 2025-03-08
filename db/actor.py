@@ -16,7 +16,7 @@ class Actor(Model):
     id: int = Field(primary_field=True)
     name: str = ""
     display_name: str = ""
-    avatar_url: str = ""
+    is_member: bool = True  # Still member in the server
 
     ai_interacted_at: Optional[datetime] = None  # Last time actor interacted with AI
     ai_chat_history: list[dict[str, Any]] = []

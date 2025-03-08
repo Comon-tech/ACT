@@ -40,6 +40,7 @@ class MemberRouter(APIRouter):
                         actors = (
                             db.find(
                                 Actor,
+                                Actor.is_member == True,
                                 sort=(
                                     query.desc(Actor.rank),
                                     query.desc(Actor.level),

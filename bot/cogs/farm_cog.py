@@ -17,6 +17,30 @@ class FarmCog(Cog, description="Allows players to gain stats and roles."):
         self.bot = bot
 
     # ----------------------------------------------------------------------------------------------------
+    # * On Member Join
+    # ----------------------------------------------------------------------------------------------------
+    @Cog.listener()
+    async def on_member_join(self, member: Member):
+        db = self.bot.get_db(member.guild)
+        actor = db.find_one(Actor, Actor.id == member.id)
+        if not actor:
+            actor = self.bot.create_actor(member)
+        actor.is_member = True
+        db.save(actor)
+
+    # ----------------------------------------------------------------------------------------------------
+    # * On Member Remove
+    # ----------------------------------------------------------------------------------------------------
+    @Cog.listener()
+    async def on_member_remove(self, member: Member):
+        db = self.bot.get_db(member.guild)
+        actor = db.find_one(Actor, Actor.id == member.id)
+        if not actor:
+            return
+        actor.is_member = False
+        db.save(actor)
+
+    # ----------------------------------------------------------------------------------------------------
     # * On Message
     # ----------------------------------------------------------------------------------------------------
     @Cog.listener()

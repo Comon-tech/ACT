@@ -34,7 +34,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
     MAX_FILE_SIZE = 524288  # 512 KB == 0.5 MB
     REPLY_DELAY_RANGE = (1, 5)  # 1 sec - 5 sec
     AUTO_REPLY_DELAY_RANGE = (5, 1800)  # 5 sec - 30 min
-    AUTO_REPLY_CHANCE = 0.3  # 30 %
+    AUTO_REPLY_CHANCE = 0.2  # 20 %
     INITIATIVE_DELAY_RANGE = (1800, 7200)  # 30 min - 2 hr
 
     def __init__(self, bot: ActBot):

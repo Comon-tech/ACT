@@ -122,6 +122,7 @@ class BoardCog(Cog, description="Allows players to view their data."):
         db = self.bot.get_db(guild)
         return db.find(
             Actor,
+            Actor.is_member == True,
             sort=(
                 query.desc(Actor.rank),
                 query.desc(Actor.level),
