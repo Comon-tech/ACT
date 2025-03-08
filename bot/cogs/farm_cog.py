@@ -1,7 +1,7 @@
 import re
 from random import randint
 
-from discord import Color, Embed, Member, Message, Role, utils
+from discord import Member, Message, Role, utils
 from discord.ext.commands import Cog
 
 from bot.main import ActBot

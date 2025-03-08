@@ -1,10 +1,7 @@
-import asyncio
-
 from discord import Color, Embed, Guild, Interaction, Member, User, app_commands
 from discord.ext.commands import Cog
-from humanize import intcomma, intword, metric, naturalsize, naturaltime, ordinal
+from humanize import intcomma, naturalsize, naturaltime
 from odmantic import query
-from tabulate import tabulate
 
 from bot.main import ActBot
 from bot.ui import EmbedX

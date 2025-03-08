@@ -14,7 +14,7 @@ log = logger(__name__)
 
 
 # ----------------------------------------------------------------------------------------------------
-# * Database reference
+# * Database Reference
 # ----------------------------------------------------------------------------------------------------
 class DbRef(Model):
     """Database model for storage of reference and relevant data about a database."""

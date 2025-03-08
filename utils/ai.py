@@ -67,7 +67,7 @@ class ActAi(BaseModel):
                 ]  # Sanitize history to ensure correct dumping in dump_history()
             chat = self._client.chats.create(model=self.model_name, history=history)  # type: ignore
             self._chats[id] = chat
-            self._current_chat_id = id
+        self._current_chat_id = id
         return chat
 
     def dump_history(self, id: int | None = None, history_max_items=20) -> list[dict]:

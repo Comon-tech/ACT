@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import timedelta
 
-from discord import Color, Embed, Member, Message
+from discord import Member, Message
 from discord.ext.commands import Cog
 from profanity_check import predict_prob
 
@@ -17,7 +17,7 @@ log = logger(__name__)
 # * Filter Cog
 # ----------------------------------------------------------------------------------------------------
 class FilterCog(Cog, description="Filters blacklisted message content."):
-    TOLERANCE = 0.99  # Between 0 and 1
+    TOLERANCE = 0.99  # 99 %
     MAX_OFFENSES = 5
     GOLD_PENALTY = 500
 
@@ -100,9 +100,11 @@ class FilterCog(Cog, description="Filters blacklisted message content."):
     # ----------------------------------------------------------------------------------------------------
 
     @classmethod
-    def get_profane_words(cls, words: list[str]) -> list[str]:
+    def get_profane_words(cls, words: list[str]) -> list[str] | None:
         """Get list of profane words from given list. If non found, get empty list."""
-        predictions = predict_prob(words)
+        predictions = predict_prob(words) if words else None
+        if predictions is None:
+            return None
         profane_words = []
         for i, word in enumerate(words):
             if predictions[i] >= cls.TOLERANCE:  # 1 means profane, 0 means clean

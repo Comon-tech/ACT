@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import ClassVar, Optional
+from typing import Any, ClassVar, Optional
 
 from odmantic import Field, Model
 from pydantic import NonNegativeInt
@@ -19,6 +19,7 @@ class Actor(Model):
     avatar_url: str = ""
 
     ai_interacted_at: Optional[datetime] = None  # Last time actor interacted with AI
+    ai_chat_history: list[dict[str, Any]] = []
 
     xp: NonNegativeInt = 0
     level: NonNegativeInt = 0

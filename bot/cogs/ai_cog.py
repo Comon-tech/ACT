@@ -1,21 +1,11 @@
-import asyncio
-import pathlib
 import tomllib
+from asyncio import CancelledError
 from datetime import UTC, datetime, timedelta
-from random import choice, randint
+from pathlib import Path
+from random import choice, randint, random
 
-from discord import (
-    Attachment,
-    Embed,
-    Guild,
-    Interaction,
-    Member,
-    Message,
-    User,
-    app_commands,
-)
+from discord import Attachment, Embed, Guild, Interaction, Member, Message, app_commands
 from discord.abc import Messageable
-from discord.ext import tasks
 from discord.ext.commands import Cog
 from google.genai.errors import APIError
 from humanize import naturaldelta
@@ -29,6 +19,7 @@ from utils.ai import ActAi
 from utils.file import ActFile
 from utils.log import logger
 from utils.misc import text_csv
+from utils.task import ActTaskManager, TaskRef
 
 log = logger(__name__)
 
@@ -37,11 +28,14 @@ log = logger(__name__)
 # * AI Cog
 # ----------------------------------------------------------------------------------------------------
 class AiCog(Cog, description="Integrated generative AI chat bot."):
-    CONFIG_PATH = pathlib.Path(__file__).parent / "ai_cog.toml"
+    CONFIG_PATH = Path(__file__).parent / "ai_cog.toml"
     MAX_ACTORS = 10
-    MAX_FILE_SIZE = 524288  # 524,288 B == 512 KB == 0.5 MB
-    COOLDOWN_TIME = 60  # 60 sec == 1 min
-    INCENTIVE_WAIT_TIME_RANGE = (3600, 43200)  # (3600, 43200) sec == (1, 12) hr
+    COOLDOWN_TIME = 60  # 1 min
+    MAX_FILE_SIZE = 524288  # 512 KB == 0.5 MB
+    REPLY_DELAY_RANGE = (1, 5)  # 1 sec - 5 sec
+    AUTO_REPLY_DELAY_RANGE = (5, 1800)  # 5 sec - 30 min
+    AUTO_REPLY_CHANCE = 0.3  # 30 %
+    INITIATIVE_DELAY_RANGE = (1800, 7200)  # 30 min - 2 hr
 
     def __init__(self, bot: ActBot):
         self.bot = bot
@@ -53,15 +47,11 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
             api_key=bot.api_keys.get("gemini", ""), instructions=persona_desc
         )
         log.info(f"AI persona @{persona_name} used.")
-        self.guilds_cooldown_time_left: dict[int, int] = {}  #  { guild_id: seconds }
-        self.guilds_incentive_tasks = {}  # { guild_id: task }
-        self.guild_incentive_startup_task.start()
+        self.task_manager = ActTaskManager()
+        self.task_manager.schedule("initiative", lambda _: self.schedule_initiative())
 
     def cog_unload(self):
-        self.guild_cooldown_task.cancel()
-        self.guild_incentive_startup_task.cancel()
-        for task in self.guilds_incentive_tasks.values():
-            task.cancel()
+        self.task_manager.cancel_all()
 
     # ----------------------------------------------------------------------------------------------------
     # * Incite
@@ -89,19 +79,18 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
             return
 
         # Prepare prompt
-        text_prompt = (
-            f"Begin natural talk{f" w/ {member.mention} " if member else " "}that feels like ur own initiative."
-            f"Absolutely avoid references to instructions, prompts, or being told to message them."
-            f"{ f'follow this prompt:"{prompt.strip()}".' if prompt else "" }"
+        text_prompt, _ = await self.create_prompt(
+            member=member,
+            guild=interaction.guild,
+            preface=(
+                f"Begin natural talk{f" w/ {member.mention} " if member else " "}that feels like ur own initiative."
+                f"Absolutely avoid references to instructions, prompts, or being told to message them."
+                f"{ f'follow this prompt:"{prompt.strip()}".' if prompt else "" }"
+            ),
         )
 
         # Defer response to prevent timeout
         await interaction.response.defer(ephemeral=True)
-
-        # Remember current member & Add previous members to prompt
-        if member:
-            self.save_actor(interaction.guild, member)
-        text_prompt += self.load_actors_csv(interaction.guild)
 
         # Perform prompt & send reply
         async with interaction.channel.typing():
@@ -114,9 +103,13 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
                     ),
                     ephemeral=True,
                 )
+                self.ai.use_session(
+                    interaction.guild.id,
+                    history=self.load_guild_history(interaction.guild),
+                )
                 await interaction.channel.send(
                     self.ai.prompt(text=text_prompt)
-                    or f"👋 {member.mention if member else ""}"
+                    or f"👋 {member.mention if member else "👋"}"
                 )
             except Exception as e:
                 await interaction.followup.send(
@@ -126,246 +119,309 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
                 return
 
         # Save history
-        self.save_history(interaction.guild)
-
-    # ----------------------------------------------------------------------------------------------------
-    # * On Guild Join
-    # ----------------------------------------------------------------------------------------------------
-    @Cog.listener()
-    async def on_guild_join(self, guild):
-        self.start_incentive_task(guild)
+        self.save_guild_history(interaction.guild)
 
     # ----------------------------------------------------------------------------------------------------
     # * On Message
     # ----------------------------------------------------------------------------------------------------
     @Cog.listener()
     async def on_message(self, message: Message):
-        # Ignore if bot own message or bot not mentioned
-        if self.bot.user == message.author or self.bot.user not in message.mentions:
+        # Ignore bot message
+        if self.bot.user == message.author:
             return
 
-        # TODO: ⛔ Should we support Direct messages ?
-        if not message.guild:
-            # await message.reply(f"Wa are in DM right? 🤔")
+        # Ignore mentionless message or attempt auto-reply
+        reply_delay = 0
+        if self.bot.user not in message.mentions:
+            if random() > self.AUTO_REPLY_CHANCE:
+                return
+            else:
+                reply_delay = randint(
+                    self.AUTO_REPLY_DELAY_RANGE[0], self.AUTO_REPLY_DELAY_RANGE[1]
+                )
+                log.info(
+                    f"[{message.guild}][{message.channel}] Auto-reply chance attained."
+                )
+        reply_delay = randint(self.REPLY_DELAY_RANGE[0], self.REPLY_DELAY_RANGE[1])
+
+        # Create prompt
+        text_prompt, file_prompt = await self.create_prompt(message=message)
+
+        # Prepare delayed reply task
+        async def respond():
+            guild = message.guild
+            id = guild.id if guild else message.author.id
+            member = message.author if isinstance(message.author, Member) else None
+
+            # Check cooldown
+            if self.task_manager.is_running(f"cooldown_{id}"):
+                await message.reply(
+                    f"Please! 🙏 Give me about {self.task_manager.time_left(id)} seconds... ⏳"
+                )
+
+            # Perform prompt & send reply
+            async with message.channel.typing():
+                try:
+                    self.ai.use_session(
+                        id,
+                        history=(
+                            self.load_guild_history(guild)
+                            if guild
+                            else self.load_member_history(member) if member else []
+                        ),
+                    )
+                    await message.reply(
+                        self.ai.prompt(text_prompt, file_prompt)
+                        or f"👋 {member.mention if member else "What? 😕"}"
+                    )
+                except APIError as e:
+                    await message.reply(
+                        f"Oops! 😵‍💫 I'm out of energy for now. Give me a moment! 🙏"
+                    )
+                    self.task_manager.schedule(
+                        f"cooldown_{id}", delay=self.COOLDOWN_TIME
+                    )
+                    log.exception(e)
+                except Exception as e:
+                    await message.channel.send(
+                        "Sorry! 😵‍💫 There's something wrong with me right now 😭. Give me a moment plz! 🙏"
+                    )
+                    log.exception(e)
+
+            # Remember chat session
+            if guild:
+                self.save_guild_history(guild)
+            elif member:
+                self.save_member_history(member)
+
+        # Run reply task
+        self.task_manager.schedule(
+            id=message.guild.id if message.guild else message.author.id,
+            callback=respond,  # type: ignore
+            delay=reply_delay,
+        )
+        log.loading(
+            f"[{message.guild}][{message.channel}] Reply in {naturaldelta(timedelta(seconds=reply_delay))}..."
+        )
+
+    # ----------------------------------------------------------------------------------------------------
+    # * Guild initiative
+    # ----------------------------------------------------------------------------------------------------
+    async def schedule_initiative(self):
+        """Schedule initiative task for each guild."""
+        await self.bot.wait_until_ready()
+
+        def random_delay():
+            min_delay, max_delay = self.INITIATIVE_DELAY_RANGE
+            delay = randint(min_delay, max_delay)
+            log.loading(
+                f"[{guild.name}] Waiting {naturaldelta(timedelta(seconds=delay))} for next initiative..."
+            )
+            return delay
+
+        for guild in self.bot.guilds:
+
+            def create_callback(guild: Guild):
+                async def perform(task_ref: TaskRef):
+                    task_ref.delay = random_delay()
+                    try:
+                        await self.perform_initiative(guild)
+                    except CancelledError:
+                        log.warning(f"[{guild.name}] Initiative task was cancelled.")
+                    except Exception as e:
+                        log.error(f"[{guild.name}] Initiative task error: {str(e)}")
+
+                return perform
+
+            self.task_manager.schedule(
+                id=f"initiative_{guild.id}",
+                callback=create_callback(guild),  # type: ignore
+                delay=random_delay(),
+                loop=True,
+            )
+
+    async def perform_initiative(self, guild: Guild):
+        """Initiate interaction by sending random message to random member of given guild."""
+
+        # Make sure the guild still exists and we're still in it
+        if guild not in self.bot.guilds:
+            log.warning(f"[{guild.name}] No longer in guild, stopping task.")
             return
 
-        # Check cooldown
-        cooldown_time_left = self.guilds_cooldown_time_left.get(message.guild.id)
-        if cooldown_time_left:
-            await message.reply(
-                f"Please! 🙏 Give me about {cooldown_time_left} seconds... ⏳"
+        # Get all text channels the bot can send messages in & Choose a random text channel
+        text_channels = await self.get_initiative_channels(guild)
+        if not text_channels:
+            log.warning(
+                f"[{guild.name}] No accessible text channels found in guild, skipping initiative."
+            )
+            return
+        channel = choice(text_channels)
+
+        #  Get the last messages in the channel
+        messages: list[Message] = []
+        async for message in channel.history(limit=20):
+            if not message.author.bot:  # Filter out bot messages
+                messages.append(message)
+        if not messages:
+            log.warning(
+                f"[{guild.name}][{channel.name}] No recent user messages found in guild channel, skipping initiative."
             )
             return
 
-        # Prepare prompts
-        text_prompt = f"{message.author.name}:"
-        file_prompt = None
+        # Choose a random message & its author as target member
+        message = choice(messages)
+        member = message.author
 
-        # Add message content to prompt
-        text_prompt += f"{message.content.replace(self.bot.user.mention, "").strip()}"
-
-        # Add message attachment or embed to prompt
-        if message.attachments:
-            attachment = message.attachments[0]
-            text_prompt += f"_sent file:{attachment.filename}_"
-            file_prompt = await self.get_file(attachment)
-            if not file_prompt:
-                text_prompt += f"(but u can't receive it cuz it's larger than ur allowed min size limit of {self.MAX_FILE_SIZE}byte)"
-        elif message.embeds:
-            text_prompt += f"_sent embed_"
-            file_prompt = await self.get_file(message.embeds[0])
-            if not file_prompt:
-                text_prompt += f"(but u can't receive it cuz it's larger than ur allowed min size limit of {self.MAX_FILE_SIZE}byte)"
-
-        # Remember current member & Add previous members to prompt
-        self.save_actor(message.guild, message.author)
-        text_prompt += self.load_actors_csv(message.guild)
-
-        # Perform prompt & send reply
-        async with message.channel.typing():
-            try:
-                await message.reply(
-                    self.get_reply(message.guild, text_prompt, file_prompt)
-                    or "What? 😕"
-                )
-            except APIError as e:
-                await message.reply(
-                    "Oops! 😵‍💫 I'm out of energy for now. Give me a moment! 🙏"
-                )
-                self.guild_cooldown_task.start(message.guild)
-                log.exception(e)
-                return
-            except Exception as e:
-                await message.reply(
-                    "Sorry! 😵‍💫 There's something wrong with me right now 😭. Give me a moment plz! 🙏"
-                )
-                log.exception(e)
-                return
-
-        # Remember chat session
-        self.save_history(message.guild)
-
-    # ----------------------------------------------------------------------------------------------------
-    # * Guild Cooldown
-    # ----------------------------------------------------------------------------------------------------
-    @tasks.loop(seconds=1)
-    async def guild_cooldown_task(self, guild: Guild):
-        """Cooldown to prevent spamming when needed."""
-        time_left = self.guilds_cooldown_time_left.get(guild.id)
-        if time_left is None:
-            time_left = self.COOLDOWN_TIME + 1
-            log.info(f"[{guild.name}] {self.COOLDOWN_TIME} seconds cooldown started.")
-        time_left -= 1
-        self.guilds_cooldown_time_left[guild.id] = time_left
-        if time_left <= 0:
-            self.guilds_cooldown_time_left.pop(guild.id, None)
-            self.guild_cooldown_task.cancel()
-            log.info(f"[{guild.name}] {self.COOLDOWN_TIME} seconds cooldown finished.")
-
-    @guild_cooldown_task.before_loop
-    async def before_sleep_in_guild(self):
-        await self.bot.wait_until_ready()
-
-    # ----------------------------------------------------------------------------------------------------
-    # * Guild Incentive
-    # ----------------------------------------------------------------------------------------------------
-    @tasks.loop(count=1)
-    async def guild_incentive_startup_task(self):
-        """Incite bot to send random message to random member. Start separate incentive task for each guild."""
-        await self.bot.wait_until_ready()
-        for guild in self.bot.guilds:
-            self.start_incentive_task(guild)
-
-    def start_incentive_task(self, guild: Guild):
-        """Start incentive task for given guild."""
-        # Cancel existing task if there is one
-        if (
-            guild.id in self.guilds_incentive_tasks
-            and not self.guilds_incentive_tasks[guild.id].done()
-        ):
-            self.guilds_incentive_tasks[guild.id].cancel()
-
-        # Create a new task for this guild
-        self.guilds_incentive_tasks[guild.id] = asyncio.create_task(
-            self.guild_incentive_loop(guild), name=f"incentive_task_{guild.id}"
+        # Prepare prompt
+        text_prompt, file_prompt = await self.create_prompt(
+            preface=(
+                f"Begin natural talk{f" w/ {member.mention} " if member else " "}that feels like ur own initiative."
+                f"Absolutely avoid references to instructions, prompts, or being told to message them."
+            ),
+            message=message,
         )
 
-    async def guild_incentive_loop(self, guild: Guild):
-        """Incentive background looping task coroutine to send messages to random members of a specific guild."""
-        try:
-            while True:
-                # Sleep a random period
-                wait_time = randint(
-                    self.INCENTIVE_WAIT_TIME_RANGE[0], self.INCENTIVE_WAIT_TIME_RANGE[1]
-                )
-                log.loading(
-                    f"[{guild.name}] Waiting {naturaldelta(timedelta(seconds=wait_time))} for next incentive..."
-                )
-                await asyncio.sleep(wait_time)
+        # Send reply
+        async with message.channel.typing():
+            self.ai.use_session(
+                guild.id,
+                history=(
+                    self.load_guild_history(guild)
+                    if guild
+                    else self.load_member_history(member) if member else []
+                ),
+            )
+            await message.reply(
+                self.ai.prompt(text_prompt, file_prompt)
+                or f"👋 {member.mention if member else "What? 😕"}"
+            )
 
-                # Make sure the guild still exists and we're still in it
-                if guild not in self.bot.guilds:
-                    log.warning(
-                        f"[{guild.name}] Bot is no longer in guild, stopping task."
-                    )
-                    break
-
-                # Get all text channels the bot can send messages in & Choose a random text channel
-                text_channels = [
-                    channel
-                    for channel in guild.text_channels
-                    if channel.permissions_for(guild.me).send_messages
-                    and channel.permissions_for(guild.me).read_message_history
-                ]
-                if not text_channels:
-                    log.warning(
-                        f"[{guild.name}] No accessible text channels found in guild, skipping incentive."
-                    )
-                    continue
-                channel = choice(text_channels)
-
-                #  Get the last messages in the channel
-                messages: list[Message] = []
-                async for message in channel.history(limit=20):
-                    if not message.author.bot:  # Filter out bot messages
-                        messages.append(message)
-                if not messages:
-                    log.warning(
-                        f"[{guild.name}][{channel.name}] No recent user messages found in guild channel, skipping incentive."
-                    )
+    async def get_initiative_channels(self, guild: Guild):
+        """Get all valid channels for initiative."""
+        channels = []
+        for channel in guild.text_channels:
+            try:
+                # Dimiss inaccessible by @everyone (Non-pulic)
+                everyone_perms = channel.permissions_for(guild.default_role)
+                if not (everyone_perms.read_messages and everyone_perms.view_channel):
                     continue
 
-                # Choose a random message & its author as target member
-                message = choice(messages)
-                member = message.author
+                # Dismiss if inaccessible by bot
+                bot_perms = channel.permissions_for(guild.me)
+                if not (bot_perms.send_messages and bot_perms.read_message_history):
+                    continue
 
-                # Prepare prompt
-                text_prompt = (
-                    f"Begin natural talk{f" w/ {member.mention} " if member else " "}that feels like ur own initiative."
-                    f"Absolutely avoid references to instructions, prompts, or being told to message them."
-                )
+                # Dismiss if bot is author of latest message (Prevent spam)
+                latest_message = None
+                async for message in channel.history(limit=1):
+                    latest_message = message
+                if latest_message and latest_message.author == self.bot.user:
+                    continue
 
-                # Remember current member & Add previous members to prompt
-                self.save_actor(guild, member)
-                text_prompt += self.load_actors_csv(guild)
-
-                # Perform prompt & send reply
-                async with channel.typing():
-                    try:
-                        await message.reply(
-                            self.ai.prompt(text=text_prompt)
-                            or f"👋 {member.mention if member else ""}"
-                        )
-                    except Exception as e:
-                        await channel.send("👋")
-                        log.exception(e)
-                        return
-
-                # Save history
-                self.save_history(guild)
-        except asyncio.CancelledError:
-            log.warning(f"[{guild.name}] Incentive task was cancelled.")
-        except Exception as e:
-            log.error(f"[{guild.name}] Incentive task error: {str(e)}")
-
-    @guild_incentive_startup_task.before_loop
-    async def before_start_guild_tasks(self):
-        await self.bot.wait_until_ready()
+                # Add channel
+                channels.append(channel)
+            except Exception as e:
+                log.error(f"[{guild.name}][{channel.name}] Error: {str(e)}")
+        return channels
 
     # ----------------------------------------------------------------------------------------------------
 
-    def get_reply(self, guild: Guild, text: str, file: ActFile | None = None):
-        log.info(f"[Prompt] {text} <{file}>")
-        self.ai.use_session(guild.id, history=self.load_history(guild))
-        return self.ai.prompt(text=text, file=file)
+    async def create_prompt(
+        self,
+        message: Message | None = None,
+        member: Member | None = None,
+        guild: Guild | None = None,
+        preface="",
+    ) -> tuple[str, ActFile | None]:
+        """
+        Create prompt with flexible input options.
+            - Text prompt structure: '{**preface**}\\n{**message.author.name**}:{file_action_desc}{**message.content**}\\n{csv}'
+
+        Args:
+            message: Message object (contains **message.author**, and **message.guild**).
+            member: Member object (prioritized over **message.author**).
+            guild: Guild object (prioritized over **member.guild** and **message.guild**).
+            preface: Text to prepend to the prompt
+
+        """
+
+        # Initialize prompt components
+        text = preface
+        file = None
+
+        # Extract member and guild
+        if not member and message and isinstance(message.author, Member):
+            member = message.author
+        if not guild:
+            if member:
+                guild = member.guild
+            elif message and message.guild:
+                guild = message.guild
+
+        # Start building the prompt
+        if text:
+            text += "\n"
+
+        # Process file attachments if message is provided
+        if message:
+            # Add author
+            text += f"{message.author.name}:"
+
+            # Add file from attachment or embed (With file action description prompt)
+            if message.attachments:
+                attachment = message.attachments[0]
+                file = await self.get_attachment_file(attachment)
+                text += f"_sent file:{attachment.filename}_"
+                if not file:
+                    text += f"(but u can't receive it cuz it's larger than ur allowed min size limit of {self.MAX_FILE_SIZE}byte)"
+            elif message.embeds:
+                file = self.get_embed_file(message.embeds[0])
+                text += f"_sent embed_"
+                if not file:
+                    text += f"(but u can't receive it cuz it's larger than ur allowed min size limit of {self.MAX_FILE_SIZE}byte)"
+
+            # Add main text prompt from message content
+            text += f"{message.content.replace(self.bot.user.mention, '').strip()}"  # type: ignore
+
+        # Save member for context
+        if member:
+            self.save_actor(member)
+
+        # Load saved guild members to prompt for context
+        if guild:
+            text += f"\n{self.load_actors_csv(guild)}"
+
+        # Return prompt components as tuple
+        return (text, file)
 
     # ----------------------------------------------------------------------------------------------------
 
-    async def get_file(self, attachment_or_embed: Attachment | Embed):
-        """Get file from attachment or embed. If file size limit exceeded, get None."""
-        if isinstance(attachment_or_embed, Attachment):
-            attachment = attachment_or_embed
-            if attachment.size <= self.MAX_FILE_SIZE:
-                return ActFile(
-                    data=await attachment.read(),
-                    mime_type=attachment.content_type,
-                    name=attachment.filename,
-                )
-        if isinstance(attachment_or_embed, Embed):
-            embed_url = attachment_or_embed.url
-            embed_file = ActFile.load(embed_url) if embed_url else None
-            if embed_file and embed_file.size <= self.MAX_FILE_SIZE:
-                return embed_file
+    async def get_attachment_file(self, attachment: Attachment) -> ActFile | None:
+        """Get file from attachment. If file size limit exceeded, get None."""
+        if attachment.size <= self.MAX_FILE_SIZE:
+            return ActFile(
+                data=await attachment.read(),
+                mime_type=attachment.content_type,
+                name=attachment.filename,
+            )
+
+    def get_embed_file(self, embed: Embed) -> ActFile | None:
+        """Get file from embed. If file size limit exceeded, get None."""
+        embed_file = ActFile.load(embed.url) if embed.url else None
+        if embed_file and embed_file.size <= self.MAX_FILE_SIZE:
+            return embed_file
 
     # ----------------------------------------------------------------------------------------------------
 
-    def save_actor(self, guild: Guild, member: Member | User):
-        db = self.bot.get_db(guild)
+    def save_actor(self, member: Member):
+        db = self.bot.get_db(member.guild)
         if not db:
             return
         actor = db.find_one(Actor, Actor.id == member.id)
         if not actor:
             actor = self.bot.create_actor(member)
+        actor.name = member.name
+        actor.display_name = member.display_name
         actor.ai_interacted_at = datetime.now(UTC)
         db.save(actor)
 
@@ -383,11 +439,11 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
 
     def load_actors_csv(self, guild: Guild):
         actors = self.load_actors(guild)
-        return f"\n{text_csv(actors, "|")}" if actors else ""
+        return f"{text_csv(actors, "|")}" if actors else ""
 
     # ----------------------------------------------------------------------------------------------------
 
-    def save_history(self, guild: Guild):
+    def save_guild_history(self, guild: Guild):
         main_db = self.bot.get_db()
         if not main_db:
             return
@@ -397,12 +453,30 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
         db_ref.ai_chat_history = self.ai.dump_history(guild.id)
         main_db.save(db_ref)
 
-    def load_history(self, guild: Guild) -> list | None:
+    def load_guild_history(self, guild: Guild) -> list | None:
         main_db = self.bot.get_db()
         if not main_db:
             return
         db_ref = main_db.find_one(DbRef, DbRef.id == guild.id)
         if db_ref:
             return db_ref.ai_chat_history
+
+    def save_member_history(self, member: Member):
+        db = self.bot.get_db(member.guild)
+        if not db:
+            return
+        actor = db.find_one(Actor, Actor.id == member.id)
+        if not actor:
+            actor = self.bot.create_actor(member)
+        actor.ai_chat_history = self.ai.dump_history(member.id)
+        db.save(actor)
+
+    def load_member_history(self, member: Member) -> list | None:
+        db = self.bot.get_db(member.guild)
+        if not db:
+            return
+        actor = db.find_one(Actor, Actor.id == member.id)
+        if actor:
+            return actor.ai_chat_history
 
     # ----------------------------------------------------------------------------------------------------
