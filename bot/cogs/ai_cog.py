@@ -34,7 +34,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
     MAX_FILE_SIZE = 524288  # 512 KB == 0.5 MB
     REPLY_DELAY_RANGE = (1, 5)  # 1 sec - 5 sec
     AUTO_REPLY_DELAY_RANGE = (5, 1800)  # 5 sec - 30 min
-    AUTO_REPLY_CHANCE = 0.2  # 20 %
+    AUTO_REPLY_CHANCE = 0.1  # 10 %
     INITIATIVE_DELAY_RANGE = (1800, 7200)  # 30 min - 2 hr
 
     def __init__(self, bot: ActBot):
@@ -131,8 +131,9 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
             return
 
         # Ignore mentionless message or attempt auto-reply
+        message_is_mentionless = self.bot.user not in message.mentions
         reply_delay = 0
-        if self.bot.user not in message.mentions:
+        if message_is_mentionless:
             if random() > self.AUTO_REPLY_CHANCE:
                 return
             else:
@@ -144,8 +145,28 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
                 )
         reply_delay = randint(self.REPLY_DELAY_RANGE[0], self.REPLY_DELAY_RANGE[1])
 
+        # Check if message is a reply to someone else
+        preface = ""
+        if (
+            message_is_mentionless
+            and message.reference
+            and message.reference.message_id
+        ):
+            referenced_message = await message.channel.fetch_message(
+                message.reference.message_id
+            )
+            if referenced_message.author != self.bot.user:
+                preface = (
+                    f"[Context: {message.author.name} was replying to {referenced_message.author.name} "
+                    f"who said: '{referenced_message.content}']"
+                )
+            else:
+                preface = "[Context: Replying to ur previous message] "
+
         # Create prompt
-        text_prompt, file_prompt = await self.create_prompt(message=message)
+        text_prompt, file_prompt = await self.create_prompt(
+            message=message, preface=preface
+        )
 
         # Prepare delayed reply task
         async def respond():

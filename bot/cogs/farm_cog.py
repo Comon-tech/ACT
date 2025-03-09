@@ -132,12 +132,12 @@ class FarmCog(Cog, description="Allows players to gain stats and roles."):
 
         return randint(1, word_count)
 
-    @staticmethod
-    async def try_award_role(member: Member, role_name: str) -> Role | None:
-        role = utils.get(member.guild.roles, name=role_name)
-        if role in member.roles:
-            return None
-        elif not role:
-            role = await member.guild.create_role(name=role_name)
-        await member.add_roles(role)
-        return role
+    # @staticmethod
+    # async def try_award_role(member: Member, role_name: str) -> Role | None:
+    #     role = utils.get(member.guild.roles, name=role_name)
+    #     if role in member.roles:
+    #         return None
+    #     elif not role:
+    #         role = await member.guild.create_role(name=role_name)
+    #     await member.add_roles(role)
+    #     return role

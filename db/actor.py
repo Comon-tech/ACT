@@ -18,19 +18,33 @@ class Actor(Model):
     display_name: str = ""
     is_member: bool = True  # Still member in the server
 
+    # AI
     ai_interacted_at: Optional[datetime] = None  # Last time actor interacted with AI
     ai_chat_history: list[dict[str, Any]] = []
 
+    # Combat stats
+    health: NonNegativeInt = 1
+    base_max_health: NonNegativeInt = 1
+    energy: NonNegativeInt = 1
+    base_max_energy: NonNegativeInt = 1
+    base_attack: NonNegativeInt = 1
+    base_defense: NonNegativeInt = 1
+    base_speed: NonNegativeInt = 1
+
+    # Gold, Items, & Equipment
+    gold: NonNegativeInt = 0
+    items: list[str] = []
+    equipment: list[str] = []  # Equipped items
+    MAX_ITEMS: ClassVar[int] = 20
+    MAX_EQUIPMENT: ClassVar[int] = 3
+
+    # Progress
     xp: NonNegativeInt = 0
     level: NonNegativeInt = 0
     rank: NonNegativeInt = 0
-    gold: NonNegativeInt = 0
-    items: list[str] = []
-
     LEVEL_BASE_XP: ClassVar[int] = 100
     LEVEL_EXPONENT: ClassVar[float] = 2.5
     MAX_LEVEL: ClassVar[int] = 99
-
     RANK_BASE_LEVEL: ClassVar[int] = 30
     RANK_EXPONENT: ClassVar[float] = 1
     RANK_NAMES: ClassVar[list[str]] = [
@@ -49,6 +63,26 @@ class Actor(Model):
     MAX_RANKS: ClassVar[int] = len(RANK_NAMES)
 
     # ----------------------------------------------------------------------------------------------------
+
+    @property
+    def max_health(self):
+        return self.base_max_health + 0
+
+    @property
+    def max_energy(self):
+        return self.base_max_energy + 0
+
+    @property
+    def attack(self):
+        return self.base_attack + 0
+
+    @property
+    def defense(self):
+        return self.base_defense + 0
+
+    @property
+    def speed(self):
+        return self.base_speed + 0
 
     @property
     def rank_name(self) -> str:
@@ -95,12 +129,20 @@ class Actor(Model):
     # ----------------------------------------------------------------------------------------------------
 
     @property
+    def health_bar(self) -> str:
+        return text_progress_bar(self.health, self.base_max_health, 6, "▰", "▱")
+
+    @property
+    def energy_bar(self) -> str:
+        return text_progress_bar(self.energy, self.max_energy, 6, "▰", "▱")
+
+    @property
     def rank_bar(self) -> str:
         return text_progress_bar(self.rank, self.MAX_RANKS, 5, "⭐", "☆")
 
     @property
     def level_bar(self) -> str:
-        return text_progress_bar(self.level, self.next_rank_level, 5, "▰", "▱")
+        return text_progress_bar(self.level, self.next_rank_level, 5, "⬥", "⬦")
 
     @property
     def xp_bar(self) -> str:

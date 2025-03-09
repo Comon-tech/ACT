@@ -28,6 +28,7 @@ class BoardCog(Cog, description="Allows players to view their data."):
         await interaction.response.defer()
         member = member or interaction.user
         embed = EmbedX.info(icon="👤", title=member.display_name)
+        embed.add_field(name="", value=member.mention, inline=False)
         if isinstance(member, Member):
             embed.description = " ".join(
                 [
@@ -42,26 +43,49 @@ class BoardCog(Cog, description="Allows players to view their data."):
             actor = self.bot.create_actor(member)
         embed.add_field(name="", value="", inline=False)
         embed.add_field(
-            name="Rank", value=f"🏆 **{actor.rank_name}**\n{actor.rank_bar}"
+            name="Rank", value=f"🏆 **{actor.rank_name}**\n`{actor.rank_bar}`"
         )
         embed.add_field(
             name="Level",
-            value=f"🏅 **{actor.level}**\n{actor.level_bar}",
+            value=f"🏅 **{actor.level}**\n`{actor.level_bar}`",
         )
         embed.add_field(
             name="Experience",
-            value=f"⏫ **{intcomma(actor.xp)}** / {actor.next_level_xp}\n{actor.xp_bar}",
+            value=f"⏫ **{intcomma(actor.xp)}** / {intcomma(actor.next_level_xp)}\n`{actor.xp_bar}`",
         )
         embed.add_field(name="", value="", inline=False)
         embed.add_field(name="Gold", value=f"💰 **{intcomma(actor.gold)}**")
         embed.add_field(name="Items", value=f"🎒 **{intcomma(len(actor.items))}**")
+        embed.add_field(
+            name="Equipment",
+            value=f"🧰 **{intcomma(len(actor.equipment))}**",
+        )
+        embed.add_field(name="", value="", inline=False)
+        embed.add_field(
+            name="Health",
+            value=f":heart: **{intcomma(actor.health)}** / {intcomma(actor.base_max_health)}\n`{actor.health_bar}`",
+        )
+        embed.add_field(
+            name="Energy",
+            value=f"⚡ **{intcomma(actor.energy)}** / {intcomma(actor.max_energy)}\n`{actor.energy_bar}`",
+        )
+        embed.add_field(name="", value="", inline=False)
+        embed.add_field(
+            name="Attack", value=f":crossed_swords: **{intcomma(actor.attack)}**"
+        )
+        embed.add_field(name="Defense", value=f"🛡 **{intcomma(actor.defense)}**")
+        embed.add_field(name="Speed", value=f"🥾 **{intcomma(actor.speed)}**")
+        embed.add_field(name="", value="", inline=False)
         if isinstance(member, Member):
             embed.add_field(
                 name="Joined",
                 value=f"⌚ {member.guild.name} **{naturaltime(member.joined_at or 0)}**\n-# ⌚ Discord **{naturaltime(member.created_at)}**",
             )
         embed.add_field(name="", value="", inline=False)
-        embed.set_footer(text=f"#️⃣{member.name} \n🆔{member.id}")
+        embed.set_footer(
+            text=f"#️⃣{member.name}\n🆔{member.id}",
+            icon_url=member.display_avatar.url,
+        )
         embed.set_thumbnail(url=member.display_avatar.url)
         await interaction.followup.send(embed=embed)
 
