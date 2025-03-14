@@ -21,7 +21,7 @@ class ActAi(BaseModel):
 
     api_key: NonEmptyStr
     instructions: NonEmptyStr | list[NonEmptyStr] | None = None
-    model_name: str = Field(alias="model", default="gemini-1.5-flash")
+    model_name: str = Field(alias="model", default="gemini-2.0-flash")
 
     _client: Client | None = None
     _config: GenerateContentConfig | None = None
