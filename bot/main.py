@@ -16,7 +16,7 @@ from discord import (
     app_commands,
 )
 from discord.ext.commands import Bot, Cog
-from odmantic import SyncEngine
+from odmantic import SyncEngine, query
 
 from bot.ui import EmbedX
 from db.actor import Actor
@@ -215,6 +215,39 @@ class ActBot(Bot):
     def create_actor(self, member: Member | User) -> Actor:
         """Create actor from given member."""
         return Actor(id=member.id, name=member.name, display_name=member.display_name)
+
+    async def get_actors_members(
+        self, guild: Guild, limit: int = 10, sort_by_top=True
+    ) -> list[tuple[Actor, Member]]:
+        """Get actors with their associated members."""
+        db = self.get_db(guild)
+        actors = (
+            db.find(
+                Actor,
+                Actor.is_member == True,
+                sort=(
+                    query.desc(Actor.rank),
+                    query.desc(Actor.level),
+                    query.desc(Actor.xp),
+                    query.desc(Actor.gold),
+                ),
+                limit=limit,
+            )
+            if sort_by_top
+            else db.find(Actor, limit=limit)
+        )
+        actors_members: list[tuple[Actor, Member]] = []
+        for actor in actors:
+            member = None
+            try:
+                member = guild.get_member(actor.id) or await guild.fetch_member(
+                    actor.id
+                )
+            except:
+                pass
+            if member:
+                actors_members.append((actor, member))
+        return actors_members
 
     # ----------------------------------------------------------------------------------------------------
 

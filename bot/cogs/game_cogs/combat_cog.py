@@ -36,7 +36,7 @@ class CombatCog(Cog, description="Allows players to engage in battles."):
             content=f"{member.mention} 😱",
             embed=add_preview_notice(
                 EmbedX.info(
-                    icon=":crossed_swords:",
+                    emoji=":crossed_swords:",
                     title="Combat",
                     description=f"{interaction.user.mention} attacked {member.mention}.",
                 )

@@ -4,6 +4,7 @@ from typing import Any, ClassVar, Optional
 from odmantic import Field, Model
 from pydantic import NonNegativeInt
 
+from db.item import Item
 from utils.misc import text_progress_bar
 
 
@@ -33,8 +34,8 @@ class Actor(Model):
 
     # Gold, Items, & Equipment
     gold: NonNegativeInt = 0
-    items: list[str] = []
-    equipment: list[str] = []  # Equipped items
+    items: list[Item] = []
+    equipment: list[Item] = []  # Equipped items
     MAX_ITEMS: ClassVar[int] = 20
     MAX_EQUIPMENT: ClassVar[int] = 3
 

@@ -1,5 +1,5 @@
 from google.genai import Client
-from google.genai.chats import Chat
+from google.genai.chats import AsyncChat
 from google.genai.types import Content, GenerateContentConfig, Part
 from pydantic import BaseModel, Field, StringConstraints, field_validator
 from typing_extensions import Annotated
@@ -25,7 +25,7 @@ class ActAi(BaseModel):
 
     _client: Client | None = None
     _config: GenerateContentConfig | None = None
-    _chats: dict[int | str, Chat | None] = {}
+    _chats: dict[int | str, AsyncChat | None] = {}
     _current_chat_id: int = 0
 
     def model_post_init(self, __context):
@@ -44,19 +44,19 @@ class ActAi(BaseModel):
 
     # ----------------------------------------------------------------------------------------------------
 
-    def prompt(self, text: str, file: ActFile | None = None) -> str | None:
+    async def prompt(self, text: str, file: ActFile | None = None) -> str | None:
         chat = self.use_session(self._current_chat_id)
         message = [Part(text=text)]
         if file and file.major_type == "image":
             message.append(
                 Part.from_bytes(data=file.data, mime_type=file.mime_type or "")
             )
-        response = chat.send_message(message, self._config)
+        response = await chat.send_message(message, self._config)
         return response.text if response else None
 
     # ----------------------------------------------------------------------------------------------------
 
-    def use_session(self, id: int, history: list[Content] | None = None) -> Chat:
+    def use_session(self, id: int, history: list[Content] | None = None) -> AsyncChat:
         """Use chat session with given id. If nonexistent, create and initialize with given history."""
         chat = self._chats.get(id)
         if not chat:
@@ -65,7 +65,7 @@ class ActAi(BaseModel):
                     Content(**content) if not isinstance(content, Content) else content
                     for content in history
                 ]  # Sanitize history to ensure correct dumping in dump_history()
-            chat = self._client.chats.create(model=self.model_name, history=history)  # type: ignore
+            chat = self._client.aio.chats.create(model=self.model_name, history=history)  # type: ignore
             self._chats[id] = chat
         self._current_chat_id = id
         return chat

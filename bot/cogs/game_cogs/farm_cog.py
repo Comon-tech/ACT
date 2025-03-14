@@ -76,7 +76,7 @@ class FarmCog(Cog, description="Allows players to gain stats and roles."):
             gold_reward = randint(1, 500) * actor.level
             actor.gold += gold_reward
             embed = EmbedX.success(
-                icon="🏅",
+                emoji="🏅",
                 title="Level Up",
                 description=f"{member.mention} has reached a new level and has been rewarded.",
             )
@@ -95,7 +95,7 @@ class FarmCog(Cog, description="Allows players to gain stats and roles."):
             gold_reward = randint(1, 1000) * actor.level
             actor.gold += gold_reward
             embed = EmbedX.success(
-                icon="🏆",
+                emoji="🏆",
                 title="Rank Up",
                 description=f"{member.mention} has reached a new rank and has been rewarded.",
             )

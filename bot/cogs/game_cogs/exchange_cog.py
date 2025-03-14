@@ -9,9 +9,9 @@ from db.actor import Actor
 
 
 # ----------------------------------------------------------------------------------------------------
-# * Gift Cog
+# * Exchange Cog
 # ----------------------------------------------------------------------------------------------------
-class GiftCog(Cog, description="Allows players to gift eachother."):
+class ExchangeCog(Cog, description="Allows players to exchange gold and goods."):
     def __init__(self, bot: ActBot):
         self.bot = bot
 
@@ -79,7 +79,7 @@ class GiftCog(Cog, description="Allows players to gift eachother."):
 
         # Create the response embed
         embed = EmbedX.success(
-            icon="💛",
+            emoji="💛",
             title="Gold Donation",
             description=(
                 f"{recipient_member.mention} has received **💰 {gold} Gold** from {donor_member.mention}."

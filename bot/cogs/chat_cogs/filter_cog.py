@@ -81,7 +81,7 @@ class FilterCog(Cog, description="Filters blacklisted message content."):
 
         # Notice
         embed = EmbedX.error(
-            icon="🚨",
+            emoji="🚨",
             title="Penalty",
             description=f"{member.mention} has been penalized for repeated use of offensive language.",
         )

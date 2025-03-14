@@ -103,5 +103,5 @@ class HelpCog(Cog, description="Provides help and information interface."):
                 else:
                     output = "_No roles found in this server._"
         await interaction.followup.send(
-            embed=EmbedX.info(icon="", title=data.name, description=f"```{output}```")
+            embed=EmbedX.info(emoji="", title=data.name, description=f"```{output}```")
         )

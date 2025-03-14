@@ -1,10 +1,10 @@
-from datetime import datetime
-from typing import Any, ClassVar, Literal, Optional
+import tomllib
+from pathlib import Path
+from typing import Literal, Self
 
 from odmantic import Field, Model
 from pydantic import NonNegativeInt
 
-from utils.misc import text_progress_bar
 
 # ----------------------------------------------------------------------------------------------------
 # * Item
@@ -15,14 +15,19 @@ class Item(Model):
     id: str = Field(primary_field=True)
     name: str = ""
     description: str = ""
+    emoji: str = "❔"
+    icon_url: str = ""
+    is_buyable: bool = True
     price: NonNegativeInt = 0
     type: Literal["equippable", "consumable", "special"]
-    # rarity: Literal["common", "uncommon", "rare", "epic", "legendary"]
 
-    # Effects when used/equipped
-    max_health_bonus: NonNegativeInt = 0
-    max_energy_bonus: NonNegativeInt = 0
-    attack_bonus: NonNegativeInt = 0
-    defense_bonus: NonNegativeInt = 0
-    speed_bonus: NonNegativeInt = 0
-    effects: dict[str, Any] = {}
+    # Equippable
+    max_health_bonus: int = 0
+    max_energy_bonus: int = 0
+    attack_bonus: int = 0
+    defense_bonus: int = 0
+    speed_bonus: int = 0
+
+    # Consumable
+    health_bonus: int = 0
+    energy_bonus: int = 0

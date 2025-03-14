@@ -1,11 +1,6 @@
-from typing import cast
+from fastapi import APIRouter
 
-from discord import Guild
-from fastapi import APIRouter, HTTPException
-
-from bot.cogs.board_cog import BoardCog
 from bot.main import ActBot
-from db.actor import Actor
 
 
 # ----------------------------------------------------------------------------------------------------

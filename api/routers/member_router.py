@@ -16,7 +16,7 @@ class MemberRouter(APIRouter):
     def __init__(self, bot: ActBot, *args, **kwargs):
         super().__init__(prefix="/members", tags=["Members"], *args, **kwargs)
 
-        def member_dict(member: Member, actor: Actor):
+        def member_dict(actor: Actor, member: Member):
             return {
                 **actor.model_dump(),
                 "id": member.id,
@@ -36,34 +36,12 @@ class MemberRouter(APIRouter):
             try:
                 for guild in bot.guilds:
                     if guild.id == guild_id:
-                        db = bot.get_db(guild)
-                        actors = (
-                            db.find(
-                                Actor,
-                                Actor.is_member == True,
-                                sort=(
-                                    query.desc(Actor.rank),
-                                    query.desc(Actor.level),
-                                    query.desc(Actor.xp),
-                                    query.desc(Actor.gold),
-                                ),
-                                limit=limit,
+                        return [
+                            member_dict(actor, member)
+                            for actor, member in await bot.get_actors_members(
+                                guild, limit, top
                             )
-                            if top
-                            else db.find(Actor, limit=limit)
-                        )
-                        members = []
-                        for actor in actors:
-                            member = None
-                            try:
-                                member = guild.get_member(
-                                    actor.id
-                                ) or await guild.fetch_member(actor.id)
-                            except:
-                                pass
-                            if member:
-                                members.append(member_dict(member, actor))
-                        return members
+                        ]
                     raise HTTPException(
                         status_code=404,
                         detail=f"No guild with id '{guild_id}' found among the guilds the discord bot is member of.",

@@ -108,7 +108,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
                     history=self.load_guild_history(interaction.guild),
                 )
                 await interaction.channel.send(
-                    self.ai.prompt(text=text_prompt)
+                    await self.ai.prompt(text=text_prompt)
                     or f"👋 {member.mention if member else "👋"}"
                 )
             except Exception as e:
@@ -192,7 +192,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
                         ),
                     )
                     await message.reply(
-                        self.ai.prompt(text_prompt, file_prompt)
+                        await self.ai.prompt(text_prompt, file_prompt)
                         or f"👋 {member.mention if member else "What? 😕"}"
                     )
                 except APIError as e:
@@ -313,7 +313,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
                 ),
             )
             await message.reply(
-                self.ai.prompt(text_prompt, file_prompt)
+                await self.ai.prompt(text_prompt, file_prompt)
                 or f"👋 {member.mention if member else "What? 😕"}"
             )
 

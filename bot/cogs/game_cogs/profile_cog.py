@@ -9,15 +9,14 @@ from db.actor import Actor
 
 
 # ----------------------------------------------------------------------------------------------------
-# * Board Cog
+# * Profile Cog
 # ----------------------------------------------------------------------------------------------------
-class BoardCog(Cog, description="Allows players to view their data."):
+class ProfileCog(Cog, description="Allows players to view their profile data."):
     def __init__(self, bot: ActBot):
         self.bot = bot
 
     # ----------------------------------------------------------------------------------------------------
-    # * Profile
-    # ----------------------------------------------------------------------------------------------------
+
     @app_commands.guild_only()
     @app_commands.command(
         description="View your or another member's profile information"
@@ -27,7 +26,7 @@ class BoardCog(Cog, description="Allows players to view their data."):
     ):
         await interaction.response.defer()
         member = member or interaction.user
-        embed = EmbedX.info(icon="👤", title=member.display_name)
+        embed = EmbedX.info(emoji="👤", title=member.display_name)
         embed.add_field(name="", value=member.mention, inline=False)
         if isinstance(member, Member):
             embed.description = " ".join(
@@ -88,70 +87,3 @@ class BoardCog(Cog, description="Allows players to view their data."):
         )
         embed.set_thumbnail(url=member.display_avatar.url)
         await interaction.followup.send(embed=embed)
-
-    # ----------------------------------------------------------------------------------------------------
-    # * Leaderboard
-    # ----------------------------------------------------------------------------------------------------
-    @app_commands.guild_only()
-    @app_commands.command(description="View top members")
-    async def leaderboard(self, interaction: Interaction):
-        # Check guild (not needed but just for type-checking)
-        guild = interaction.guild
-        if not guild:
-            return
-
-        # Get top actors
-        await interaction.response.defer()
-        actors = self.get_top_actors(interaction.guild)
-        if not actors:
-            await interaction.followup.send(
-                embed=Embed(
-                    title="❔",
-                    description="No members found.",
-                    color=Color.yellow(),
-                )
-            )
-            return
-
-        # Create board table
-        top_actor: Actor
-        leaderboard_text = "```"
-        for i, actor in enumerate(actors):
-            if i == 0:
-                top_actor = actor
-            name = f"{actor.display_name} @{actor.name}"
-            rank = actor.rank_name
-            level = str(actor.level)
-            xp = naturalsize(actor.xp, binary=False, gnu=True).replace("B", "")
-            gold = naturalsize(actor.gold, binary=False, gnu=True).replace("B", "")
-            leaderboard_text += f"#{(i+1):<2} {name}\n\t 🏆{rank:<2} 🏅{level:<2} ⏫{xp:<8} 💰{gold}\n\n"
-        leaderboard_text += "```"
-
-        # Create embed
-        embed = EmbedX.info(icon="🏆", title="Leaderboard")
-        try:
-            top_member = guild.get_member(top_actor.id) or await guild.fetch_member(
-                top_actor.id
-            )
-            if top_member:
-                embed.set_thumbnail(url=top_member.display_avatar)
-        except:
-            pass
-        embed.add_field(name="", value=leaderboard_text, inline=False)
-        await interaction.followup.send(embed=embed)
-
-    # ----------------------------------------------------------------------------------------------------
-
-    def get_top_actors(self, guild: Guild | None, limit: int = 10):
-        db = self.bot.get_db(guild)
-        return db.find(
-            Actor,
-            Actor.is_member == True,
-            sort=(
-                query.desc(Actor.rank),
-                query.desc(Actor.level),
-                query.desc(Actor.xp),
-                query.desc(Actor.gold),
-            ),
-            limit=limit,
-        )
