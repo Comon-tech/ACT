@@ -103,7 +103,7 @@ class InventoryCog(
                 )
                 return
             embed = EmbedX.info(
-                emoji=item.alt_emoji,
+                emoji=item.emoji or item.alt_emoji,
                 title=item.name,
                 description=item.description,
             )

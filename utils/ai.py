@@ -22,6 +22,7 @@ class ActAi(BaseModel):
     api_key: NonEmptyStr
     instructions: NonEmptyStr | list[NonEmptyStr] | None = None
     model_name: str = Field(alias="model", default="gemini-2.0-flash")
+    response_char_limit: int = 4000
 
     _client: Client | None = None
     _config: GenerateContentConfig | None = None
@@ -52,7 +53,10 @@ class ActAi(BaseModel):
                 Part.from_bytes(data=file.data, mime_type=file.mime_type or "")
             )
         response = await chat.send_message(message, self._config)
-        return response.text if response else None
+        response_text = response.text if response else None
+        if response_text and len(response_text) > self.response_char_limit:
+            response_text = response_text[: (self.response_char_limit - 3)] + "..."
+        return response_text
 
     # ----------------------------------------------------------------------------------------------------
 
