@@ -36,10 +36,9 @@ class ProfileCog(Cog, description="Allows players to view their profile data."):
                     if role != member.guild.default_role
                 ]
             )
-        db = self.bot.get_db(interaction.guild)
-        actor = db.find_one(Actor, Actor.id == member.id)
-        if not actor:
-            actor = self.bot.create_actor(member)
+        actor = self.bot.get_db(interaction.guild).find_one(
+            Actor, Actor.id == member.id
+        ) or self.bot.create_actor(member)
         embed.add_field(name="", value="", inline=False)
         embed.add_field(
             name="Rank", value=f"🏆 **{actor.rank_name}**\n`{actor.rank_bar}`"
@@ -54,10 +53,12 @@ class ProfileCog(Cog, description="Allows players to view their profile data."):
         )
         embed.add_field(name="", value="", inline=False)
         embed.add_field(name="Gold", value=f"💰 **{intcomma(actor.gold)}**")
-        embed.add_field(name="Items", value=f"🎒 **{intcomma(len(actor.items))}**")
+        embed.add_field(
+            name="Items", value=f"🎒 **{intcomma(len(actor.item_stacks))}**"
+        )
         embed.add_field(
             name="Equipment",
-            value=f"🧰 **{intcomma(len(actor.equipment))}**",
+            value=f"🧰 **{intcomma(len(actor.equipped_items))}**",
         )
         embed.add_field(name="", value="", inline=False)
         embed.add_field(

@@ -52,9 +52,9 @@ class FarmCog(Cog, description="Allows players to gain stats and roles."):
 
         # Get or create actor
         db = self.bot.get_db(message.guild)
-        actor = db.find_one(Actor, Actor.id == member.id)
-        if not actor:
-            actor = self.bot.create_actor(member)
+        actor = db.find_one(Actor, Actor.id == member.id) or self.bot.create_actor(
+            member
+        )
 
         # Gain xp per message sent
         xp_reward = self.calculate_xp_reward(message)

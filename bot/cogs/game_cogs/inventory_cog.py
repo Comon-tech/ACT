@@ -1,3 +1,5 @@
+from typing import Callable
+
 from discord import Embed, Interaction, app_commands
 from discord.ext.commands import GroupCog
 from humanize import intcomma
@@ -5,7 +7,9 @@ from tabulate import WIDE_CHARS_MODE, tabulate
 
 from bot.main import ActBot
 from bot.ui import EmbedX
-from db.item import Item
+from db.actor import Actor
+from db.item import ITEMS, Item, ItemStack, ItemType
+from utils.misc import numsign
 
 
 def add_preview_notice(embed: Embed):
@@ -27,107 +31,139 @@ def add_preview_notice(embed: Embed):
 class InventoryCog(
     GroupCog, group_name="items", description="Allows players to use items."
 ):
-    ITEMS: list[Item]
     BUYABLE_ITEMS: list[Item]
 
     def __init__(self, bot: ActBot):
         self.bot = bot
-        self.ITEMS = list(bot.get_db().find(Item))
-        self.BUYABLE_ITEMS = [item for item in self.ITEMS if item.is_buyable == True]
-        self.buy.autocomplete("item_id")(self.item_autocomplete)
-        self.view.autocomplete("item_id")(self.item_autocomplete)
+        self.BUYABLE_ITEMS = [item for item in ITEMS if item.is_buyable == True]
+        self.buy.autocomplete("item_id")(self.buyable_items_autocomplete)
+        self.store.autocomplete("item_id")(self.buyable_items_autocomplete)
+        self.equip.autocomplete("item_id")(self.actor_equippable_items_autocomplete)
 
     # ----------------------------------------------------------------------------------------------------
 
     @app_commands.guild_only()
     @app_commands.command(description="View your items or another member's items")
     async def bag(self, interaction: Interaction):
-        await interaction.response.send_message(
-            embed=EmbedX.info(
-                emoji="🎒",
-                title="Inventory",
-                description="🐵 Abducted Monkey **x 3**",
+        embed = EmbedX.info(emoji="🎒", title="Inventory")
+        actor = self.bot.get_db(interaction.guild).find_one(
+            Actor, Actor.id == interaction.user.id
+        ) or self.bot.create_actor(interaction.user)
+
+        item_stacks = actor.item_stacks
+        if item_stacks:
+            midpoint = len(item_stacks) // 2
+            item_stack_row: Callable[[ItemStack], str] = lambda item_stack: (
+                f"{item_stack.item.emoji} **{item_stack.item.name} `{item_stack.quantity}`**"
             )
-        )
+            first_column = [
+                item_stack_row(item_stack) for item_stack in item_stacks[:midpoint]
+            ]
+            second_column = [
+                item_stack_row(item_stack) for item_stack in item_stacks[midpoint:]
+            ]
+            embed.add_field(name="", value="\n".join(first_column), inline=True)
+            embed.add_field(name="", value="\n".join(second_column), inline=True)
+        else:
+            embed.add_field(name="", value="_No items_")
+
+        equipped_items = actor.equipped_items
+        embed.add_field(name="Equipment", value="", inline=False)
+        if equipped_items:
+            midpoint = len(item_stacks) // 2
+            equipped_item_row: Callable[[Item], str] = lambda item: (
+                f"{item.alt_emoji} **{item.name}**"
+            )
+            first_column = [
+                equipped_item_row(item) for item in equipped_items[:midpoint]
+            ]
+            second_column = [
+                equipped_item_row(item) for item in equipped_items[midpoint:]
+            ]
+            embed.add_field(name="", value="\n".join(first_column), inline=True)
+            embed.add_field(name="", value="\n".join(second_column), inline=True)
+        else:
+            embed.add_field(name="", value="_No items_")
+
+        await interaction.response.send_message(embed=embed)
 
     @app_commands.guild_only()
     @app_commands.command(description="View purchasable items")
-    async def store(self, interaction: Interaction):
-        # store_items = [
-        #     f"{item.emoji} **{item.name}** : 💰 **{item.price}** Gold"
-        #     for item in self.BUYABLE_ITEMS
-        # ]
-        embed = EmbedX.info(emoji="🏬", title="Store")
-        items_column = []
-        prices_column = []
-
-        for item in self.BUYABLE_ITEMS:
-            items_column.append(f"{item.emoji} **{item.name}**")
-            prices_column.append(f"**`💰{intcomma(item.price)}`**")
-        embed.add_field(name="Item", value="\n".join(items_column))
-        embed.add_field(name="Price", value="\n".join(prices_column))
-        url = "https://cdn.discordapp.com/attachments/1349262615431483473/1349272946555748372/store.png?ex=67d27fda&is=67d12e5a&hm=29365e671148a9996341f92b1d34a1f7004e642478e1b6249f0d13b5d7a8c051&"
-        # embed.set_image(url=url)
-        embed.set_thumbnail(url=url)
-        embed.add_field(
-            name="Command",
-            value=f"👁 `/{self.view.qualified_name}`\n"
-            f"💳 `/{self.buy.qualified_name}`",
-            inline=False,
-        )
-        await interaction.response.send_message(embed=embed)
-
-    @app_commands.guild_only()
-    @app_commands.command(description="View an item information")
     @app_commands.rename(item_id="item")
     @app_commands.describe(item_id="Choose item you wish to view")
-    async def view(self, interaction: Interaction, item_id: str):
-        item = next((item for item in self.BUYABLE_ITEMS if item.id == item_id), None)
-        if not item:
-            await interaction.response.send_message(
-                embed=EmbedX.error(f"Invalid **item** input: `{item_id}`\n"),
-                ephemeral=True,
+    async def store(self, interaction: Interaction, item_id: str = ""):
+        if item_id:
+            item = next(
+                (item for item in self.BUYABLE_ITEMS if item.id == item_id), None
             )
-            return
-        embed = EmbedX.info(
-            emoji=item.emoji,
-            title=item.name,
-            description=item.description,
-        )
-        embed.add_field(name="Price", value=f"💰 **{intcomma(item.price)}**")
-        if item.health_bonus:
+            if not item:
+                await interaction.response.send_message(
+                    embed=EmbedX.error(f"Invalid **item** input: `{item_id}`\n"),
+                    ephemeral=True,
+                )
+                return
+            embed = EmbedX.info(
+                emoji=item.alt_emoji,
+                title=item.name,
+                description=item.description,
+            )
+            embed.add_field(name="Price", value=f"💰 **{intcomma(item.price)}**")
+            if item.health_bonus:
+                embed.add_field(
+                    name="Health",
+                    value=f":heart: **{numsign(intcomma(item.health_bonus))}**",
+                )
+            if item.energy_bonus:
+                embed.add_field(
+                    name="Energy",
+                    value=f"⚡ **{numsign(intcomma(item.energy_bonus))}**",
+                )
+            if item.max_health_bonus:
+                embed.add_field(
+                    name="Max Health",
+                    value=f":heart: **{numsign(intcomma(item.max_health_bonus))}**",
+                )
+            if item.max_energy_bonus:
+                embed.add_field(
+                    name="Max Energy",
+                    value=f"⚡ **{numsign(intcomma(item.max_energy_bonus))}**",
+                )
+            if item.attack_bonus:
+                embed.add_field(
+                    name="Attack",
+                    value=f":crossed_swords: **{numsign(intcomma(item.attack_bonus))}**",
+                )
+            if item.defense_bonus:
+                embed.add_field(
+                    name="Defense",
+                    value=f"🛡 **{numsign(intcomma(item.defense_bonus))}**",
+                )
+            if item.speed_bonus:
+                embed.add_field(
+                    name="Speed", value=f"🥾 **{numsign(intcomma(item.speed_bonus))}**"
+                )
+            embed.set_thumbnail(url=item.icon_url)
+            await interaction.response.send_message(embed=embed)
+        else:
+            embed = EmbedX.info(emoji="🏬", title="Store")
+            items = self.BUYABLE_ITEMS
+            if items:
+                midpoint = len(items) // 2
+                row: Callable[[Item], str] = (
+                    lambda item: f"{item.emoji or item.alt_emoji} **{item.name} `💰{intcomma(item.price)}`**"
+                )
+                first_column = [row(item) for item in items[:midpoint]]
+                second_column = [row(item) for item in items[midpoint:]]
+                embed.add_field(name="", value="\n".join(first_column))
+                embed.add_field(name="", value="\n".join(second_column))
+            else:
+                embed.add_field(name="", value="_No items_")
             embed.add_field(
-                name="Health",
-                value=f":heart: +**{intcomma(item.health_bonus)}**",
+                name="Buy",
+                value=f"🛒 `/{self.buy.qualified_name}`",
+                inline=False,
             )
-        if item.energy_bonus:
-            embed.add_field(
-                name="Energy",
-                value=f"⚡ +**{intcomma(item.energy_bonus)}**",
-            )
-        if item.max_health_bonus:
-            embed.add_field(
-                name="Max Health",
-                value=f":heart: +**{intcomma(item.max_health_bonus)}**",
-            )
-        if item.max_energy_bonus:
-            embed.add_field(
-                name="Max Energy",
-                value=f"⚡ +**{intcomma(item.max_energy_bonus)}**",
-            )
-        if item.attack_bonus:
-            embed.add_field(
-                name="Attack",
-                value=f":crossed_swords: +**{intcomma(item.attack_bonus)}**",
-            )
-        if item.defense_bonus:
-            embed.add_field(
-                name="Defense", value=f"🛡 +**{intcomma(item.defense_bonus)}**"
-            )
-        if item.speed_bonus:
-            embed.add_field(name="Speed", value=f"🥾 +**{intcomma(item.speed_bonus)}**")
-        embed.set_thumbnail(url=item.icon_url)
-        await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed)
 
     @app_commands.guild_only()
     @app_commands.guild_only()
@@ -150,15 +186,17 @@ class InventoryCog(
         embed = EmbedX.success(
             emoji="🛒",
             title="Purchase",
-            description=f"{member.mention} purchased **{quantity}** x {item.emoji} **{item.name}** for 💰 **{total_price}**.",
+            description=f"{member.mention} purchased **{quantity}** x {item.alt_emoji} **{item.name}** for 💰 **{total_price}**.",
         )
         embed.set_author(name=member.display_name, icon_url=member.display_avatar)
         embed.set_thumbnail(url=item.icon_url)
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=add_preview_notice(embed))
 
     @app_commands.guild_only()
     @app_commands.command(description="Equip an equippable item")
-    async def equip(self, interaction: Interaction, item: str):
+    @app_commands.rename(item_id="item")
+    async def equip(self, interaction: Interaction, item_id: str):
+        item = next((item for item in self.BUYABLE_ITEMS if item.id == item_id), None)
         await interaction.response.send_message(
             embed=add_preview_notice(
                 EmbedX.info(
@@ -184,17 +222,36 @@ class InventoryCog(
 
     # ----------------------------------------------------------------------------------------------------
 
-    async def item_autocomplete(
+    async def buyable_items_autocomplete(
         self, interaction: Interaction, current: str
     ) -> list[app_commands.Choice[str]]:
         return [
             app_commands.Choice(
-                name=f"{item.emoji} {item.name} ― 💰{intcomma(item.price)}",
+                name=f"{item.alt_emoji} {item.name} ― 💰{intcomma(item.price)}",
                 value=item.id,
             )
             for item in [
                 item
                 for item in self.BUYABLE_ITEMS
                 if current.lower() in item.name.lower()
+            ][:25]
+        ]
+
+    async def actor_equippable_items_autocomplete(
+        self, interaction: Interaction, current: str
+    ) -> list[app_commands.Choice[str]]:
+        actor = self.bot.get_db(interaction.guild).find_one(
+            Actor, Actor.id == interaction.user.id
+        ) or self.bot.create_actor(interaction.user)
+        return [
+            app_commands.Choice(
+                name=f"{item.alt_emoji} {item.name}",
+                value=item.id,
+            )
+            for item in [
+                item_stack.item
+                for item_stack in actor.item_stacks
+                if item_stack.item.type == ItemType.EQUIPPABLE
+                and current.lower() in item_stack.item.name.lower()
             ][:25]
         ]

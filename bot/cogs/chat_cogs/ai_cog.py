@@ -188,7 +188,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
                         history=(
                             self.load_guild_history(guild)
                             if guild
-                            else self.load_member_history(member) if member else []
+                            else self.load_actor_history(member) if member else []
                         ),
                     )
                     await message.reply(
@@ -213,7 +213,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
             if guild:
                 self.save_guild_history(guild)
             elif member:
-                self.save_member_history(member)
+                self.save_actor_history(member)
 
         # Run reply task
         self.task_manager.schedule(
@@ -309,7 +309,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
                 history=(
                     self.load_guild_history(guild)
                     if guild
-                    else self.load_member_history(member) if member else []
+                    else self.load_actor_history(member) if member else []
                 ),
             )
             await message.reply(
@@ -436,21 +436,16 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
 
     def save_actor(self, member: Member):
         db = self.bot.get_db(member.guild)
-        if not db:
-            return
-        actor = db.find_one(Actor, Actor.id == member.id)
-        if not actor:
-            actor = self.bot.create_actor(member)
+        actor = db.find_one(Actor, Actor.id == member.id) or self.bot.create_actor(
+            member
+        )
         actor.name = member.name
         actor.display_name = member.display_name
         actor.ai_interacted_at = datetime.now(UTC)
         db.save(actor)
 
     def load_actors(self, guild: Guild):
-        db = self.bot.get_db(guild)
-        if not db:
-            return
-        actors = db.find(
+        actors = self.bot.get_db(guild).find(
             Actor, sort=query.desc(Actor.ai_interacted_at), limit=self.MAX_ACTORS
         )
         return [
@@ -466,36 +461,28 @@ class AiCog(Cog, description="Integrated generative AI chat bot."):
 
     def save_guild_history(self, guild: Guild):
         main_db = self.bot.get_db()
-        if not main_db:
-            return
-        db_ref = main_db.find_one(DbRef, DbRef.id == guild.id)
-        if not db_ref:
-            db_ref = self.bot.create_db_ref(guild)
+        db_ref = main_db.find_one(
+            DbRef, DbRef.id == guild.id
+        ) or self.bot.create_db_ref(guild)
         db_ref.ai_chat_history = self.ai.dump_history(guild.id)
         main_db.save(db_ref)
 
     def load_guild_history(self, guild: Guild) -> list | None:
         main_db = self.bot.get_db()
-        if not main_db:
-            return
         db_ref = main_db.find_one(DbRef, DbRef.id == guild.id)
         if db_ref:
             return db_ref.ai_chat_history
 
-    def save_member_history(self, member: Member):
+    def save_actor_history(self, member: Member):
         db = self.bot.get_db(member.guild)
-        if not db:
-            return
-        actor = db.find_one(Actor, Actor.id == member.id)
-        if not actor:
-            actor = self.bot.create_actor(member)
+        actor = db.find_one(Actor, Actor.id == member.id) or self.bot.create_actor(
+            member
+        )
         actor.ai_chat_history = self.ai.dump_history(member.id)
         db.save(actor)
 
-    def load_member_history(self, member: Member) -> list | None:
+    def load_actor_history(self, member: Member) -> list | None:
         db = self.bot.get_db(member.guild)
-        if not db:
-            return
         actor = db.find_one(Actor, Actor.id == member.id)
         if actor:
             return actor.ai_chat_history

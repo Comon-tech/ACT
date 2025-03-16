@@ -1,9 +1,16 @@
 import tomllib
+from enum import Enum
 from pathlib import Path
 from typing import Literal, Self
 
-from odmantic import Field, Model
+from odmantic import Field, Model, Reference
 from pydantic import NonNegativeInt
+
+
+class ItemType(str, Enum):
+    EQUIPPABLE = "equippable"
+    CONSUMABLE = "consumable"
+    SPECIAL = "special"
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -15,11 +22,12 @@ class Item(Model):
     id: str = Field(primary_field=True)
     name: str = ""
     description: str = ""
-    emoji: str = "❔"
+    emoji: str = ""
+    alt_emoji: str = "❔"
     icon_url: str = ""
     is_buyable: bool = True
     price: NonNegativeInt = 0
-    type: Literal["equippable", "consumable", "special"]
+    type: ItemType
 
     # Equippable
     max_health_bonus: int = 0
@@ -31,3 +39,221 @@ class Item(Model):
     # Consumable
     health_bonus: int = 0
     energy_bonus: int = 0
+
+
+# ----------------------------------------------------------------------------------------------------
+# * Item Stack
+# ----------------------------------------------------------------------------------------------------
+class ItemStack(Model):
+    item: Item = Reference()
+    quantity: NonNegativeInt = 1
+
+
+# ----------------------------------------------------------------------------------------------------
+# * Items
+# ----------------------------------------------------------------------------------------------------
+ITEMS = [
+    # Weapons
+    Item(
+        id="dagger",
+        name="Dagger",
+        description="A lightweight, curved dagger for quick strikes.",
+        emoji="<:dagger:1350653129498165259>",
+        alt_emoji="🗡",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655923160354907/dagger.png?ex=67d787da&is=67d6365a&hm=582b04b4d8dce9de72c15630cd3f4e83ca35db88aa01dc688876c510fdddb7f7&",
+        type=ItemType.EQUIPPABLE,
+        attack_bonus=1,
+        speed_bonus=2,
+        price=10,
+    ),
+    Item(
+        id="short_sword",
+        name="Short Sword",
+        description="A versatile one-handed sword for balanced combat.",
+        emoji="<:short_sword:1350710454271344640>",
+        alt_emoji="⚔️",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655933486862439/short_sword.png?ex=67d787dc&is=67d6365c&hm=8b88ef796761eb5a0a5756d37250c1b26418942e4b4f1edf10e8f1b52ea6f1b9&",
+        type=ItemType.EQUIPPABLE,
+        attack_bonus=2,
+        speed_bonus=1,
+        price=25,
+    ),
+    Item(
+        id="sword",
+        name="Sword",
+        description="A standard long sword for reliable combat.",
+        emoji="<:sword:1350710458302201979>",
+        alt_emoji="⚔️",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655934141038616/sword.png?ex=67d787dc&is=67d6365c&hm=ca9e16a8374db65f3d4b940a8ae7c883eda4c1891fca47fc33c46dd0abec9b2a&",
+        type=ItemType.EQUIPPABLE,
+        attack_bonus=3,
+        speed_bonus=0,
+        price=35,
+    ),
+    Item(
+        id="scimitar",
+        name="Scimitar",
+        description="A curved sword designed for powerful slashing attacks.",
+        emoji="<:scimitar:1350710445610242070>",
+        alt_emoji="⚔️",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655932568309760/scimitar.png?ex=67d787dc&is=67d6365c&hm=4159155d521e71c48f9248a36137f3898b449b61bcb4e27fb5cd7b586e3dbd73&",
+        type=ItemType.EQUIPPABLE,
+        attack_bonus=3,
+        speed_bonus=-1,
+        price=40,
+    ),
+    Item(
+        id="spear",
+        name="Spear",
+        description="A long-reaching weapon that allows for defensive maneuvers.",
+        emoji="<:spear:1350710456335073350>",
+        alt_emoji="🔱",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655933830664202/spear.png?ex=67d787dc&is=67d6365c&hm=372e40a86edff2f172ee9e0c8942bc8d75ccbf78200c003d0aa38b2df4df1126&",
+        type=ItemType.EQUIPPABLE,
+        attack_bonus=2,
+        defense_bonus=1,
+        price=30,
+    ),
+    Item(
+        id="axe",
+        name="Axe",
+        description="A brutal weapon for raw damage but harder to wield defensively.",
+        emoji="<:axe:1350710418615697508>",
+        alt_emoji="🪓",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655921411461210/axe.png?ex=67d787d9&is=67d63659&hm=fef92de5958e86ddc6e314e6aa1fe33e54322eb6a012a93de139ca7f73dd1a1b&",
+        type=ItemType.EQUIPPABLE,
+        attack_bonus=3,
+        defense_bonus=-1,
+        price=35,
+    ),
+    Item(
+        id="mace",
+        name="Mace",
+        description="A blunt weapon effective against armored foes.",
+        emoji="<:mace:1350710438530256927>",
+        alt_emoji="🔨",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655931540836353/mace.png?ex=67d787dc&is=67d6365c&hm=a332201cb819a928698d991a833f7565ed76458178fd517ce212884514b425d4&",
+        type=ItemType.EQUIPPABLE,
+        attack_bonus=2,
+        defense_bonus=1,
+        price=30,
+    ),
+    Item(
+        id="bow",
+        name="Bow",
+        description="A lightweight bow designed for quick shots.",
+        emoji="<:bow:1350710424076550164>",
+        alt_emoji="🏹",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655922132877375/bow.png?ex=67d787d9&is=67d63659&hm=bcc0f9b37ed26e7a980f49b86b7deff461245ff37faa7a9604ae419c1b1ef997&",
+        type=ItemType.EQUIPPABLE,
+        attack_bonus=2,
+        speed_bonus=1,
+        price=35,
+    ),
+    # Armor
+    Item(
+        id="shield",
+        name="Shield",
+        description="A sturdy shield for blocking attacks.",
+        emoji="<:shield:1350710449494036610>",
+        alt_emoji="🛡️",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655932866232360/shield.png?ex=67d787dc&is=67d6365c&hm=2c6ca7a3edd62fdbe9006320ea435f4c0d50714d1c8776565726a82d09a94b4e&",
+        type=ItemType.EQUIPPABLE,
+        defense_bonus=2,
+        speed_bonus=-1,
+        price=25,
+    ),
+    Item(
+        id="helmet",
+        name="Helmet",
+        description="Protects the head from critical blows.",
+        emoji="<:helmet:1350710433551618058>",
+        alt_emoji="⛑️",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655920371404911/helmet.png?ex=67d787d9&is=67d63659&hm=ccebe366e9ec93bfcc9679dc9f2bfc3e75b7e4a9a4ffa22393afcc5d5f055c8d&",
+        type=ItemType.EQUIPPABLE,
+        defense_bonus=1,
+        price=15,
+    ),
+    Item(
+        id="armor",
+        name="Armor",
+        description="Standard armor for balanced protection.",
+        emoji="<:armor:1350705245625253888>",
+        alt_emoji="🦺",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655920962666580/armor.png?ex=67d787d9&is=67d63659&hm=80ab8ea8e8c2fc9f096a6374839d409aeccde039cff87da7f8615ac51a3c8ccf&",
+        type=ItemType.EQUIPPABLE,
+        defense_bonus=2,
+        speed_bonus=0,
+        price=30,
+    ),
+    Item(
+        id="chainmail",
+        name="Chainmail",
+        description="Medium armor offering better protection but slightly heavier.",
+        emoji="<:chainmail:1350710428501803100>",
+        alt_emoji="🧥",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655922808164352/chainmail.png?ex=67d787d9&is=67d63659&hm=106ea326b53e1ad5d59d5b661239415ab852603489c0461fd35ec5e373648000&",
+        type=ItemType.EQUIPPABLE,
+        defense_bonus=3,
+        speed_bonus=-1,
+        price=45,
+    ),
+    # Footwear
+    Item(
+        id="sandals",
+        name="Sandals",
+        description="Lightweight sandals for basic mobility.",
+        emoji="<:sandals:1350710443643109457>",
+        alt_emoji="👡",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655932253868114/sandals.png?ex=67d787dc&is=67d6365c&hm=2a86819852e1e282b35e62d142a40947e34f84db1e0960c274b9220aef7b312c&",
+        type=ItemType.EQUIPPABLE,
+        speed_bonus=1,
+        price=10,
+    ),
+    Item(
+        id="shoes",
+        name="Shoes",
+        description="Sturdy shoes for comfortable travel.",
+        emoji="<:shoes:1350710452228984852>",
+        alt_emoji="👞",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655933205839964/shoes.png?ex=67d787dc&is=67d6365c&hm=22eb643751b16521a77c1a0c3b3bb8b8805ca0bff36e4af09c2b0e341c4d629a&",
+        type=ItemType.EQUIPPABLE,
+        speed_bonus=2,
+        price=20,
+    ),
+    Item(
+        id="boots",
+        name="Boots",
+        description="Heavy boots for long journeys and rough terrain.",
+        emoji="<:boots:1350710421572681838>",
+        alt_emoji="🥾",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655921793269853/boots.png?ex=67d787d9&is=67d63659&hm=0b72f2267e232100531686bc6321bd47245cdada5498a2233f4161f6574a1601&",
+        type=ItemType.EQUIPPABLE,
+        speed_bonus=1,
+        defense_bonus=1,
+        price=30,
+    ),
+    # Consumables
+    Item(
+        id="potion",
+        name="Potion",
+        description="A basic potion that restores health.",
+        emoji="<:potion:1350653172087263363>",
+        alt_emoji="🧪",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655931947417672/potion.png?ex=67d787dc&is=67d6365c&hm=87bec8eb5769212f444e990d27a245f014dc865eb4fb23b97fa718f2212fe214&",
+        type=ItemType.CONSUMABLE,
+        health_bonus=3,
+        price=10,
+    ),
+    Item(
+        id="honeypot",
+        name="Honeypot",
+        description="A sweet treat that restores energy.",
+        emoji="<:honeypot:1350710436273590294>",
+        alt_emoji="🍯",
+        icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655931137921036/honeypot.png?ex=67d787db&is=67d6365b&hm=853f6cc0a38c04f416c2eaab15e062009318c4a4a44221b10ee65c2e1c11652d&",
+        type=ItemType.CONSUMABLE,
+        energy_bonus=3,
+        price=15,
+    ),
+]

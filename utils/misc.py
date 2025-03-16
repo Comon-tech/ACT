@@ -112,6 +112,20 @@ def clamp(
 
 
 # ----------------------------------------------------------------------------------------------------
+# * Number Sign
+# ----------------------------------------------------------------------------------------------------
+def numsign(value: int | float | str) -> str:
+    """Format number with '+' or '-' sign prefix."""
+    try:
+        number = float(value)
+    except ValueError:
+        raise ValueError("Input must number or string representation of number.")
+    if number.is_integer():
+        number = int(number)
+    return f"{'+' if number > 0 else ''}{number}"
+
+
+# ----------------------------------------------------------------------------------------------------
 # * Text CSV
 # ----------------------------------------------------------------------------------------------------
 def text_csv(data: dict | list[dict], replace_newline: str | None = None) -> str:
