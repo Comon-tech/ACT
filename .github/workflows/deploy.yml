@@ -22,9 +22,32 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           command_timeout: "20m"
           script: |
-            cd /home/ubuntu/ACT/
-            git fetch fork ft-rework
-            git reset --hard fork/ft-rework
+            APP_DIR="/home/ubuntu/ACT"
+            REPO_URL="https://github.com/simple-works/ACT.git"
+            REMOTE="fork"
+            BRANCH="ft-rework"
+
+            if [ ! -d "$APP_DIR" ]; then
+              echo "Directory $APP_DIR does not exist. Creating and cloning..."
+              mkdir -p "$APP_DIR"
+              cd "$APP_DIR"
+              git clone --depth 1 "$REPO_URL" .
+              git checkout "$BRANCH"
+            else
+              cd "$APP_DIR"
+              if [ ! -d ".git" ]; then
+                echo "No git repo found, Re-cloning..."
+                rm -rf *
+                git clone --depth 1 "$REPO_URL" .
+                git checkout "$BRANCH"
+              else
+                echo "Fetching and resetting..."
+                git fetch "$REMOTE" "$BRANCH"
+                git reset --hard "$REMOTE"/"$BRANCH"
+              fi
+            fi
+
+            echo "Restarting service..."
             sudo systemctl restart act-app.service
             sleep 3
             sudo systemctl status act-app.service --no-pager
