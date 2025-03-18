@@ -22,7 +22,7 @@ class ActAi(BaseModel):
     api_key: NonEmptyStr
     instructions: NonEmptyStr | list[NonEmptyStr] | None = None
     model_name: str = Field(alias="model", default="gemini-2.0-flash")
-    response_char_limit: int = 4000
+    response_char_limit: int = 2000  # Used to be 4000 hmm
 
     _client: Client | None = None
     _config: GenerateContentConfig | None = None
