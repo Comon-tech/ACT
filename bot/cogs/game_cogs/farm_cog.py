@@ -12,7 +12,7 @@ from db.actor import Actor
 # ----------------------------------------------------------------------------------------------------
 # * Farm Cog
 # ----------------------------------------------------------------------------------------------------
-class FarmCog(Cog, description="Allows players to gain stats and roles."):
+class FarmCog(Cog, description="Allow players to gain stats and roles"):
     def __init__(self, bot: ActBot):
         self.bot = bot
 

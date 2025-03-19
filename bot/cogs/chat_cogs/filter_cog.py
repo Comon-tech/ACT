@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from discord import Member, Message
 from discord.ext.commands import Cog
+from humanize import naturaltime, precisedelta
 from profanity_check import predict_prob
 
 from bot.main import ActBot
@@ -16,7 +17,7 @@ log = logger(__name__)
 # ----------------------------------------------------------------------------------------------------
 # * Filter Cog
 # ----------------------------------------------------------------------------------------------------
-class FilterCog(Cog, description="Filters blacklisted message content."):
+class FilterCog(Cog, description="Filter blacklisted message content."):
     TOLERANCE = 0.99  # 99 %
     MAX_OFFENSES = 5
     GOLD_PENALTY = 500
@@ -54,8 +55,6 @@ class FilterCog(Cog, description="Filters blacklisted message content."):
         censored_message = await message.channel.send(embed=embed)
 
         # Accumulate offenses to detect abuse
-        if member.guild_permissions.administrator:
-            return
         self.offenses[member.id] += 1
         if self.offenses[member.id] < FilterCog.MAX_OFFENSES:
             return
@@ -75,9 +74,11 @@ class FilterCog(Cog, description="Filters blacklisted message content."):
         self.offenses[member.id] = 0
 
         # Penalize by timeout (if insufficient gold)
+        time = 0
         if debt_gold:
             time = timedelta(seconds=int(0.5 * debt_gold))  # 0.5 seconds per gold
-            await member.timeout(time, reason="Filter")
+            if not member.guild_permissions.administrator:
+                await member.timeout(time, reason="Repeated use of offensive language")
 
         # Notice
         embed = EmbedX.error(
@@ -85,12 +86,11 @@ class FilterCog(Cog, description="Filters blacklisted message content."):
             title="Penalty",
             description=f"{member.mention} has been penalized for repeated use of offensive language.",
         )
-        embed.add_field(name="", value="", inline=False)
         embed.add_field(name="Gold 🔻", value=f"💰 **-{self.GOLD_PENALTY}**")
         if debt_gold:
             embed.add_field(
-                name=f"Timeout Activated ❗",
-                value=f"⏳ **{time}**\n💰 **{debt_gold}** _Debt Converted_",
+                name=f"Timeout",
+                value=f"⏳ **{precisedelta(time)}**\n-# **💰 {debt_gold}** Debt Converted",
             )
         embed.set_thumbnail(url=member.display_avatar.url)
         await censored_message.reply(

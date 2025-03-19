@@ -9,7 +9,7 @@ from db.actor import Actor
 # ----------------------------------------------------------------------------------------------------
 # * Console Cog
 # ----------------------------------------------------------------------------------------------------
-class ConsoleCog(Cog, description="Provides control and management interface."):
+class ConsoleCog(Cog, description="Provide control and management interface"):
     def __init__(self, bot: ActBot):
         self.bot = bot
 

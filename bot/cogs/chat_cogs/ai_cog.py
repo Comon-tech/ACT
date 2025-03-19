@@ -27,7 +27,7 @@ log = logger(__name__)
 # ----------------------------------------------------------------------------------------------------
 # * AI Cog
 # ----------------------------------------------------------------------------------------------------
-class AiCog(Cog, description="Integrated generative AI chat bot."):
+class AiCog(Cog, description="Integrated generative AI chat bot"):
     CONFIG_PATH = Path(__file__).parent / "ai_cog.toml"
     MAX_ACTORS = 10
     COOLDOWN_TIME = 60  # 1 min

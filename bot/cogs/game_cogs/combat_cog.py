@@ -24,7 +24,7 @@ def add_preview_notice(embed: Embed):
 # ----------------------------------------------------------------------------------------------------
 # * Combat Cog
 # ----------------------------------------------------------------------------------------------------
-class CombatCog(Cog, description="Allows players to engage in battles."):
+class CombatCog(Cog, description="Allow players to engage in battles"):
     def __init__(self, bot: ActBot):
         self.bot = bot
 

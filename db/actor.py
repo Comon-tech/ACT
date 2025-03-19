@@ -34,8 +34,8 @@ class Actor(Model):
 
     # Gold, Items, & Equipment
     gold: NonNegativeInt = 0
-    item_stacks: list[ItemStack] = []
-    equipped_items: list[Item] = []
+    item_stacks: dict[str, ItemStack] = {}
+    equipped_items: dict[str, Item] = {}
     MAX_ITEMS: ClassVar[int] = 20
     MAX_EQUIPMENT: ClassVar[int] = 3
 

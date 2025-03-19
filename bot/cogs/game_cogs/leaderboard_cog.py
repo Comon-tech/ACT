@@ -11,7 +11,7 @@ from db.actor import Actor
 # ----------------------------------------------------------------------------------------------------
 # * Leaderboard Cog
 # ----------------------------------------------------------------------------------------------------
-class LeaderboardCog(Cog, description="Allows players to view their data."):
+class LeaderboardCog(Cog, description="Allows players to view their data"):
     def __init__(self, bot: ActBot):
         self.bot = bot
 
@@ -30,11 +30,7 @@ class LeaderboardCog(Cog, description="Allows players to view their data."):
         actors_members = await self.bot.get_actors_members(guild)
         if not actors_members:
             await interaction.followup.send(
-                embed=Embed(
-                    title="❔",
-                    description="No members found.",
-                    color=Color.yellow(),
-                )
+                embed=EmbedX.warning(description="No actors found.")
             )
             return
 
@@ -51,19 +47,20 @@ class LeaderboardCog(Cog, description="Allows players to view their data."):
             xp = naturalsize(actor.xp, binary=False, gnu=True).replace("B", "")
             gold = naturalsize(actor.gold, binary=False, gnu=True).replace("B", "")
             medal = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else ""
-            names_column_text += f"**# {(i+1)}** ― {medal} {name}\n"
-            stats_column_text += f"**`🏆{rank} 🏅{level} ⏫{xp} 💰{gold}`**\n"
+            names_column_text += f"**# {(i+1)}** ― {medal} {name}\n**`🏆{rank} 🏅{level} ⏫{xp} 💰{gold}`**\n\n"
+            # stats_column_text += f"**`🏆{rank} 🏅{level} ⏫{xp} 💰{gold}`**\n"
 
         # Create embed
         embed = EmbedX.info(emoji="🏆", title="Leaderboard")
-        try:
-            top_member = guild.get_member(top_actor.id) or await guild.fetch_member(
-                top_actor.id
-            )
-            if top_member:
-                embed.set_thumbnail(url=top_member.display_avatar)
-        except:
-            pass
+        # try:
+        #     top_member = guild.get_member(top_actor.id) or await guild.fetch_member(
+        #         top_actor.id
+        #     )
+        #     if top_member:
+        #         embed.set_thumbnail(url=top_member.display_avatar)
+        # except:
+        #     pass
+        embed.set_thumbnail(url=guild.icon.url if guild.icon else None)
         embed.add_field(name="", value=names_column_text)
         embed.add_field(name="", value=stats_column_text)
         await interaction.followup.send(embed=embed)

@@ -45,6 +45,7 @@ class Item(Model):
 # * Item Stack
 # ----------------------------------------------------------------------------------------------------
 class ItemStack(Model):
+    id: str = Field(primary_field=True)
     item: Item = Reference()
     quantity: NonNegativeInt = 1
 
