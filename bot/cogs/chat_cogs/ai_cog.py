@@ -362,7 +362,11 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
             try:
                 # Dimiss inaccessible by @everyone (Non-pulic)
                 everyone_perms = channel.permissions_for(guild.default_role)
-                if not (everyone_perms.read_messages and everyone_perms.view_channel):
+                if not (
+                    everyone_perms.view_channel
+                    and everyone_perms.read_messages
+                    and everyone_perms.send_messages
+                ):
                     continue
 
                 # Dismiss if inaccessible by bot

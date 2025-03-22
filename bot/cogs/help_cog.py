@@ -45,7 +45,7 @@ class HelpCog(Cog, description="Provide help and information interface."):
                 )
         if self.bot.user:
             embed.set_thumbnail(url=self.bot.user.display_avatar)
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
     # ----------------------------------------------------------------------------------------------------
     # * Table
