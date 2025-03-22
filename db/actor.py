@@ -9,6 +9,21 @@ from utils.misc import text_progress_bar
 
 
 # ----------------------------------------------------------------------------------------------------
+# * DM Actor
+# ----------------------------------------------------------------------------------------------------
+class DmActor(Model):
+    model_config = {"collection": "dm_actors"}
+
+    id: int = Field(primary_field=True)
+    name: str = ""
+    display_name: str = ""
+
+    # AI
+    ai_interacted_at: Optional[datetime] = None
+    ai_chat_history: list[dict[str, Any]] = []
+
+
+# ----------------------------------------------------------------------------------------------------
 # * Actor
 # ----------------------------------------------------------------------------------------------------
 class Actor(Model):
@@ -21,7 +36,6 @@ class Actor(Model):
 
     # AI
     ai_interacted_at: Optional[datetime] = None  # Last time actor interacted with AI
-    ai_chat_history: list[dict[str, Any]] = []
 
     # Combat stats
     health: NonNegativeInt = 1

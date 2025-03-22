@@ -4,7 +4,16 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from random import choice, randint, random
 
-from discord import Attachment, Embed, Guild, Interaction, Member, Message, app_commands
+from discord import (
+    Attachment,
+    Embed,
+    Guild,
+    Interaction,
+    Member,
+    Message,
+    User,
+    app_commands,
+)
 from discord.abc import Messageable
 from discord.ext.commands import Cog
 from google.genai.errors import APIError
@@ -13,7 +22,7 @@ from odmantic import query
 
 from bot.main import ActBot
 from bot.ui import EmbedX
-from db.actor import Actor
+from db.actor import Actor, DmActor
 from db.main import DbRef
 from utils.ai import ActAi
 from utils.file import ActFile
@@ -54,6 +63,31 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         self.task_manager.cancel_all()
 
     # ----------------------------------------------------------------------------------------------------
+    # * Reset
+    # ----------------------------------------------------------------------------------------------------
+    @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.default_permissions(administrator=True)
+    @app_commands.command(description="Clear AI chat bot session")
+    async def reset(self, interaction: Interaction, id: int | None = None):
+        await interaction.response.defer(ephemeral=True)
+        if id is None:
+            guild = interaction.guild
+            user = interaction.user
+            id = guild.id if guild else user.id
+        if self.ai.clear_session(id):
+            await interaction.followup.send(
+                embed=EmbedX.success(f"AI chat session with ID `{id}` cleared.")
+            )
+            if guild:
+                self.save_guild_history(guild)
+            elif isinstance(user, User):
+                self.save_dm_history(user)
+        else:
+            await interaction.followup.send(
+                embed=EmbedX.warning(f"No AI chat session with ID `{id}`.")
+            )
+
+    # ----------------------------------------------------------------------------------------------------
     # * Incite
     # ----------------------------------------------------------------------------------------------------
     @app_commands.guild_only()
@@ -80,7 +114,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
 
         # Prepare prompt
         text_prompt, _ = await self.create_prompt(
-            member=member,
+            user=member,
             guild=interaction.guild,
             preface=(
                 f"Begin natural talk{f" w/ {member.mention} " if member else " "}that feels like ur own initiative."
@@ -172,7 +206,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         async def respond():
             guild = message.guild
             id = guild.id if guild else message.author.id
-            member = message.author if isinstance(message.author, Member) else None
+            user = message.author
 
             # Check cooldown
             if self.task_manager.is_running(f"cooldown_{id}"):
@@ -188,12 +222,16 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
                         history=(
                             self.load_guild_history(guild)
                             if guild
-                            else self.load_actor_history(member) if member else []
+                            else (
+                                self.load_dm_history(user)
+                                if isinstance(user, User)
+                                else []
+                            )
                         ),
                     )
                     await message.reply(
                         await self.ai.prompt(text_prompt, file_prompt)
-                        or f"👋 {member.mention if member else "What? 😕"}"
+                        or f"👋 {user.mention if user else "What? 😕"}"
                     )
                 except APIError as e:
                     await message.reply(
@@ -212,8 +250,8 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
             # Remember chat session
             if guild:
                 self.save_guild_history(guild)
-            elif member:
-                self.save_actor_history(member)
+            elif isinstance(user, User):
+                self.save_dm_history(user)
 
         # Run reply task
         self.task_manager.schedule(
@@ -309,7 +347,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
                 history=(
                     self.load_guild_history(guild)
                     if guild
-                    else self.load_actor_history(member) if member else []
+                    else self.load_dm_history(member) if member else []
                 ),
             )
             await message.reply(
@@ -350,7 +388,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
     async def create_prompt(
         self,
         message: Message | None = None,
-        member: Member | None = None,
+        user: User | Member | None = None,
         guild: Guild | None = None,
         preface="",
     ) -> tuple[str, ActFile | None]:
@@ -360,7 +398,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
 
         Args:
             message: Message object (contains **message.author**, and **message.guild**).
-            member: Member object (prioritized over **message.author**).
+            user: User or Member object (prioritized over **message.author**).
             guild: Guild object (prioritized over **member.guild** and **message.guild**).
             preface: Text to prepend to the prompt
 
@@ -371,13 +409,14 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         file = None
 
         # Extract member and guild
-        if not member and message and isinstance(message.author, Member):
-            member = message.author
+        if not user and message:
+            user = message.author
         if not guild:
-            if member:
-                guild = member.guild
-            elif message and message.guild:
-                guild = message.guild
+            guild = (
+                user.guild
+                if isinstance(user, Member)
+                else message.guild if message and message.guild else None
+            )
 
         # Start building the prompt
         if text:
@@ -405,8 +444,10 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
             text += f"{message.content.replace(self.bot.user.mention, '').strip()}"  # type: ignore
 
         # Save member for context
-        if member:
-            self.save_actor(member)
+        if isinstance(user, Member):
+            self.save_actor(user)
+        elif isinstance(user, User):
+            self.save_dm_actor(user)
 
         # Load saved guild members to prompt for context
         if guild:
@@ -444,6 +485,16 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         actor.ai_interacted_at = datetime.now(UTC)
         db.save(actor)
 
+    def save_dm_actor(self, user: User):
+        main_db = self.bot.get_db()
+        dm_actor = main_db.find_one(
+            DmActor, DmActor.id == user.id
+        ) or self.bot.create_dm_actor(user)
+        dm_actor.name = user.name
+        dm_actor.display_name = user.display_name
+        dm_actor.ai_interacted_at = datetime.now(UTC)
+        main_db.save(dm_actor)
+
     def load_actors(self, guild: Guild):
         actors = self.bot.get_db(guild).find(
             Actor, sort=query.desc(Actor.ai_interacted_at), limit=self.MAX_ACTORS
@@ -473,18 +524,18 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         if db_ref:
             return db_ref.ai_chat_history
 
-    def save_actor_history(self, member: Member):
-        db = self.bot.get_db(member.guild)
-        actor = db.find_one(Actor, Actor.id == member.id) or self.bot.create_actor(
-            member
-        )
-        actor.ai_chat_history = self.ai.dump_history(member.id)
-        db.save(actor)
+    def save_dm_history(self, user: User):
+        main_db = self.bot.get_db()
+        dm_actor = main_db.find_one(
+            DmActor, DmActor.id == user.id
+        ) or self.bot.create_dm_actor(user)
+        dm_actor.ai_chat_history = self.ai.dump_history(user.id)
+        main_db.save(dm_actor)
 
-    def load_actor_history(self, member: Member) -> list | None:
-        db = self.bot.get_db(member.guild)
-        actor = db.find_one(Actor, Actor.id == member.id)
-        if actor:
-            return actor.ai_chat_history
+    def load_dm_history(self, user: User) -> list | None:
+        main_db = self.bot.get_db()
+        dm_actor = main_db.find_one(DmActor, DmActor.id == user.id)
+        if dm_actor:
+            return dm_actor.ai_chat_history
 
     # ----------------------------------------------------------------------------------------------------

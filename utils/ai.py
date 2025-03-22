@@ -61,7 +61,7 @@ class ActAi(BaseModel):
     # ----------------------------------------------------------------------------------------------------
 
     def use_session(self, id: int, history: list[Content] | None = None) -> AsyncChat:
-        """Use chat session with given id. If nonexistent, create and initialize with given history."""
+        """Use and get chat session with given id. If nonexistent, create and initialize with given history."""
         chat = self._chats.get(id)
         if not chat:
             if history:
@@ -73,6 +73,14 @@ class ActAi(BaseModel):
             self._chats[id] = chat
         self._current_chat_id = id
         return chat
+
+    def clear_session(self, id: int):
+        """Clear chat session with given id. If nonexistent, get False."""
+        chat = self._chats.get(id)
+        if chat:
+            del self._chats[id]
+            return True
+        return False
 
     def dump_history(self, id: int | None = None, history_max_items=20) -> list[dict]:
         """Dump chat session history of given id. If no id, dump current."""
