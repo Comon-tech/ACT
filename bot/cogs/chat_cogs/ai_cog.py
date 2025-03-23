@@ -8,6 +8,7 @@ from discord import (
     Attachment,
     Embed,
     Guild,
+    HTTPException,
     Interaction,
     Member,
     Message,
@@ -24,7 +25,7 @@ from bot.main import ActBot
 from bot.ui import EmbedX
 from db.actor import Actor, DmActor
 from db.main import DbRef
-from utils.ai import ActAi
+from utils.ai import ActAi, ActPersona
 from utils.file import ActFile
 from utils.log import logger
 from utils.misc import text_csv
@@ -50,12 +51,12 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         self.bot = bot
         with open(self.CONFIG_PATH, "rb") as file:
             config = tomllib.load(file)
-        persona_name = "activa"
-        persona_desc = config.get("personas", {}).get(persona_name)
+        self.persona = ActPersona(**config.get("personas", {}).get("activa"))
         self.ai = ActAi(
-            api_key=bot.api_keys.get("gemini", ""), instructions=persona_desc
+            api_key=bot.api_keys.get("gemini", " "),
+            instructions=self.persona.description,
         )
-        log.info(f"AI persona @{persona_name} used.")
+        log.info(f"AI persona @{self.persona.name} used.")
         self.task_manager = ActTaskManager()
         self.task_manager.schedule("initiative", lambda _: self.schedule_initiative())
 
@@ -209,10 +210,17 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
             user = message.author
 
             # Check cooldown
-            if self.task_manager.is_running(f"cooldown_{id}"):
+            cooldown_task_id = f"cooldown_{id}"
+            if self.task_manager.is_running(cooldown_task_id):
+                time_left = self.task_manager.time_left(cooldown_task_id) or 0
                 await message.reply(
-                    f"Please! 🙏 Give me about {self.task_manager.time_left(id)} seconds... ⏳"
+                    choice(
+                        self.persona.messages.get("cooldown_warning", ["⏳"])
+                    ).format(
+                        time_left=naturaldelta(timedelta(seconds=time_left)) or "?"
+                    )
                 )
+                return
 
             # Perform prompt & send reply
             async with message.channel.typing():
@@ -233,17 +241,29 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
                         await self.ai.prompt(text_prompt, file_prompt)
                         or f"👋 {user.mention if user else "What? 😕"}"
                     )
+                except HTTPException as e:
+                    if e.code == 50035:
+                        await message.channel.send(
+                            choice(self.persona.messages.get("censor_warning", ["🙊"]))
+                        )
+                    else:
+                        await message.channel.send(
+                            choice(self.persona.messages.get("discord_error", ["⚠️"]))
+                        )
                 except APIError as e:
                     await message.reply(
-                        f"Oops! 😵‍💫 I'm out of energy for now. Give me a moment! 🙏"
+                        choice(self.persona.messages.get("model_error", ["🔋"]))
                     )
                     self.task_manager.schedule(
-                        f"cooldown_{id}", delay=self.COOLDOWN_TIME
+                        cooldown_task_id, delay=self.COOLDOWN_TIME
+                    )
+                    log.loading(
+                        f"[{guild}] Waiting {naturaldelta(timedelta(seconds=self.COOLDOWN_TIME))} for cooldown..."
                     )
                     log.exception(e)
                 except Exception as e:
                     await message.channel.send(
-                        "Sorry! 😵‍💫 There's something wrong with me right now 😭. Give me a moment plz! 🙏"
+                        choice(self.persona.messages.get("error", ["⚠️"]))
                     )
                     log.exception(e)
 
@@ -255,7 +275,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
 
         # Run reply task
         self.task_manager.schedule(
-            id=message.guild.id if message.guild else message.author.id,
+            id=f"reply_{message.guild.id if message.guild else message.author.id}",
             callback=respond,  # type: ignore
             delay=reply_delay,
         )

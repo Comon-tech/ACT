@@ -28,7 +28,7 @@ class TaskRef(BaseModel):
         self._task = create_task(self._execute_loop() if self.loop else self._execute())
 
     @property
-    def time_left(self):
+    def time_left(self) -> int:
         return max(0, round(self._end_at - time()))
 
     def cancel(self):
@@ -98,7 +98,7 @@ class ActTaskManager:
     # ----------------------------------------------------------------------------------------------------
 
     def task_ref(self, id: Any) -> TaskRef | None:
-        self._tasks.get(id)
+        return self._tasks.get(id)
 
     def remove(self, task_id: Any) -> None:
         """Remove task from the task manager."""
@@ -113,11 +113,14 @@ class ActTaskManager:
             return True
         return False
 
-    def cancel_all(self):
-        """Cancel all tasks."""
+    def cancel_all(self) -> int:
+        """Cancel and remove all tasks. Get count of cancelled tasks."""
+        cancelled_count = 0
         for id in list(self._tasks.keys()):
             self._tasks[id].cancel()
             del self._tasks[id]
+            cancelled_count += 1
+        return cancelled_count
 
     def time_left(self, id: Any) -> float | None:
         """Get remaining time for task of given id. If non-existent get None."""
