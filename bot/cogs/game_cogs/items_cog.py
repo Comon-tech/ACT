@@ -39,6 +39,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
         self.store.autocomplete("item_id")(self.buyable_items_autocomplete)
         self.equip.autocomplete("item_id")(self.actor_equippable_items_autocomplete)
         self.unequip.autocomplete("item_id")(self.actor_equipped_items_autocomplete)
+        self.use.autocomplete("item_id")(self.actor_consumable_items_autocomplete)
 
     # ----------------------------------------------------------------------------------------------------
 
@@ -147,42 +148,10 @@ class InventoryCog(Cog, description="Acquire and use items"):
                 description=item.description,
             )
             embed.add_field(name="Price", value=f"💰 **{intcomma(item.price)}**")
-            if item.health_bonus:
-                embed.add_field(
-                    name="Health",
-                    value=f":heart: **{numsign(intcomma(item.health_bonus))}**",
-                )
-            if item.energy_bonus:
-                embed.add_field(
-                    name="Energy",
-                    value=f"⚡ **{numsign(intcomma(item.energy_bonus))}**",
-                )
-            if item.max_health_bonus:
-                embed.add_field(
-                    name="Max Health",
-                    value=f":heart: **{numsign(intcomma(item.max_health_bonus))}**",
-                )
-            if item.max_energy_bonus:
-                embed.add_field(
-                    name="Max Energy",
-                    value=f"⚡ **{numsign(intcomma(item.max_energy_bonus))}**",
-                )
-            if item.attack_bonus:
-                embed.add_field(
-                    name="Attack",
-                    value=f":crossed_swords: **{numsign(intcomma(item.attack_bonus))}**",
-                )
-            if item.defense_bonus:
-                embed.add_field(
-                    name="Defense",
-                    value=f"🛡 **{numsign(intcomma(item.defense_bonus))}**",
-                )
-            if item.speed_bonus:
-                embed.add_field(
-                    name="Speed", value=f"🥾 **{numsign(intcomma(item.speed_bonus))}**"
-                )
             embed.set_thumbnail(url=item.icon_url)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(
+                embed=self.add_item_stats_embed_fields(embed, item, show_emoji=False)
+            )
         else:
             embed = EmbedX.info(emoji="🏬", title="Store")
             items = self.BUYABLE_ITEMS
@@ -308,6 +277,16 @@ class InventoryCog(Cog, description="Acquire and use items"):
             member
         )
 
+        # Check max
+        if len(actor.equipped_items) >= actor.MAX_EQUIPMENT:
+            await interaction.response.send_message(
+                embed=EmbedX.warning(
+                    f"You've reached your equipment limit of **{actor.MAX_EQUIPMENT}** items."
+                ),
+                ephemeral=True,
+            )
+            return
+
         # Get item
         await interaction.response.defer(ephemeral=True)
         item_stack = actor.item_stacks.get(item_id)
@@ -328,6 +307,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
             )
             return
         actor.equipped_items[item.id] = item
+        actor.add_item_stats(item)
         db.save(actor)
         await interaction.followup.send(
             embed=EmbedX.success(
@@ -337,12 +317,19 @@ class InventoryCog(Cog, description="Acquire and use items"):
 
         # Send public response
         if isinstance(interaction.channel, Messageable):
+            embed = EmbedX.info(
+                emoji="🧰",
+                title="Equipment",
+                description=f"{member.mention} has equipped an item.",
+            )
+            embed.add_field(
+                name="Item ✅",
+                value=f"{item.emoji or item.alt_emoji} **{item.name}**",
+            )
+            embed.set_author(name=member.display_name, icon_url=member.display_avatar)
+            embed.set_thumbnail(url=item.icon_url)
             await interaction.channel.send(
-                embed=EmbedX.info(
-                    emoji="🧰",
-                    title="Equipment",
-                    description=f"{member.mention} has equipped **{item.emoji or item.alt_emoji} {item.name}**.",
-                ),
+                embed=self.add_item_stats_embed_fields(embed, item),
             )
 
     @app_commands.guild_only()
@@ -383,6 +370,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
             )
             return
         del actor.equipped_items[item.id]
+        actor.add_item_stats(item, scale=-1)
         db.save(actor)
         await interaction.followup.send(
             embed=EmbedX.success(
@@ -392,28 +380,121 @@ class InventoryCog(Cog, description="Acquire and use items"):
 
         # Send public response
         if isinstance(interaction.channel, Messageable):
+            embed = EmbedX.info(
+                emoji="🧰",
+                title="Equipment",
+                description=f"{member.mention} has unequipped an item.",
+            )
+            embed.add_field(
+                name="Item ❎",
+                value=f"{item.emoji or item.alt_emoji} **{item.name}**",
+            )
+            embed.set_author(name=member.display_name, icon_url=member.display_avatar)
+            embed.set_thumbnail(url=item.icon_url)
             await interaction.channel.send(
-                embed=EmbedX.info(
-                    emoji="🧰",
-                    title="Equipment",
-                    description=f"{member.mention} has unequipped **{item.emoji or item.alt_emoji} {item.name}**.",
-                ),
+                embed=self.add_item_stats_embed_fields(embed, item, scale=-1),
             )
 
     @app_commands.guild_only()
     @app_commands.command(description="Use a consumable item")
-    async def use(self, interaction: Interaction, item: str):
-        await interaction.response.send_message(
-            embed=add_preview_notice(
-                EmbedX.info(
-                    emoji="🎒",
-                    title="Item Consumption",
-                    description=f"{interaction.user.mention} used **{item}**.",
-                )
-            ),
+    @app_commands.rename(item_id="item")
+    async def use(self, interaction: Interaction, item_id: str):
+        # Check guild & member
+        member = interaction.user
+        if not interaction.guild or not isinstance(member, Member):
+            await interaction.response.send_message(
+                embed=EmbedX.warning("This command cannot be used in this context."),
+                ephemeral=True,
+            )
+            return
+
+        # Get actor
+        db = self.bot.get_db(interaction.guild)
+        actor = db.find_one(Actor, Actor.id == member.id) or self.bot.create_actor(
+            member
         )
 
+        # Get item
+        await interaction.response.defer(ephemeral=True)
+        item_stack = actor.item_stacks.get(item_id)
+        item = item_stack.item if item_stack else None
+        if not item_stack or not item or item.type != ItemType.CONSUMABLE:
+            await interaction.followup.send(
+                embed=EmbedX.error(f"Invalid **item** input: `{item_id}`\n")
+            )
+            return
+
+        # Consume item
+        actor.add_item_stats(item)
+        item_stack.quantity = max(0, item_stack.quantity - 1)
+        if item_stack.quantity <= 0:
+            del actor.item_stacks[item.id]
+        db.save(actor)
+        await interaction.followup.send(
+            embed=EmbedX.success(
+                f"You consumed **{item.emoji or item.alt_emoji} {item.name}**."
+            )
+        )
+
+        # Send public response
+        if isinstance(interaction.channel, Messageable):
+            embed = EmbedX.info(
+                emoji="🍴",
+                title="Consumption",
+                description=f"{member.mention} has consumed an item.",
+            )
+            embed.add_field(
+                name="Item 🔻",
+                value=f"{item.emoji or item.alt_emoji} **{item.name}**",
+            )
+            embed.set_author(name=member.display_name, icon_url=member.display_avatar)
+            embed.set_thumbnail(url=item.icon_url)
+            await interaction.channel.send(
+                embed=self.add_item_stats_embed_fields(embed, item)
+            )
+
     # ----------------------------------------------------------------------------------------------------
+
+    def add_item_stats_embed_fields(
+        self, embed: Embed, item: Item, scale: int = 1, show_emoji: bool = True
+    ):
+        emoji = (" 🔼" if scale >= 0 else " 🔻") if show_emoji else ""
+        if item.health_bonus:
+            embed.add_field(
+                name=f"Health{emoji}",
+                value=f":heart: **{numsign(intcomma(scale * item.health_bonus))}**",
+            )
+        if item.energy_bonus:
+            embed.add_field(
+                name=f"Energy{emoji}",
+                value=f"⚡ **{numsign(intcomma(scale * item.energy_bonus))}**",
+            )
+        if item.max_health_bonus:
+            embed.add_field(
+                name=f"Max Health{emoji}",
+                value=f":heart: **{numsign(intcomma(scale * item.max_health_bonus))}**",
+            )
+        if item.max_energy_bonus:
+            embed.add_field(
+                name=f"Max Energy{emoji}",
+                value=f"⚡ **{numsign(intcomma(scale * item.max_energy_bonus))}**",
+            )
+        if item.attack_bonus:
+            embed.add_field(
+                name=f"Attack{emoji}",
+                value=f":crossed_swords: **{numsign(intcomma(scale * item.attack_bonus))}**",
+            )
+        if item.defense_bonus:
+            embed.add_field(
+                name=f"Defense{emoji}",
+                value=f"🛡 **{numsign(intcomma(scale * item.defense_bonus))}**",
+            )
+        if item.speed_bonus:
+            embed.add_field(
+                name=f"Speed{emoji}",
+                value=f"🥾 **{numsign(intcomma(scale * item.speed_bonus))}**",
+            )
+        return embed
 
     async def buyable_items_autocomplete(
         self, interaction: Interaction, current: str
@@ -430,12 +511,37 @@ class InventoryCog(Cog, description="Acquire and use items"):
             ][:25]
         ]
 
+    async def actor_consumable_items_autocomplete(
+        self, interaction: Interaction, current: str
+    ) -> list[app_commands.Choice[str]]:
+        member = interaction.user
+        if not isinstance(member, Member):
+            return []
+        actor = self.bot.get_db(interaction.guild).find_one(
+            Actor, Actor.id == interaction.user.id
+        ) or self.bot.create_actor(member)
+        return [
+            app_commands.Choice(
+                name=f"{item.alt_emoji} {item.name}",
+                value=item.id,
+            )
+            for item in [
+                item_stack.item
+                for item_stack in actor.item_stacks.values()
+                if item_stack.item.type == ItemType.CONSUMABLE
+                and current.lower() in item_stack.item.name.lower()
+            ][:25]
+        ]
+
     async def actor_equippable_items_autocomplete(
         self, interaction: Interaction, current: str
     ) -> list[app_commands.Choice[str]]:
+        member = interaction.user
+        if not isinstance(member, Member):
+            return []
         actor = self.bot.get_db(interaction.guild).find_one(
             Actor, Actor.id == interaction.user.id
-        ) or self.bot.create_actor(interaction.user)
+        ) or self.bot.create_actor(member)
         return [
             app_commands.Choice(
                 name=f"{item.alt_emoji} {item.name}",
@@ -453,9 +559,12 @@ class InventoryCog(Cog, description="Acquire and use items"):
     async def actor_equipped_items_autocomplete(
         self, interaction: Interaction, current: str
     ) -> list[app_commands.Choice[str]]:
+        member = interaction.user
+        if not isinstance(member, Member):
+            return []
         actor = self.bot.get_db(interaction.guild).find_one(
             Actor, Actor.id == interaction.user.id
-        ) or self.bot.create_actor(interaction.user)
+        ) or self.bot.create_actor(member)
         return [
             app_commands.Choice(
                 name=f"{item.alt_emoji} {item.name}",

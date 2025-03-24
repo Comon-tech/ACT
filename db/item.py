@@ -67,7 +67,7 @@ ITEMS = [
         type=ItemType.EQUIPPABLE,
         attack_bonus=1,
         speed_bonus=2,
-        price=10000,
+        price=1000,
     ),
     Item(
         id="short_sword",
@@ -79,7 +79,7 @@ ITEMS = [
         type=ItemType.EQUIPPABLE,
         attack_bonus=2,
         speed_bonus=1,
-        price=25000,
+        price=2500,
     ),
     Item(
         id="sword",
@@ -91,7 +91,7 @@ ITEMS = [
         type=ItemType.EQUIPPABLE,
         attack_bonus=3,
         speed_bonus=0,
-        price=35000,
+        price=3500,
     ),
     Item(
         id="scimitar",
@@ -103,7 +103,7 @@ ITEMS = [
         type=ItemType.EQUIPPABLE,
         attack_bonus=3,
         speed_bonus=-1,
-        price=40000,
+        price=4000,
     ),
     Item(
         id="spear",
@@ -115,7 +115,7 @@ ITEMS = [
         type=ItemType.EQUIPPABLE,
         attack_bonus=2,
         defense_bonus=1,
-        price=30000,
+        price=3000,
     ),
     Item(
         id="axe",
@@ -127,7 +127,7 @@ ITEMS = [
         type=ItemType.EQUIPPABLE,
         attack_bonus=3,
         defense_bonus=-1,
-        price=35000,
+        price=3500,
     ),
     Item(
         id="mace",
@@ -139,7 +139,7 @@ ITEMS = [
         type=ItemType.EQUIPPABLE,
         attack_bonus=2,
         defense_bonus=1,
-        price=30000,
+        price=3000,
     ),
     Item(
         id="bow",
@@ -151,7 +151,7 @@ ITEMS = [
         type=ItemType.EQUIPPABLE,
         attack_bonus=2,
         speed_bonus=1,
-        price=35000,
+        price=3500,
     ),
     # ----------------------------------------------------------------------------------------------------
     # * Armor Equippables
@@ -166,7 +166,7 @@ ITEMS = [
         type=ItemType.EQUIPPABLE,
         defense_bonus=2,
         speed_bonus=-1,
-        price=25000,
+        price=2500,
     ),
     Item(
         id="helmet",
@@ -177,7 +177,7 @@ ITEMS = [
         icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655920371404911/helmet.png?ex=67d787d9&is=67d63659&hm=ccebe366e9ec93bfcc9679dc9f2bfc3e75b7e4a9a4ffa22393afcc5d5f055c8d&",
         type=ItemType.EQUIPPABLE,
         defense_bonus=1,
-        price=15000,
+        price=1500,
     ),
     Item(
         id="armor",
@@ -189,7 +189,7 @@ ITEMS = [
         type=ItemType.EQUIPPABLE,
         defense_bonus=2,
         speed_bonus=0,
-        price=30000,
+        price=3000,
     ),
     Item(
         id="chainmail",
@@ -201,7 +201,7 @@ ITEMS = [
         type=ItemType.EQUIPPABLE,
         defense_bonus=3,
         speed_bonus=-1,
-        price=45000,
+        price=4500,
     ),
     # ----------------------------------------------------------------------------------------------------
     # * Footwear Equippables
@@ -215,7 +215,7 @@ ITEMS = [
         icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655932253868114/sandals.png?ex=67d787dc&is=67d6365c&hm=2a86819852e1e282b35e62d142a40947e34f84db1e0960c274b9220aef7b312c&",
         type=ItemType.EQUIPPABLE,
         speed_bonus=1,
-        price=10000,
+        price=1000,
     ),
     Item(
         id="shoes",
@@ -226,7 +226,7 @@ ITEMS = [
         icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655933205839964/shoes.png?ex=67d787dc&is=67d6365c&hm=22eb643751b16521a77c1a0c3b3bb8b8805ca0bff36e4af09c2b0e341c4d629a&",
         type=ItemType.EQUIPPABLE,
         speed_bonus=2,
-        price=20000,
+        price=2000,
     ),
     Item(
         id="boots",
@@ -238,7 +238,7 @@ ITEMS = [
         type=ItemType.EQUIPPABLE,
         speed_bonus=1,
         defense_bonus=1,
-        price=30000,
+        price=3000,
     ),
     # ----------------------------------------------------------------------------------------------------
     # * Consumables
@@ -252,7 +252,7 @@ ITEMS = [
         icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655931947417672/potion.png?ex=67d787dc&is=67d6365c&hm=87bec8eb5769212f444e990d27a245f014dc865eb4fb23b97fa718f2212fe214&",
         type=ItemType.CONSUMABLE,
         health_bonus=3,
-        price=200,
+        price=20,
     ),
     Item(
         id="honeypot",
@@ -263,7 +263,7 @@ ITEMS = [
         icon_url="https://cdn.discordapp.com/attachments/1348859490203734057/1350655931137921036/honeypot.png?ex=67d787db&is=67d6365b&hm=853f6cc0a38c04f416c2eaab15e062009318c4a4a44221b10ee65c2e1c11652d&",
         type=ItemType.CONSUMABLE,
         energy_bonus=3,
-        price=200,
+        price=20,
     ),
     Item(
         id="cookie",
@@ -275,6 +275,6 @@ ITEMS = [
         type=ItemType.CONSUMABLE,
         health_bonus=1,
         energy_bonus=1,
-        price=45,
+        price=4,
     ),
 ]

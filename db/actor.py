@@ -1,11 +1,11 @@
 from datetime import datetime
-from typing import Any, ClassVar, Optional
+from typing import Any, ClassVar, Optional, cast
 
 from odmantic import Field, Model
 from pydantic import NonNegativeInt
 
-from db.item import Item, ItemStack
-from utils.misc import text_progress_bar
+from db.item import Item, ItemStack, ItemType
+from utils.misc import clamp, text_progress_bar
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -40,11 +40,16 @@ class Actor(Model):
     # Combat stats
     health: NonNegativeInt = 1
     base_max_health: NonNegativeInt = 1
+    extra_max_health: NonNegativeInt = 0
     energy: NonNegativeInt = 1
     base_max_energy: NonNegativeInt = 1
+    extra_max_energy: NonNegativeInt = 0
     base_attack: NonNegativeInt = 1
+    extra_attack: NonNegativeInt = 0
     base_defense: NonNegativeInt = 1
+    extra_defense: NonNegativeInt = 0
     base_speed: NonNegativeInt = 1
+    extra_speed: NonNegativeInt = 0
 
     # Gold, Items, & Equipment
     gold: NonNegativeInt = 0
@@ -81,23 +86,23 @@ class Actor(Model):
 
     @property
     def max_health(self):
-        return self.base_max_health + 0
+        return self.base_max_health + self.extra_max_health
 
     @property
     def max_energy(self):
-        return self.base_max_energy + 0
+        return self.base_max_energy + self.extra_max_energy
 
     @property
     def attack(self):
-        return self.base_attack + 0
+        return self.base_attack + self.extra_attack
 
     @property
     def defense(self):
-        return self.base_defense + 0
+        return self.base_defense + self.extra_defense
 
     @property
     def speed(self):
-        return self.base_speed + 0
+        return self.base_speed + self.extra_speed
 
     @property
     def rank_name(self) -> str:
@@ -127,22 +132,6 @@ class Actor(Model):
 
     # ----------------------------------------------------------------------------------------------------
 
-    def try_level_up(self) -> bool:
-        """Check if player has enough xp to level up and increment level if so."""
-        initial_level = self.level
-        while self.xp >= self.next_level_xp and self.level < self.MAX_LEVEL:
-            self.level += 1
-        return self.level > initial_level
-
-    def try_rank_up(self) -> bool:
-        """Check if player has enough level to rank up and increment rank if so."""
-        initial_rank = self.rank
-        while self.level >= self.next_rank_level and self.rank < self.MAX_RANKS:
-            self.rank += 1
-        return self.rank > initial_rank
-
-    # ----------------------------------------------------------------------------------------------------
-
     @property
     def health_bar(self) -> str:
         return text_progress_bar(self.health, self.base_max_health, 6, "▰", "▱")
@@ -162,6 +151,38 @@ class Actor(Model):
     @property
     def xp_bar(self) -> str:
         return text_progress_bar(self.xp, self.next_level_xp, 10, "■", "□")
+
+    # ----------------------------------------------------------------------------------------------------
+
+    def try_level_up(self) -> bool:
+        """Check if player has enough xp to level up and increment level if so."""
+        initial_level = self.level
+        while self.xp >= self.next_level_xp and self.level < self.MAX_LEVEL:
+            self.level += 1
+        return self.level > initial_level
+
+    def try_rank_up(self) -> bool:
+        """Check if player has enough level to rank up and increment rank if so."""
+        initial_rank = self.rank
+        while self.level >= self.next_rank_level and self.rank < self.MAX_RANKS:
+            self.rank += 1
+        return self.rank > initial_rank
+
+    def add_item_stats(self, item: Item, scale: int = 1):
+        """Apply scaled item stat bonuses to actor stats."""
+        self.health = cast(
+            int,
+            clamp(self.health + (scale * item.health_bonus), 0, self.max_health),
+        )
+        self.energy = cast(
+            int,
+            clamp(self.energy + (scale * item.energy_bonus), 0, self.max_energy),
+        )
+        self.extra_max_health += scale * item.max_health_bonus
+        self.extra_max_energy += scale * item.max_energy_bonus
+        self.extra_attack += scale * item.attack_bonus
+        self.extra_defense += scale * item.defense_bonus
+        self.extra_speed += scale * item.speed_bonus
 
     # ----------------------------------------------------------------------------------------------------
 
