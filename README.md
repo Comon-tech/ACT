@@ -10,7 +10,7 @@ ACT is a [Discord](http://discord.com) bot designed to boost community engagemen
 
 <!-- ![Screenshot](./screenshot.gif?raw=true) -->
 
-## 🏁 Getting started
+## 🏁 Getting started.
 
 1. [Clone](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) repository:
 
