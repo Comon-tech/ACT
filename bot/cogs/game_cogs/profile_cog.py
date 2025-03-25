@@ -117,13 +117,16 @@ class ProfileCog(Cog, description="Allow players to view their profile data"):
             embed.add_field(name="", value="", inline=False)
 
         # Add images & extra infos
+        if section in ("picture"):
+            embed.set_image(url=member.display_avatar.url)
+        else:
+            embed.set_thumbnail(url=member.display_avatar.url)
         embed.set_author(name=member.display_name, icon_url=member.display_avatar.url)
         embed.set_footer(
             text=f"⌚ Joined {member.guild.name} {naturaltime(member.joined_at or 0)}\n"
             f"⌚ Joind Discord {naturaltime(member.created_at)}",
             icon_url=member.guild.icon.url if member.guild.icon else None,
         )
-        embed.set_thumbnail(url=member.display_avatar.url)
 
         # Send response
         await interaction.followup.send(embed=embed)
@@ -134,9 +137,14 @@ class ProfileCog(Cog, description="Allow players to view their profile data"):
         current: str,
     ) -> list[app_commands.Choice[str]]:
         return [
-            app_commands.Choice(name="「✳」 All", value="all"),
-            app_commands.Choice(name="「🏆」 Progress", value="progress"),
-            app_commands.Choice(name="「💰」 Property", value="property"),
-            app_commands.Choice(name="「💗」 Status", value="status"),
-            app_commands.Choice(name="「 」 None", value="none"),
+            choice
+            for choice in [
+                app_commands.Choice(name="「✳」 All", value="all"),
+                app_commands.Choice(name="「🏆」 Progress", value="progress"),
+                app_commands.Choice(name="「💰」 Property", value="property"),
+                app_commands.Choice(name="「💗」 Status", value="status"),
+                app_commands.Choice(name="「🌆」 Picture", value="picture"),
+                app_commands.Choice(name="「 」 None", value="none"),
+            ]
+            if current.lower() in choice.value.lower()
         ]

@@ -70,7 +70,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
         )
         embed.add_field(
             name="Equipment",
-            value=f"**🧰 {intcomma(len(actor.equipped_items))}**",
+            value=f"**🧰 {intcomma(len(actor.equipped_items))}** / {actor.MAX_EQUIPMENT}",
         )
         embed.add_field(name="", value="", inline=False)
 
@@ -522,11 +522,11 @@ class InventoryCog(Cog, description="Acquire and use items"):
         ) or self.bot.create_actor(member)
         return [
             app_commands.Choice(
-                name=f"{item.alt_emoji} {item.name}",
-                value=item.id,
+                name=f"{item_stack.item.alt_emoji} {item_stack.item.name} ― x{item_stack.quantity}",
+                value=item_stack.item.id,
             )
-            for item in [
-                item_stack.item
+            for item_stack in [
+                item_stack
                 for item_stack in actor.item_stacks.values()
                 if item_stack.item.type == ItemType.CONSUMABLE
                 and current.lower() in item_stack.item.name.lower()
