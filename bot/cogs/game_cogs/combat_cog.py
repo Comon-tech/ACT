@@ -31,14 +31,14 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
     @app_commands.guild_only()
     @app_commands.command(description="Attack a member")
     async def attack(self, interaction: Interaction, member: Member):
-        command_name = interaction.command.name if interaction.command else "?"
+        embed = add_preview_notice(
+            EmbedX.info(
+                emoji=":crossed_swords:",
+                title="Combat",
+                description=f"{interaction.user.mention} has attacked {member.mention}.",
+            )
+        )
         await interaction.response.send_message(
             content=f"{member.mention} 😱",
-            embed=add_preview_notice(
-                EmbedX.info(
-                    emoji=":crossed_swords:",
-                    title="Combat",
-                    description=f"{interaction.user.mention} attacked {member.mention}.",
-                )
-            ),
+            embed=embed,
         )

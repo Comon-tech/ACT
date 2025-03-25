@@ -12,19 +12,6 @@ from db.item import ITEMS, Item, ItemStack, ItemType
 from utils.misc import numsign
 
 
-def add_preview_notice(embed: Embed):
-    embed.set_author(name="FEATURE PREVIEW")
-    embed.add_field(name="", value="", inline=False)
-    embed.add_field(name="", value="")
-    embed.add_field(
-        name=":warning: Important Notice",
-        value="This feature is not yet functional. "
-        "It's a work-in-progress and will be released in a future update. "
-        "Thank you for your patience. 🙏",
-    )
-    return embed
-
-
 # ----------------------------------------------------------------------------------------------------
 # * Inventory Cog
 # ----------------------------------------------------------------------------------------------------
