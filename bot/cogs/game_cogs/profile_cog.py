@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Callable
 
 from discord import Color, Embed, Guild, Interaction, Member, User, app_commands
 from discord.ext.commands import Cog
@@ -8,6 +9,7 @@ from odmantic import query
 from bot.main import ActBot
 from bot.ui import EmbedX
 from db.actor import Actor
+from db.item import Item, ItemStack
 from utils.misc import numsign
 
 
@@ -41,12 +43,12 @@ class ProfileCog(Cog, description="Allow players to view their profile data"):
             return
 
         # Get actor
+        await interaction.response.defer()
         actor = self.bot.get_db(interaction.guild).find_one(
             Actor, Actor.id == member.id
         ) or self.bot.create_actor(member)
 
         # Create profile embed
-        await interaction.response.defer()
         embed = EmbedX.info(title="", emoji="", description=member.mention)
 
         # Add roles field
@@ -61,6 +63,7 @@ class ProfileCog(Cog, description="Allow players to view their profile data"):
             ),
             inline=False,
         )
+        embed.add_field(name="", value="", inline=False)
 
         # Add progress (leveling) stats fields
         if section in ("all", "progress"):
@@ -74,18 +77,6 @@ class ProfileCog(Cog, description="Allow players to view their profile data"):
             embed.add_field(
                 name="Experience",
                 value=f"**⏫ {intcomma(actor.xp)}** / {intcomma(actor.next_level_xp)}\n`{actor.xp_bar}`",
-            )
-            embed.add_field(name="", value="", inline=False)
-
-        # Add property (economy) stats fields
-        if section in ("all", "property"):
-            embed.add_field(name="Gold", value=f"**💰 {intcomma(actor.gold)}**")
-            embed.add_field(
-                name="Items", value=f"**🎒 {intcomma(len(actor.item_stacks))}**"
-            )
-            embed.add_field(
-                name="Equipment",
-                value=f"**🧰 {intcomma(len(actor.equipped_items))}** / {actor.MAX_EQUIPMENT}",
             )
             embed.add_field(name="", value="", inline=False)
 
@@ -114,6 +105,66 @@ class ProfileCog(Cog, description="Allow players to view their profile data"):
                 name="Speed",
                 value=f"**🥾 {intcomma(actor.speed)}** _`({numsign(intcomma(actor.extra_speed))})`_",
             )
+            embed.add_field(name="", value="", inline=False)
+
+        # Add property (economy) stats fields
+        if section in ("all", "property"):
+            embed.add_field(name="Gold", value=f"**💰 {intcomma(actor.gold)}**")
+            embed.add_field(
+                name="Items", value=f"**🎒 {intcomma(len(actor.item_stacks))}**"
+            )
+            embed.add_field(
+                name="Equipment",
+                value=f"**🧰 {intcomma(len(actor.equipped_items))}** / {actor.MAX_EQUIPMENT}",
+            )
+            embed.add_field(name="", value="", inline=False)
+
+            # Add items field
+            item_stacks = list(actor.item_stacks.values())
+            embed.add_field(
+                name=f"Items **`🎒{intcomma(len(actor.item_stacks))}`**",
+                value="",
+                inline=False,
+            )
+            if item_stacks:
+                midpoint = (len(item_stacks) + 1) // 2
+                item_stack_row: Callable[[ItemStack], str] = lambda item_stack: (
+                    f"{item_stack.item.emoji or item_stack.item.alt_emoji} **{item_stack.item.name} `x{item_stack.quantity}`**"
+                )
+                first_column = [
+                    item_stack_row(item_stack) for item_stack in item_stacks[:midpoint]
+                ]
+                second_column = [
+                    item_stack_row(item_stack) for item_stack in item_stacks[midpoint:]
+                ]
+                embed.add_field(name="", value="\n".join(first_column))
+                embed.add_field(name="", value="\n".join(second_column))
+            else:
+                embed.add_field(name="", value="_No items_")
+            embed.add_field(name="", value="", inline=False)
+
+            # Add equipped items field
+            equipped_items = list(actor.equipped_items.values())
+            embed.add_field(
+                name=f"Equipment **`🧰{intcomma(len(actor.equipped_items))}`**",
+                value="",
+                inline=False,
+            )
+            if equipped_items:
+                midpoint = (len(equipped_items) + 1) // 2
+                equipped_item_row: Callable[[Item], str] = lambda item: (
+                    f"{item.emoji or item.alt_emoji} **{item.name} `{item.get_item_stats_text()}`**"
+                )
+                first_column = [
+                    equipped_item_row(item) for item in equipped_items[:midpoint]
+                ]
+                second_column = [
+                    equipped_item_row(item) for item in equipped_items[midpoint:]
+                ]
+                embed.add_field(name="", value="\n".join(first_column))
+                embed.add_field(name="", value="\n".join(second_column))
+            else:
+                embed.add_field(name="", value="_No equipped items_")
             embed.add_field(name="", value="", inline=False)
 
         # Add images & extra infos
