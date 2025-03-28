@@ -161,6 +161,9 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
     # ----------------------------------------------------------------------------------------------------
     @Cog.listener()
     async def on_message(self, message: Message):
+        # 🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴
+        # return
+
         # Ignore bot message
         if self.bot.user == message.author:
             return

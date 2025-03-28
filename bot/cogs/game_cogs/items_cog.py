@@ -31,90 +31,6 @@ class InventoryCog(Cog, description="Acquire and use items"):
     # ----------------------------------------------------------------------------------------------------
 
     @app_commands.guild_only()
-    @app_commands.command(description="View your items or another member's items")
-    async def bag(self, interaction: Interaction, member: Member | User | None = None):
-        # Check guild & member
-        member = member or interaction.user
-        if not interaction.guild or not isinstance(member, Member):
-            await interaction.response.send_message(
-                embed=EmbedX.warning("This command cannot be used in this context."),
-                ephemeral=True,
-            )
-            return
-
-        # Get actor
-        actor = self.bot.get_db(interaction.guild).find_one(
-            Actor, Actor.id == member.id
-        ) or self.bot.create_actor(member)
-
-        # Create inventory embed
-        embed = EmbedX.info(emoji="", title="", description=member.mention)
-
-        # Add economy stats fields
-        embed.add_field(name="Gold", value=f"💰 **{intcomma(actor.gold)}**")
-        embed.add_field(
-            name="Items", value=f"**🎒 {intcomma(len(actor.item_stacks))}**"
-        )
-        embed.add_field(
-            name="Equipment",
-            value=f"**🧰 {intcomma(len(actor.equipped_items))}** / {actor.MAX_EQUIPMENT}",
-        )
-        embed.add_field(name="", value="", inline=False)
-
-        # Add items field
-        item_stacks = list(actor.item_stacks.values())
-        embed.add_field(
-            name=f"Items **`🎒{intcomma(len(actor.item_stacks))}`**",
-            value="",
-            inline=False,
-        )
-        if item_stacks:
-            midpoint = (len(item_stacks) + 1) // 2
-            item_stack_row: Callable[[ItemStack], str] = lambda item_stack: (
-                f"{item_stack.item.emoji or item_stack.item.alt_emoji} **{item_stack.item.name} `x{item_stack.quantity}`**"
-            )
-            first_column = [
-                item_stack_row(item_stack) for item_stack in item_stacks[:midpoint]
-            ]
-            second_column = [
-                item_stack_row(item_stack) for item_stack in item_stacks[midpoint:]
-            ]
-            embed.add_field(name="", value="\n".join(first_column))
-            embed.add_field(name="", value="\n".join(second_column))
-        else:
-            embed.add_field(name="", value="_No items_")
-
-        # Add equipped items field
-        equipped_items = list(actor.equipped_items.values())
-        embed.add_field(
-            name=f"Equipment **`🧰{intcomma(len(actor.equipped_items))}`**",
-            value="",
-            inline=False,
-        )
-        if equipped_items:
-            midpoint = (len(equipped_items) + 1) // 2
-            equipped_item_row: Callable[[Item], str] = lambda item: (
-                f"{item.emoji or item.alt_emoji} **{item.name}**"
-            )
-            first_column = [
-                equipped_item_row(item) for item in equipped_items[:midpoint]
-            ]
-            second_column = [
-                equipped_item_row(item) for item in equipped_items[midpoint:]
-            ]
-            embed.add_field(name="", value="\n".join(first_column))
-            embed.add_field(name="", value="\n".join(second_column))
-        else:
-            embed.add_field(name="", value="_No equipped items_")
-
-        # Add images
-        embed.set_author(name=member.display_name, icon_url=member.display_avatar)
-        embed.set_thumbnail(url=member.display_avatar.url)
-
-        # Send response
-        await interaction.response.send_message(embed=embed)
-
-    @app_commands.guild_only()
     @app_commands.command(description="View purchasable items")
     @app_commands.rename(item_id="item")
     @app_commands.describe(item_id="Choose item you wish to view")
@@ -137,7 +53,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
             embed.add_field(name="Price", value=f"💰 **{intcomma(item.price)}**")
             embed.set_thumbnail(url=item.icon_url)
             await interaction.response.send_message(
-                embed=self.add_item_stats_embed_fields(embed, item, show_emoji=False)
+                embed=self.add_item_stat_embed_fields(embed, item, show_mod_emoji=False)
             )
         else:
             embed = EmbedX.info(emoji="🏬", title="Store")
@@ -145,12 +61,13 @@ class InventoryCog(Cog, description="Acquire and use items"):
             if items:
                 midpoint = len(items) // 2
                 row: Callable[[Item], str] = (
-                    lambda item: f"{item.emoji or item.alt_emoji} **{item.name} `💰{intcomma(item.price)}`**"
+                    lambda item: f"{item.emoji or item.alt_emoji} **{item.name} \n"
+                    f"`💰{intcomma(item.price)}` `{item.get_item_stats_text()}`**"
                 )
                 first_column = [row(item) for item in items[:midpoint]]
                 second_column = [row(item) for item in items[midpoint:]]
-                embed.add_field(name="", value="\n".join(first_column))
-                embed.add_field(name="", value="\n".join(second_column))
+                embed.add_field(name="", value="\n\n".join(first_column))
+                embed.add_field(name="", value="\n\n".join(second_column))
             else:
                 embed.add_field(name="", value="_No items_")
             embed.set_thumbnail(url=self.STORE_ICON_URL)
@@ -233,7 +150,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
             description=f"{member.mention} has bought an item.",
         )
         embed.add_field(
-            name="Item ✨",
+            name="Item 🔼",
             value=f"{item.emoji or item.alt_emoji} **{item.name} `x{intword(quantity)}`**",
         )
         embed.add_field(
@@ -310,13 +227,13 @@ class InventoryCog(Cog, description="Acquire and use items"):
                 description=f"{member.mention} has equipped an item.",
             )
             embed.add_field(
-                name="Item ✅",
+                name="Item 🔼",
                 value=f"{item.emoji or item.alt_emoji} **{item.name}**",
             )
             embed.set_author(name=member.display_name, icon_url=member.display_avatar)
             embed.set_thumbnail(url=item.icon_url)
             await interaction.channel.send(
-                embed=self.add_item_stats_embed_fields(embed, item),
+                embed=self.add_item_stat_embed_fields(embed, item),
             )
 
     @app_commands.guild_only()
@@ -373,13 +290,13 @@ class InventoryCog(Cog, description="Acquire and use items"):
                 description=f"{member.mention} has unequipped an item.",
             )
             embed.add_field(
-                name="Item ❎",
+                name="Item 🔻",
                 value=f"{item.emoji or item.alt_emoji} **{item.name}**",
             )
             embed.set_author(name=member.display_name, icon_url=member.display_avatar)
             embed.set_thumbnail(url=item.icon_url)
             await interaction.channel.send(
-                embed=self.add_item_stats_embed_fields(embed, item, scale=-1),
+                embed=self.add_item_stat_embed_fields(embed, item, scale=-1),
             )
 
     @app_commands.guild_only()
@@ -437,58 +354,40 @@ class InventoryCog(Cog, description="Acquire and use items"):
             embed.set_author(name=member.display_name, icon_url=member.display_avatar)
             embed.set_thumbnail(url=item.icon_url)
             await interaction.channel.send(
-                embed=self.add_item_stats_embed_fields(embed, item)
+                embed=self.add_item_stat_embed_fields(embed, item)
             )
 
     # ----------------------------------------------------------------------------------------------------
 
-    def add_item_stats_embed_fields(
-        self, embed: Embed, item: Item, scale: int = 1, show_emoji: bool = True
-    ):
-        emoji = (" 🔼" if scale >= 0 else " 🔻") if show_emoji else ""
-        if item.health_bonus:
+    def add_item_stat_embed_fields(
+        self, embed: Embed, item: Item, scale: int = 1, show_mod_emoji: bool = True
+    ) -> Embed:
+        stat_emojis = {
+            "health": ":heart:",
+            "max_health": ":heart:",
+            "energy": "⚡",
+            "max_energy": "⚡",
+            "attack": ":crossed_swords:",
+            "defense": "🛡",
+            "speed": "🥾",
+        }
+        stat_mod_emoji = (" 🔼" if scale >= 0 else " 🔻") if show_mod_emoji else ""
+        for stat_name, stat_value in item.effective_stats(scale=scale).items():
+            stat_emoji = stat_emojis.get(stat_name, "")
             embed.add_field(
-                name=f"Health{emoji}",
-                value=f":heart: **{numsign(intcomma(scale * item.health_bonus))}**",
-            )
-        if item.energy_bonus:
-            embed.add_field(
-                name=f"Energy{emoji}",
-                value=f"⚡ **{numsign(intcomma(scale * item.energy_bonus))}**",
-            )
-        if item.max_health_bonus:
-            embed.add_field(
-                name=f"Max Health{emoji}",
-                value=f":heart: **{numsign(intcomma(scale * item.max_health_bonus))}**",
-            )
-        if item.max_energy_bonus:
-            embed.add_field(
-                name=f"Max Energy{emoji}",
-                value=f"⚡ **{numsign(intcomma(scale * item.max_energy_bonus))}**",
-            )
-        if item.attack_bonus:
-            embed.add_field(
-                name=f"Attack{emoji}",
-                value=f":crossed_swords: **{numsign(intcomma(scale * item.attack_bonus))}**",
-            )
-        if item.defense_bonus:
-            embed.add_field(
-                name=f"Defense{emoji}",
-                value=f"🛡 **{numsign(intcomma(scale * item.defense_bonus))}**",
-            )
-        if item.speed_bonus:
-            embed.add_field(
-                name=f"Speed{emoji}",
-                value=f"🥾 **{numsign(intcomma(scale * item.speed_bonus))}**",
+                name=f"{stat_name.capitalize()}{stat_mod_emoji}",
+                value=f"{stat_emoji} **{numsign(intcomma(stat_value))}**",
             )
         return embed
+
+    # ----------------------------------------------------------------------------------------------------
 
     async def buyable_items_autocomplete(
         self, interaction: Interaction, current: str
     ) -> list[app_commands.Choice[str]]:
         return [
             app_commands.Choice(
-                name=f"{item.alt_emoji} {item.name} ― 💰{intcomma(item.price)}",
+                name=f"{item.alt_emoji} {item.name} ({item.get_item_stats_text()}) ― 💰{intcomma(item.price)}",
                 value=item.id,
             )
             for item in [
@@ -509,7 +408,8 @@ class InventoryCog(Cog, description="Acquire and use items"):
         ) or self.bot.create_actor(member)
         return [
             app_commands.Choice(
-                name=f"{item_stack.item.alt_emoji} {item_stack.item.name} ― x{item_stack.quantity}",
+                name=f"{item_stack.item.alt_emoji} {item_stack.item.name} "
+                f"({item_stack.item.get_item_stats_text()}) ― x{item_stack.quantity}",
                 value=item_stack.item.id,
             )
             for item_stack in [
@@ -531,7 +431,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
         ) or self.bot.create_actor(member)
         return [
             app_commands.Choice(
-                name=f"{item.alt_emoji} {item.name}",
+                name=f"{item.alt_emoji} {item.name} ({item.get_item_stats_text()})",
                 value=item.id,
             )
             for item in [
@@ -554,12 +454,12 @@ class InventoryCog(Cog, description="Acquire and use items"):
         ) or self.bot.create_actor(member)
         return [
             app_commands.Choice(
-                name=f"{item.alt_emoji} {item.name}",
+                name=f"{item.alt_emoji} {item.name} ({item.get_item_stats_text()})",
                 value=item.id,
             )
             for item in [
-                equipped_item.item
+                equipped_item
                 for equipped_item in actor.equipped_items.values()
-                if current.lower() in equipped_item.item.name.lower()
+                if current.lower() in equipped_item.name.lower()
             ][:25]
         ]

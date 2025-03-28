@@ -1,10 +1,13 @@
 from discord import Color, Embed, Interaction, Member, app_commands
 from discord.ext.commands import Cog, GroupCog
+from humanize import intcomma
 from tabulate import tabulate
 
 from bot.main import ActBot
 from bot.ui import EmbedX
 from db.actor import Actor
+from db.item import ITEMS
+from utils.misc import numsign
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -54,6 +57,7 @@ class HelpCog(Cog, description="Provide help and information interface."):
     @app_commands.command(description="View table of data")
     @app_commands.choices(
         data=[
+            app_commands.Choice(name="📦 Items", value="items"),
             app_commands.Choice(name="🏅 Levels", value="levels"),
             app_commands.Choice(name="🏆 Ranks", value="ranks"),
             app_commands.Choice(name="🎭 Roles", value="roles"),
@@ -69,6 +73,30 @@ class HelpCog(Cog, description="Provide help and information interface."):
         await interaction.response.defer()
         output = " "
         match data.value:
+            case "items":
+
+                def format_stat_name(name: str):
+                    if "max_" in name:
+                        name = name.replace("max_", "")
+                        return f"M{name[0].upper()}"
+                    return name[0].upper()
+
+                output = tabulate(
+                    [
+                        (
+                            item.name,
+                            " ".join(
+                                f"{numsign(intcomma(value))}{format_stat_name(name)}"
+                                for name, value in item.effective_stats().items()
+                            ),
+                            item.price,
+                        )
+                        for item in ITEMS
+                    ],
+                    headers=["Item", "Stats", "Price"],
+                    colalign=["right", "left", "left"],
+                    tablefmt="simple_outline",
+                )
             case "levels":
                 output = tabulate(
                     Actor.level_xp_table(min, max),

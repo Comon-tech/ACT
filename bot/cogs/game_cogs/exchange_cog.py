@@ -26,6 +26,14 @@ class ExchangeCog(Cog, description="Allow players to exchange gold and goods"):
         member="Recipient member to send gold to", gold="Amount of gold to donate"
     )
     async def donate(self, interaction: Interaction, member: Member, gold: int):
+        # Check guild & member
+        if not interaction.guild or not isinstance(interaction.user, Member):
+            await interaction.response.send_message(
+                embed=EmbedX.warning("This command cannot be used in this context."),
+                ephemeral=True,
+            )
+            return
+
         # Validate input
         if gold <= 0:
             await interaction.response.send_message(

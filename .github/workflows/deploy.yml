@@ -3,7 +3,7 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - ft-rework
+      - main
 
 jobs:
   deploy:
@@ -25,7 +25,7 @@ jobs:
             APP_DIR="/home/ubuntu/ACT"
             REPO_URL="https://github.com/simple-works/ACT.git"
             REMOTE="fork"
-            BRANCH="ft-rework"
+            BRANCH="main"
 
             if [ ! -d "$APP_DIR" ]; then
               echo "Directory $APP_DIR does not exist. Creating and cloning..."

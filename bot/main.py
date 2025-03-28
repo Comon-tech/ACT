@@ -1,32 +1,17 @@
 import pathlib
 
-import discord
 from colorama import Fore
-from discord import (
-    Color,
-    Embed,
-    Guild,
-    Interaction,
-    Member,
-    Message,
-    Object,
-    Permissions,
-    User,
-    VoiceClient,
-    app_commands,
-)
+from discord import Guild, Interaction, Member, Message, Object, User, app_commands
 from discord.ext.commands import Bot, Cog
 from odmantic import SyncEngine, query
 
 from bot.ui import EmbedX
 from db.actor import Actor, DmActor
-from db.item import Item
 from db.main import ActDb, DbRef
 from utils.log import logger
 from utils.misc import import_classes, text_block
 
 log = logger(__name__)
-VoiceClient.warn_nacl = False  # Hide "PyNaCl" warning
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -68,28 +53,6 @@ class ActBot(Bot):
         # log.info("\n" + await self.app_commands_remote_info_text)
         # log.info("\n" + self.commands_info_text)
         # await self.sync_commands()
-        # self.migrate_data()
-
-    # def migrate_data(self):
-    #     db_api = self._db
-    #     if not db_api:
-    #         log.error("No database api available")
-    #     main_db_engine = db_api.get_engine()
-    #     db_refs = main_db_engine.find(DbRef)
-    #     for db_ref in db_refs:
-    #         db_engine = db_api.get_engine(db_ref.id)
-    #         if not db_engine:
-    #             continue
-    #         raw_actors = db_engine.database[Actor.__collection__].find()
-    #         unset_fields = {"equipment": 1, "equipped_items": 1, "item_stacks": 1}
-    #         for raw_actor in raw_actors:
-    #             actor_id = raw_actor.get("_id")
-    #             db_engine.database[Actor.__collection__].update_one(
-    #                 {"_id": actor_id}, {"$unset": unset_fields}
-    #             )
-    #             log.info(
-    #                 f"Removed {', '.join(unset_fields.keys())} for Actor record: {actor_id} in {db_ref.name}"
-    #             )
 
     # ----------------------------------------------------------------------------------------------------
     # * On Message

@@ -20,9 +20,13 @@ class LeaderboardCog(Cog, description="Allows players to view their data"):
     @app_commands.guild_only()
     @app_commands.command(description="View top members")
     async def leaderboard(self, interaction: Interaction):
-        # Check guild (not needed but just for type-checking)
+        # Check guild
         guild = interaction.guild
         if not guild:
+            await interaction.response.send_message(
+                embed=EmbedX.warning("This command cannot be used in this context."),
+                ephemeral=True,
+            )
             return
 
         # Get top actors

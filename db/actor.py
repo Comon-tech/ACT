@@ -34,22 +34,23 @@ class Actor(Model):
     display_name: str = ""
     is_member: bool = True  # Still member in the server
 
-    # AI
+    # Time
     ai_interacted_at: Optional[datetime] = None  # Last time actor interacted with AI
+    attacked_at: Optional[datetime] = None  # Last time actor attacked another actor
 
     # Combat stats
-    health: NonNegativeInt = 1
-    base_max_health: NonNegativeInt = 1
-    extra_max_health: NonNegativeInt = 0
-    energy: NonNegativeInt = 1
-    base_max_energy: NonNegativeInt = 1
-    extra_max_energy: NonNegativeInt = 0
+    health: NonNegativeInt = 10
+    base_max_health: NonNegativeInt = 10
+    extra_max_health: int = 0
+    energy: NonNegativeInt = 3
+    base_max_energy: NonNegativeInt = 3
+    extra_max_energy: int = 0
     base_attack: NonNegativeInt = 1
-    extra_attack: NonNegativeInt = 0
+    extra_attack: int = 0
     base_defense: NonNegativeInt = 1
-    extra_defense: NonNegativeInt = 0
+    extra_defense: int = 0
     base_speed: NonNegativeInt = 1
-    extra_speed: NonNegativeInt = 0
+    extra_speed: int = 0
 
     # Gold, Items, & Equipment
     gold: NonNegativeInt = 0
@@ -85,29 +86,31 @@ class Actor(Model):
     # ----------------------------------------------------------------------------------------------------
 
     @property
-    def max_health(self):
-        return self.base_max_health + self.extra_max_health
-
-    @property
-    def max_energy(self):
-        return self.base_max_energy + self.extra_max_energy
-
-    @property
-    def attack(self):
-        return self.base_attack + self.extra_attack
-
-    @property
-    def defense(self):
-        return self.base_defense + self.extra_defense
-
-    @property
-    def speed(self):
-        return self.base_speed + self.extra_speed
-
-    @property
     def rank_name(self) -> str:
         """Get name of current rank."""
         return self.RANK_NAMES[self.rank]
+
+    # ----------------------------------------------------------------------------------------------------
+
+    @property
+    def max_health(self):
+        return max(0, self.base_max_health + self.extra_max_health)
+
+    @property
+    def max_energy(self):
+        return max(0, self.base_max_energy + self.extra_max_energy)
+
+    @property
+    def attack(self):
+        return max(0, self.base_attack + self.extra_attack)
+
+    @property
+    def defense(self):
+        return max(0, self.base_defense + self.extra_defense)
+
+    @property
+    def speed(self):
+        return max(0, self.base_speed + self.extra_speed)
 
     # ----------------------------------------------------------------------------------------------------
 
@@ -183,6 +186,13 @@ class Actor(Model):
         self.extra_attack += scale * item.attack_bonus
         self.extra_defense += scale * item.defense_bonus
         self.extra_speed += scale * item.speed_bonus
+
+    def clear_extra_stats(self):
+        self.extra_max_health = 0
+        self.extra_max_energy = 0
+        self.extra_attack = 0
+        self.extra_defense = 0
+        self.extra_speed = 0
 
     # ----------------------------------------------------------------------------------------------------
 
