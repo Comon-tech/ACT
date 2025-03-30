@@ -114,7 +114,7 @@ def clamp(
 # ----------------------------------------------------------------------------------------------------
 # * Number Sign
 # ----------------------------------------------------------------------------------------------------
-def numsign(value: int | float | str) -> str:
+def numsign(value: float | str) -> str:
     """Format number with '+' or '-' sign prefix."""
     try:
         number = float(value)
@@ -123,6 +123,21 @@ def numsign(value: int | float | str) -> str:
     if number.is_integer():
         number = int(number)
     return f"{'+' if number > 0 else ''}{number}"
+
+
+# ----------------------------------------------------------------------------------------------------
+# * Math growth functions
+# ----------------------------------------------------------------------------------------------------
+def scaled_power(value: float, scale: float, exponent: float) -> float:
+    """Calculate value image using scaled power function: `f(value) = scale * (value**exponent)`."""
+    return scale * (value**exponent)
+
+
+def scaled_linear(
+    value: float, scale: float, multiplier: float, offset: float = 0
+) -> float:
+    """Calculate value image using scaled linear function: `f(value) = scale * ((value * multiplier) + offset)`."""
+    return scale * ((value * multiplier) + offset)
 
 
 # ----------------------------------------------------------------------------------------------------

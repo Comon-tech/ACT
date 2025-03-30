@@ -106,8 +106,8 @@ class HelpCog(Cog, description="Provide help and information interface."):
                 )
             case "ranks":
                 output = tabulate(
-                    Actor.rank_level_table(min, max),
-                    headers=["Rank", "Level"],
+                    [(rank.name, elo) for rank, elo in Actor.rank_elo_table(min, max)],
+                    headers=["Rank", "Elo"],
                     colalign=["right", "left"],
                     tablefmt="simple_outline",
                 )

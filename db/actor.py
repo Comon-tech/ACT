@@ -2,10 +2,11 @@ from datetime import datetime
 from typing import Any, ClassVar, Optional, cast
 
 from odmantic import Field, Model
-from pydantic import NonNegativeInt
+from pydantic import NonNegativeFloat, NonNegativeInt
 
 from db.item import Item, ItemStack, ItemType
-from utils.misc import clamp, text_progress_bar
+from db.rank import RANKS, Rank
+from utils.misc import clamp, scaled_linear, scaled_power, text_progress_bar
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -29,6 +30,7 @@ class DmActor(Model):
 class Actor(Model):
     model_config = {"collection": "actors"}
 
+    # Member
     id: int = Field(primary_field=True)
     name: str = ""
     display_name: str = ""
@@ -38,13 +40,15 @@ class Actor(Model):
     ai_interacted_at: Optional[datetime] = None  # Last time actor interacted with AI
     attacked_at: Optional[datetime] = None  # Last time actor attacked another actor
 
-    # Combat stats
+    # Health & Energy
     health: NonNegativeInt = 10
     base_max_health: NonNegativeInt = 10
     extra_max_health: int = 0
     energy: NonNegativeInt = 3
     base_max_energy: NonNegativeInt = 3
     extra_max_energy: int = 0
+
+    # Attack, Defense, & Speed
     base_attack: NonNegativeInt = 1
     extra_attack: int = 0
     base_defense: NonNegativeInt = 1
@@ -56,39 +60,48 @@ class Actor(Model):
     gold: NonNegativeInt = 0
     item_stacks: dict[str, ItemStack] = {}
     equipped_items: dict[str, Item] = {}
-    MAX_ITEMS: ClassVar[int] = 20
-    MAX_EQUIPMENT: ClassVar[int] = 3
+    MAX_ITEMS: ClassVar[NonNegativeInt] = 20
+    MAX_EQUIPMENT: ClassVar[NonNegativeInt] = 3
 
-    # Progress
-    xp: NonNegativeInt = 0
+    # Leveling
     level: NonNegativeInt = 0
-    rank: NonNegativeInt = 0
-    LEVEL_BASE_XP: ClassVar[int] = 100
-    LEVEL_EXPONENT: ClassVar[float] = 2.5
-    MAX_LEVEL: ClassVar[int] = 99
-    RANK_BASE_LEVEL: ClassVar[int] = 30
-    RANK_EXPONENT: ClassVar[float] = 1
-    RANK_NAMES: ClassVar[list[str]] = [
-        "?",
-        "Iron",
-        "Bronze",
-        "Silver",
-        "Gold",
-        "Platinum",
-        "Emerald",
-        "Diamond",
-        "Master",
-        "Grandmaster",
-        "Challenger",
-    ]
-    MAX_RANKS: ClassVar[int] = len(RANK_NAMES)
+    xp: NonNegativeInt = 0
+    LEVEL_BASE_XP: ClassVar[NonNegativeInt] = 100
+    LEVEL_EXPONENT: ClassVar[NonNegativeFloat] = 2.5
+    MAX_LEVEL: ClassVar[NonNegativeInt] = 99
+
+    # Ranking
+    wins: NonNegativeInt = 0
+    losses: NonNegativeInt = 0
+    elo: int = 1500  # Starting Elo rating
+    placement_duels: NonNegativeInt = 0
+    BASE_ELO: ClassVar[NonNegativeInt] = 1200  # Starting point for Iron (Wood is 0)
+    ELO_GROWTH_RATE: ClassVar[NonNegativeInt] = 100  # Linear increase per rank
+    MAX_PLACEMENT_DUELS: ClassVar[NonNegativeInt] = 10
+    K_FACTOR: ClassVar[NonNegativeInt] = 32  # Rating change per match
+    RANKS: ClassVar[list[Rank]] = RANKS
+    MAX_RANK: ClassVar[NonNegativeInt] = len(RANKS) - 1
 
     # ----------------------------------------------------------------------------------------------------
 
     @property
-    def rank_name(self) -> str:
-        """Get name of current rank."""
-        return self.RANK_NAMES[self.rank]
+    def duels(self) -> NonNegativeInt:
+        """Get total number of duels fought (wins + losses)."""
+        return self.wins + self.losses
+
+    @property
+    def rank(self) -> Rank | None:
+        """Get current rank or None if unranked."""
+        if self.duels < self.MAX_PLACEMENT_DUELS:
+            return None
+        for i in range(len(self.RANKS) - 1, -1, -1):  # Reverse to check highest first
+            if self.elo >= self.rank_elo(i):
+                return self.RANKS[i]
+        return self.RANKS[0]
+
+    def expected_score(self, opponent_elo: int) -> float:
+        """Calculate expected score against an opponent"""
+        return 1 / (1 + pow(10, (opponent_elo - self.elo) / 400))
 
     # ----------------------------------------------------------------------------------------------------
 
@@ -117,21 +130,21 @@ class Actor(Model):
     @property
     def next_level_xp(self) -> int:
         """Calculate xp required to reach next level."""
-        return self._tier_points(
-            self.level + 1, self.LEVEL_BASE_XP, self.LEVEL_EXPONENT
-        )
+        return self.level_xp(self.level + 1)
 
-    @property
-    def next_rank_level(self) -> int:
-        """Calculate level required to reach next rank."""
-        return self._tier_points(
-            self.rank + 1, self.RANK_BASE_LEVEL, self.RANK_EXPONENT
-        )
+    @classmethod
+    def level_xp(cls, level: int):
+        """Calculate xp required to reach given level."""
+        return int(scaled_power(level, cls.LEVEL_BASE_XP, cls.LEVEL_EXPONENT))
 
     @staticmethod
-    def _tier_points(tier: int, base_points: int, exponent: float) -> int:
-        """Calculate points of given tier based on exponential growth."""
-        return int(base_points * (tier**exponent))
+    def rank_elo(rank_index: int) -> int:
+        """Calculate elo rating of given rank index."""
+        return (
+            Actor.BASE_ELO + (rank_index - 1) * Actor.ELO_GROWTH_RATE
+            if rank_index != 0
+            else 0
+        )
 
     # ----------------------------------------------------------------------------------------------------
 
@@ -145,11 +158,9 @@ class Actor(Model):
 
     @property
     def rank_bar(self) -> str:
-        return text_progress_bar(self.rank, self.MAX_RANKS, 5, "⭐", "☆")
-
-    @property
-    def level_bar(self) -> str:
-        return text_progress_bar(self.level, self.next_rank_level, 5, "⬥", "⬦")
+        return text_progress_bar(
+            self.rank.id if self.rank else -1, self.MAX_RANK, 5, "⭐", "☆"
+        )
 
     @property
     def xp_bar(self) -> str:
@@ -164,12 +175,19 @@ class Actor(Model):
             self.level += 1
         return self.level > initial_level
 
-    def try_rank_up(self) -> bool:
-        """Check if player has enough level to rank up and increment rank if so."""
-        initial_rank = self.rank
-        while self.level >= self.next_rank_level and self.rank < self.MAX_RANKS:
-            self.rank += 1
-        return self.rank > initial_rank
+    def record_duel(self, opponent_elo: int, won: bool) -> None:
+        """Record duel result and update elo rating accordingly."""
+        expected = self.expected_score(opponent_elo)
+        actual = 1 if won else 0
+        elo_change = int(self.K_FACTOR * (actual - expected))
+        self.elo += elo_change
+        if won:
+            self.wins += 1
+        else:
+            self.losses += 1
+        self.placement_duels = min(self.wins + self.losses, self.MAX_PLACEMENT_DUELS)
+
+    # ----------------------------------------------------------------------------------------------------
 
     def add_item_stats(self, item: Item, scale: int = 1):
         """Apply scaled item stat bonuses to actor stats."""
@@ -205,20 +223,24 @@ class Actor(Model):
         max_level = max(min_level, max_level)
         lines = []
         for level in range(min_level, max_level + 1):
-            xp = cls._tier_points(level, cls.LEVEL_BASE_XP, cls.LEVEL_EXPONENT)
+            xp = cls.level_xp(level)
             lines.append((level, xp))
         return lines
 
     @classmethod
-    def rank_level_table(
-        cls, min_rank: int = 0, max_rank: int = 10
-    ) -> list[tuple[str, int]]:
-        """Get (rank_name, level) tuple list of ranks with corresponding minimum level required."""
-        min_rank = max(0, min_rank)
-        max_rank = max(min_rank, max_rank)
+    def rank_elo_table(
+        cls, min_rank_index: int = 0, max_rank_index: int = 2500
+    ) -> list[tuple[Rank, int]]:
+        """Get (rank, elo) tuple list of levels with corresponding minimum xp required."""
+        min_rank_index = max(0, min_rank_index)
+        max_rank_index = max(min_rank_index, max_rank_index)
         lines = []
-        for rank in range(min_rank, max_rank + 1):
-            level = cls._tier_points(rank, cls.RANK_BASE_LEVEL, cls.RANK_EXPONENT)
-            rank_name = cls.RANK_NAMES[rank] if rank < cls.MAX_RANKS - 1 else str(rank)
-            lines.append((rank_name, level))
+        for rank_index in range(min_rank_index, max_rank_index + 1):
+            elo = cls.rank_elo(rank_index)
+            rank = (
+                cls.RANKS[rank_index]
+                if rank_index <= cls.MAX_RANK
+                else Rank(id=rank_index, name=f"Untitled Rank {rank_index}")
+            )
+            lines.append((rank, elo))
         return lines

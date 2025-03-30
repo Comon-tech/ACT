@@ -100,7 +100,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
                 description=f"{member.mention} has reached a new rank and has been rewarded.",
             )
             embed.add_field(name="", value="", inline=False)
-            embed.add_field(name="Rank ✨", value=f"🏆 **{actor.rank_name}**")
+            embed.add_field(name="Rank ✨", value=f"🏆 **{actor.rank}**")
             embed.add_field(name="Gold 🔼", value=f"💰 **+{gold_reward}**")
             embed.set_thumbnail(url=member.display_avatar.url)
             await message.channel.send(

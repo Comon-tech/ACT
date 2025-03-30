@@ -216,7 +216,7 @@ class ActBot(Bot):
                 Actor,
                 Actor.is_member == True,
                 sort=(
-                    query.desc(Actor.rank),
+                    query.desc(Actor.elo),
                     query.desc(Actor.level),
                     query.desc(Actor.xp),
                     query.desc(Actor.gold),

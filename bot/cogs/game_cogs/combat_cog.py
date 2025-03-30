@@ -37,6 +37,7 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             return
 
         # Check members
+        await interaction.response.defer(ephemeral=True)
         attacker_member = interaction.user
         defender_member = member
         if attacker_member == defender_member:
@@ -46,7 +47,6 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             return
 
         # Retrieve attacker actor
-        await interaction.response.defer(ephemeral=True)
         db = self.bot.get_db(interaction.guild)
         attacker_actor = db.find_one(
             Actor, Actor.id == attacker_member.id
@@ -113,7 +113,7 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             )
             return
 
-        # Perform attack calculations & save user data
+        # Perform attack calculations &
         raw_damage = attacker_actor.attack - defender_actor.defense
         damage = raw_damage if raw_damage > 0 else 0
         recoil_damage = -raw_damage if raw_damage < 0 else 0
@@ -123,6 +123,26 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             attacker_actor.health = max(0, attacker_actor.health - recoil_damage)
         attacker_actor.attacked_at = now
         attacker_actor.energy = max(0, attacker_actor.energy - 1)
+
+        # Record duel
+        attacker_actor_won = attacker_actor.health > 0 and defender_actor.health <= 0
+        defender_actor_won = defender_actor.health > 0 and attacker_actor.health <= 0
+        attacker_actor_pre_rank = attacker_actor.rank
+        defender_actor_pre_rank = defender_actor.rank
+        attacker_actor.record_duel(defender_actor.elo, attacker_actor_won)
+        defender_actor.record_duel(attacker_actor.elo, defender_actor_won)
+        attacker_actor_promotion = (
+            attacker_actor.rank.id - attacker_actor_pre_rank.id
+            if attacker_actor.rank and attacker_actor_pre_rank
+            else 0
+        )
+        defender_actor_promotion = (
+            defender_actor.rank.id - defender_actor_pre_rank.id
+            if defender_actor.rank and defender_actor_pre_rank
+            else 0
+        )
+
+        # Save user data
         db.save_all([attacker_actor, defender_actor])
 
         # Send private response
@@ -175,17 +195,39 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             )
 
         # Add victory feedback field
-        if attacker_actor.health <= 0:
+        if attacker_actor_won:
+            embed.add_field(
+                name="🏴 Takedown",
+                value=f"{attacker_member.mention} has defeated {defender_member.mention}.",
+                inline=False,
+            )
+        if defender_actor_won:
             embed.add_field(
                 name="🔥 Backfire",
                 value=f"{defender_member.mention} has defeated {attacker_member.mention}.",
                 inline=False,
             )
-        if defender_actor.health <= 0:
+
+        # Add promotion fields
+        if attacker_actor_promotion > 0:
             embed.add_field(
-                name="🏴 Takedown",
-                value=f"{attacker_member.mention} has defeated {defender_member.mention}.",
-                inline=False,
+                name="👍 Promotion",
+                value=f"{attacker_member.mention} has been promoted to **{attacker_actor.name}**",
+            )
+        elif attacker_actor_promotion < 0:
+            embed.add_field(
+                name="👎 Demotion",
+                value=f"{attacker_member.mention} has been demoted to **{attacker_actor.name}**",
+            )
+        if defender_actor_promotion > 0:
+            embed.add_field(
+                name="👍 Promotion",
+                value=f"{defender_member.mention} has been promoted to **{defender_actor.name}**",
+            )
+        elif defender_actor_promotion < 0:
+            embed.add_field(
+                name="👎 Demotion",
+                value=f"{defender_member.mention} has been demoted to **{defender_actor.name}**",
             )
 
         # Add media fields
@@ -202,8 +244,8 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             )
 
     @app_commands.guild_only()
-    @app_commands.default_permissions(administrator=True)
-    @app_commands.checks.has_permissions(administrator=True)
+    # @app_commands.default_permissions(administrator=True)
+    # @app_commands.checks.has_permissions(administrator=True)
     @app_commands.command(description="Recover your or a member's health and energy")
     async def revive(
         self,

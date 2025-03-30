@@ -68,12 +68,15 @@ class ProfileCog(Cog, description="Allow players to view their profile data"):
         # Add progress (leveling) stats fields
         if section in ("all", "progress"):
             embed.add_field(
-                name="Rank", value=f"**🏆 {actor.rank_name}**\n`{actor.rank_bar}`"
+                name="Rank",
+                value=f"**🏆 {actor.rank.name if actor.rank else "?"}**\n`{actor.rank_bar}`",
             )
             embed.add_field(
-                name="Level",
-                value=f"**🏅 {actor.level}**\n`{actor.level_bar}`",
+                name="Duels",
+                value=f"**:flag_white: {actor.wins}** _wins_\n**:flag_black: {actor.losses}** _losses_",
             )
+            embed.add_field(name="", value="", inline=False)
+            embed.add_field(name="Level", value=f"**🏅 {actor.level}**\n")
             embed.add_field(
                 name="Experience",
                 value=f"**⏫ {intcomma(actor.xp)}** / {intcomma(actor.next_level_xp)}\n`{actor.xp_bar}`",
@@ -110,13 +113,30 @@ class ProfileCog(Cog, description="Allow players to view their profile data"):
         # Add property (economy) stats fields
         if section in ("all", "property"):
             embed.add_field(name="Gold", value=f"**💰 {intcomma(actor.gold)}**")
+            embed.add_field(name="", value="", inline=False)
+
+            # Add equipped items field
+            equipped_items = list(actor.equipped_items.values())
             embed.add_field(
-                name="Items", value=f"**🎒 {intcomma(len(actor.item_stacks))}**"
+                name=f"Equipment **`🧰{intcomma(len(actor.equipped_items))}/{actor.MAX_EQUIPMENT}`**",
+                value="",
+                inline=False,
             )
-            embed.add_field(
-                name="Equipment",
-                value=f"**🧰 {intcomma(len(actor.equipped_items))}** / {actor.MAX_EQUIPMENT}",
-            )
+            if equipped_items:
+                midpoint = (len(equipped_items) + 1) // 2
+                equipped_item_row: Callable[[Item], str] = lambda item: (
+                    f"{item.emoji or item.alt_emoji} **{item.name} `{item.get_item_stats_text()}`**"
+                )
+                first_column = [
+                    equipped_item_row(item) for item in equipped_items[:midpoint]
+                ]
+                second_column = [
+                    equipped_item_row(item) for item in equipped_items[midpoint:]
+                ]
+                embed.add_field(name="", value="\n".join(first_column))
+                embed.add_field(name="", value="\n".join(second_column))
+            else:
+                embed.add_field(name="", value="_No equipped items_")
             embed.add_field(name="", value="", inline=False)
 
             # Add items field
@@ -141,30 +161,6 @@ class ProfileCog(Cog, description="Allow players to view their profile data"):
                 embed.add_field(name="", value="\n".join(second_column))
             else:
                 embed.add_field(name="", value="_No items_")
-            embed.add_field(name="", value="", inline=False)
-
-            # Add equipped items field
-            equipped_items = list(actor.equipped_items.values())
-            embed.add_field(
-                name=f"Equipment **`🧰{intcomma(len(actor.equipped_items))}`**",
-                value="",
-                inline=False,
-            )
-            if equipped_items:
-                midpoint = (len(equipped_items) + 1) // 2
-                equipped_item_row: Callable[[Item], str] = lambda item: (
-                    f"{item.emoji or item.alt_emoji} **{item.name} `{item.get_item_stats_text()}`**"
-                )
-                first_column = [
-                    equipped_item_row(item) for item in equipped_items[:midpoint]
-                ]
-                second_column = [
-                    equipped_item_row(item) for item in equipped_items[midpoint:]
-                ]
-                embed.add_field(name="", value="\n".join(first_column))
-                embed.add_field(name="", value="\n".join(second_column))
-            else:
-                embed.add_field(name="", value="_No equipped items_")
             embed.add_field(name="", value="", inline=False)
 
         # Add images & extra infos

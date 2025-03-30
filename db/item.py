@@ -10,6 +10,9 @@ from pydantic import NonNegativeInt
 from utils.misc import numsign
 
 
+# ----------------------------------------------------------------------------------------------------
+# * Item Type
+# ----------------------------------------------------------------------------------------------------
 class ItemType(str, Enum):
     EQUIPPABLE = "equippable"
     CONSUMABLE = "consumable"
@@ -23,7 +26,7 @@ class Item(Model):
     model_config = {"collection": "items"}
 
     id: str = Field(primary_field=True)
-    name: str = ""
+    name: str
     description: str = ""
     emoji: str = ""
     alt_emoji: str = "❔"
