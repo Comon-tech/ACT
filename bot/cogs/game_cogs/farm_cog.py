@@ -89,23 +89,23 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
             )
 
         # Try role-up
-        if actor.try_rank_up():
-            # awarded_role = await self.award_role(member, actor.rank_name)
-            # if awarded_role:
-            gold_reward = randint(1, 1000) * actor.level
-            actor.gold += gold_reward
-            embed = EmbedX.success(
-                emoji="🏆",
-                title="Rank Up",
-                description=f"{member.mention} has reached a new rank and has been rewarded.",
-            )
-            embed.add_field(name="", value="", inline=False)
-            embed.add_field(name="Rank ✨", value=f"🏆 **{actor.rank}**")
-            embed.add_field(name="Gold 🔼", value=f"💰 **+{gold_reward}**")
-            embed.set_thumbnail(url=member.display_avatar.url)
-            await message.channel.send(
-                content=f"Congratulations, {member.mention}! 🎉", embed=embed
-            )
+        # if actor.try_rank_up():
+        #     # awarded_role = await self.award_role(member, actor.rank_name)
+        #     # if awarded_role:
+        #     gold_reward = randint(1, 1000) * actor.level
+        #     actor.gold += gold_reward
+        #     embed = EmbedX.success(
+        #         emoji="🏆",
+        #         title="Rank Up",
+        #         description=f"{member.mention} has reached a new rank and has been rewarded.",
+        #     )
+        #     embed.add_field(name="", value="", inline=False)
+        #     embed.add_field(name="Rank ✨", value=f"🏆 **{actor.rank}**")
+        #     embed.add_field(name="Gold 🔼", value=f"💰 **+{gold_reward}**")
+        #     embed.set_thumbnail(url=member.display_avatar.url)
+        #     await message.channel.send(
+        #         content=f"Congratulations, {member.mention}! 🎉", embed=embed
+        #     )
 
         # Save changes
         db.save(actor)

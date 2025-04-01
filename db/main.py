@@ -1,6 +1,8 @@
 import hashlib
 import re
-from typing import Any
+import tomllib
+from pathlib import Path
+from typing import Any, Self, Type, TypeVar
 
 from colorama import Fore
 from odmantic import Field, Model, SyncEngine
@@ -11,6 +13,48 @@ from utils.log import logger
 from utils.misc import text_block
 
 log = logger(__name__)
+T = TypeVar("T", bound=Model)
+
+
+# ----------------------------------------------------------------------------------------------------
+# * Act Toml
+# ----------------------------------------------------------------------------------------------------
+class ActToml:
+    """Static interface for loading models from TOML files."""
+
+    DATA_DIR = Path(__file__).parent / "data"
+
+    @classmethod
+    def _load(cls, name: str) -> dict[str, Any]:
+        with open(cls.DATA_DIR / f"{name}.toml", "rb") as file:
+            data = tomllib.load(file)
+        return data
+
+    @staticmethod
+    def _get_name(model_cls: type[T]) -> str | None:
+        return model_cls.model_config.get("collection")
+
+    # ----------------------------------------------------------------------------------------------------
+
+    @classmethod
+    def load_dict(
+        cls,
+        model_cls: type[T],
+    ) -> dict[str, T]:
+        """Load dict from toml file."""
+        name = cls._get_name(model_cls)
+        records = cls._load(name).items() if name else {}
+        return {key: model_cls(**value) for key, value in records}
+
+    @classmethod
+    def load_list(
+        cls,
+        model_cls: type[T],
+    ) -> list[T]:
+        """Load list from toml file."""
+        name = cls._get_name(model_cls)
+        records = cls._load(name).get(name, []) if name else []
+        return [model_cls(**value) for value in records]
 
 
 # ----------------------------------------------------------------------------------------------------

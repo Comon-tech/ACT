@@ -5,7 +5,8 @@ from odmantic import Field, Model
 from pydantic import NonNegativeFloat, NonNegativeInt
 
 from db.item import Item, ItemStack, ItemType
-from db.rank import RANKS, Rank
+from db.main import ActToml
+from db.rank import Rank
 from utils.misc import clamp, scaled_linear, scaled_power, text_progress_bar
 
 
@@ -44,8 +45,8 @@ class Actor(Model):
     health: NonNegativeInt = 10
     base_max_health: NonNegativeInt = 10
     extra_max_health: int = 0
-    energy: NonNegativeInt = 3
-    base_max_energy: NonNegativeInt = 3
+    energy: NonNegativeInt = 5
+    base_max_energy: NonNegativeInt = 5
     extra_max_energy: int = 0
 
     # Attack, Defense, & Speed
@@ -79,7 +80,7 @@ class Actor(Model):
     ELO_GROWTH_RATE: ClassVar[NonNegativeInt] = 100  # Linear increase per rank
     MAX_PLACEMENT_DUELS: ClassVar[NonNegativeInt] = 10
     K_FACTOR: ClassVar[NonNegativeInt] = 32  # Rating change per match
-    RANKS: ClassVar[list[Rank]] = RANKS
+    RANKS: ClassVar[list[Rank]] = ActToml.load_list(Rank)
     MAX_RANK: ClassVar[NonNegativeInt] = len(RANKS) - 1
 
     # ----------------------------------------------------------------------------------------------------
@@ -150,17 +151,21 @@ class Actor(Model):
 
     @property
     def health_bar(self) -> str:
-        return text_progress_bar(self.health, self.base_max_health, 6, "▰", "▱")
+        return text_progress_bar(self.health, self.base_max_health, 10, "▰", "▱")
 
     @property
     def energy_bar(self) -> str:
-        return text_progress_bar(self.energy, self.max_energy, 6, "▰", "▱")
+        return text_progress_bar(self.energy, self.max_energy, 10, "▰", "▱")
 
     @property
     def rank_bar(self) -> str:
         return text_progress_bar(
-            self.rank.id if self.rank else -1, self.MAX_RANK, 5, "⭐", "☆"
+            self.rank.id if self.rank else -1, self.MAX_RANK, 10, "⭐", "☆"
         )
+
+    @property
+    def level_bar(self) -> str:
+        return text_progress_bar(self.level, self.MAX_LEVEL, 10, "■", "□")
 
     @property
     def xp_bar(self) -> str:

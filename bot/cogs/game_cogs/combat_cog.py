@@ -129,8 +129,9 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
         defender_actor_won = defender_actor.health > 0 and attacker_actor.health <= 0
         attacker_actor_pre_rank = attacker_actor.rank
         defender_actor_pre_rank = defender_actor.rank
-        attacker_actor.record_duel(defender_actor.elo, attacker_actor_won)
-        defender_actor.record_duel(attacker_actor.elo, defender_actor_won)
+        if attacker_actor_won or defender_actor_won:
+            attacker_actor.record_duel(defender_actor.elo, attacker_actor_won)
+            defender_actor.record_duel(attacker_actor.elo, defender_actor_won)
         attacker_actor_promotion = (
             attacker_actor.rank.id - attacker_actor_pre_rank.id
             if attacker_actor.rank and attacker_actor_pre_rank
@@ -209,26 +210,28 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             )
 
         # Add promotion fields
-        if attacker_actor_promotion > 0:
-            embed.add_field(
-                name="👍 Promotion",
-                value=f"{attacker_member.mention} has been promoted to **{attacker_actor.name}**",
-            )
-        elif attacker_actor_promotion < 0:
-            embed.add_field(
-                name="👎 Demotion",
-                value=f"{attacker_member.mention} has been demoted to **{attacker_actor.name}**",
-            )
-        if defender_actor_promotion > 0:
-            embed.add_field(
-                name="👍 Promotion",
-                value=f"{defender_member.mention} has been promoted to **{defender_actor.name}**",
-            )
-        elif defender_actor_promotion < 0:
-            embed.add_field(
-                name="👎 Demotion",
-                value=f"{defender_member.mention} has been demoted to **{defender_actor.name}**",
-            )
+        if attacker_actor.rank:
+            if attacker_actor_promotion > 0:
+                embed.add_field(
+                    name="👍 Promotion",
+                    value=f"{attacker_member.mention} has been promoted to **{attacker_actor.rank.name}**",
+                )
+            elif attacker_actor_promotion < 0:
+                embed.add_field(
+                    name="👎 Demotion",
+                    value=f"{attacker_member.mention} has been demoted to **{attacker_actor.rank.name}**",
+                )
+        if defender_actor.rank:
+            if defender_actor_promotion > 0:
+                embed.add_field(
+                    name="👍 Promotion",
+                    value=f"{defender_member.mention} has been promoted to **{defender_actor.rank.name}**",
+                )
+            elif defender_actor_promotion < 0:
+                embed.add_field(
+                    name="👎 Demotion",
+                    value=f"{defender_member.mention} has been demoted to **{defender_actor.rank.name}**",
+                )
 
         # Add media fields
         embed.set_author(
@@ -301,6 +304,8 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
         for actor in actors:
             actor.equipped_items.clear()
             actor.clear_extra_stats()
+            actor.health = actor.max_health
+            actor.energy = actor.max_energy
         db.save_all(actors)
         await interaction.followup.send(
             embed=EmbedX.success(f"Stats reset for **{len(actors)}** actors.")

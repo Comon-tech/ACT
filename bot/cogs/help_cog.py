@@ -1,12 +1,12 @@
 from discord import Color, Embed, Interaction, Member, app_commands
-from discord.ext.commands import Cog, GroupCog
+from discord.ext.commands import Cog
 from humanize import intcomma
 from tabulate import tabulate
 
 from bot.main import ActBot
 from bot.ui import EmbedX
 from db.actor import Actor
-from db.item import ITEMS
+from db.item import Item
 from utils.misc import numsign
 
 
@@ -91,7 +91,7 @@ class HelpCog(Cog, description="Provide help and information interface."):
                             ),
                             item.price,
                         )
-                        for item in ITEMS
+                        for item in Item.load_items().values()
                     ],
                     headers=["Item", "Stats", "Price"],
                     colalign=["right", "left", "left"],

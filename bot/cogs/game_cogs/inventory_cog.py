@@ -8,7 +8,8 @@ from humanize import intcomma, intword
 from bot.main import ActBot
 from bot.ui import EmbedX
 from db.actor import Actor
-from db.item import ITEMS, Item, ItemStack, ItemType
+from db.item import Item, ItemStack, ItemType
+from db.main import ActToml
 from utils.misc import numsign
 
 
@@ -21,7 +22,10 @@ class InventoryCog(Cog, description="Acquire and use items"):
 
     def __init__(self, bot: ActBot):
         self.bot = bot
-        self.BUYABLE_ITEMS = [item for item in ITEMS if item.is_buyable == True]
+        self.ITEMS = ActToml.load_dict(Item)
+        self.BUYABLE_ITEMS = [
+            item for item in self.ITEMS.values() if item.is_buyable == True
+        ]
         self.buy.autocomplete("item_id")(self.buyable_items_autocomplete)
         self.store.autocomplete("item_id")(self.buyable_items_autocomplete)
         self.equip.autocomplete("item_id")(self.actor_equippable_items_autocomplete)

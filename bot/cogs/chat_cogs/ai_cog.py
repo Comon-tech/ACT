@@ -24,8 +24,9 @@ from odmantic import query
 from bot.main import ActBot
 from bot.ui import EmbedX
 from db.actor import Actor, DmActor
-from db.main import DbRef
-from utils.ai import ActAi, ActPersona
+from db.main import ActToml, DbRef
+from db.persona import Persona
+from utils.ai import ActAi
 from utils.file import ActFile
 from utils.log import logger
 from utils.misc import text_csv
@@ -38,7 +39,6 @@ log = logger(__name__)
 # * AI Cog
 # ----------------------------------------------------------------------------------------------------
 class AiCog(Cog, description="Integrated generative AI chat bot"):
-    CONFIG_PATH = Path(__file__).parent / "ai_cog.toml"
     MAX_ACTORS = 10
     COOLDOWN_TIME = 60  # 1 min
     MAX_FILE_SIZE = 524288  # 512 KB == 0.5 MB
@@ -49,9 +49,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
 
     def __init__(self, bot: ActBot):
         self.bot = bot
-        with open(self.CONFIG_PATH, "rb") as file:
-            config = tomllib.load(file)
-        self.persona = ActPersona(**config.get("personas", {}).get("activa"))
+        self.persona = ActToml.load_dict(Persona)["activa"]
         self.ai = ActAi(
             api_key=bot.api_keys.get("gemini", " "),
             instructions=self.persona.description,
@@ -69,6 +67,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.default_permissions(administrator=True)
     @app_commands.command(description="Clear AI chat bot session")
+    @app_commands.describe(id="AI chat sessions ID")
     async def reset(self, interaction: Interaction, id: int | None = None):
         await interaction.response.defer(ephemeral=True)
         if id is None:
@@ -161,9 +160,6 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
     # ----------------------------------------------------------------------------------------------------
     @Cog.listener()
     async def on_message(self, message: Message):
-        # 🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴
-        # return
-
         # Ignore bot message
         if self.bot.user == message.author:
             return

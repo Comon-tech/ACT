@@ -76,7 +76,9 @@ class ProfileCog(Cog, description="Allow players to view their profile data"):
                 value=f"**:flag_white: {actor.wins}** _wins_\n**:flag_black: {actor.losses}** _losses_",
             )
             embed.add_field(name="", value="", inline=False)
-            embed.add_field(name="Level", value=f"**🏅 {actor.level}**\n")
+            embed.add_field(
+                name="Level", value=f"**🏅 {actor.level}**\n`{actor.level_bar}`"
+            )
             embed.add_field(
                 name="Experience",
                 value=f"**⏫ {intcomma(actor.xp)}** / {intcomma(actor.next_level_xp)}\n`{actor.xp_bar}`",
