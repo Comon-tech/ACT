@@ -100,7 +100,7 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
                 )
                 await interaction.followup.send(
                     embed=EmbedX.warning(
-                        f"Your speed grants a cooldown of **{attacker_specific_cooldown_secs:.1f}s**. "
+                        f"Your speed grants a cooldown of **{attacker_specific_cooldown_secs:.1f}s**.\n"
                         f"You need to wait **{precisedelta(remaining_cooldown_delta, minimum_unit='seconds', format='%0.1f')}** more."
                     )
                 )
@@ -122,7 +122,7 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
         if recoil_damage > 0:
             attacker_actor.health = max(0, attacker_actor.health - recoil_damage)
         attacker_actor.attacked_at = now
-        attacker_actor.energy = max(0, attacker_actor.energy - 1)
+        attacker_actor.energy = max(0, attacker_actor.energy - self.ATTACK_ENERGY_COST)
 
         # Record duel
         attacker_actor_won = attacker_actor.health > 0 and defender_actor.health <= 0
@@ -151,59 +151,86 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             embed=EmbedX.success(f"You attacked {defender_member.mention}.")
         )
 
-        # Create public response embed
-        embed = EmbedX.info(
-            emoji="🆚",
+        # Create combat embed
+        combat_embed = EmbedX.info(
+            emoji="💔",
             title="Combat",
             description=(
                 f"{attacker_member.mention} has attacked {defender_member.mention}."
             ),
         )
 
-        # Add health fields
-        embed.add_field(
-            name=f"{attacker_actor.display_name}\nHealth{" 🔻" if recoil_damage  > 0 else ""}",
-            value=f"{f"**💥 {numsign(-recoil_damage )}**" if recoil_damage  > 0 else ""}\n"
+        # Add health & energy fields
+        combat_embed.add_field(
+            name=f"{attacker_actor.display_name}",
+            value=f"**Health{" 🔻" if recoil_damage  > 0 else ""}**"
+            f"{f"\n**💥 {numsign(-recoil_damage )}**" if recoil_damage  > 0 else ""}\n"
             f"**:heart: {intcomma(attacker_actor.health)}** / {intcomma(attacker_actor.base_max_health)} "
-            f"_`({numsign(intcomma(attacker_actor.extra_max_health))})`_\n`{attacker_actor.health_bar}`",
+            f"_`({numsign(intcomma(attacker_actor.extra_max_health))})`_\n`{attacker_actor.health_bar}`\n"
+            f"**Energy 🔻**\n"
+            f"**🎆 {numsign(intcomma(-self.ATTACK_ENERGY_COST))}**\n"
+            f"**⚡ {intcomma(attacker_actor.energy)}** / {intcomma(attacker_actor.base_max_energy)} "
+            f"_`({numsign(intcomma(attacker_actor.extra_max_energy))})`_\n`{attacker_actor.energy_bar}`",
         )
-        embed.add_field(
-            name=f"{defender_actor.display_name}\nHealth{" 🔻" if damage  > 0 else ""}",
-            value=f"{f"**💥 {numsign(-damage )}**" if damage  > 0 else ""}\n"
+        combat_embed.add_field(
+            name=f"{defender_actor.display_name}",
+            value=f"**Health{" 🔻" if damage  > 0 else ""}**"
+            f"{f"\n**💥 {numsign(-damage )}**" if damage  > 0 else ""}\n"
             f"**:heart: {intcomma(defender_actor.health)}** / {intcomma(defender_actor.base_max_health)} "
-            f"_`({numsign(intcomma(defender_actor.extra_max_health))})`_\n`{defender_actor.health_bar}`",
+            f"_`({numsign(intcomma(defender_actor.extra_max_health))})`_\n`{defender_actor.health_bar}`\n"
+            f"**Energy**\n"
+            f"**⚡ {intcomma(defender_actor.energy)}** / {intcomma(defender_actor.base_max_energy)} "
+            f"_`({numsign(intcomma(defender_actor.extra_max_energy))})`_\n`{defender_actor.energy_bar}`",
         )
 
         # Add damage feedback fields
         if recoil_damage > 0:
-            embed.add_field(
+            combat_embed.add_field(
                 name="🤺 Repellence",
                 value=f"{attacker_member.mention} attack has been repelled by {defender_member.mention}!\n"
                 f"{attacker_member.mention} has taken recoil damage.",
                 inline=False,
             )
         elif damage > 0:
-            embed.add_field(
+            combat_embed.add_field(
                 name=":crossed_swords: Damage",
                 value=f"{attacker_member.mention} has dealt damage to {defender_member.mention}.",
                 inline=False,
             )
         else:
-            embed.add_field(
+            combat_embed.add_field(
                 name=":shield: Block",
                 value=f"{attacker_member.mention} has dealt no damage to {defender_member.mention}.",
                 inline=False,
             )
 
+        # Add media fields
+        combat_embed.set_author(
+            name=attacker_member.display_name, icon_url=attacker_member.display_avatar
+        )
+        combat_embed.set_thumbnail(url=defender_member.display_avatar)
+
+        # Send combat response
+        if isinstance(interaction.channel, Messageable):
+            await interaction.channel.send(
+                content=f"{attacker_member.mention} 🆚 {defender_member.mention} 😱",
+                embed=combat_embed,
+            )
+
+        # Create post-combat embed
+        if not (attacker_actor_won or defender_actor_won):
+            return
+        post_combat_embed = EmbedX.info(emoji="🚩", title="Combat Over")
+
         # Add victory feedback field
         if attacker_actor_won:
-            embed.add_field(
+            post_combat_embed.add_field(
                 name="🏴 Takedown",
                 value=f"{attacker_member.mention} has defeated {defender_member.mention}.",
                 inline=False,
             )
         if defender_actor_won:
-            embed.add_field(
+            post_combat_embed.add_field(
                 name="🔥 Backfire",
                 value=f"{defender_member.mention} has defeated {attacker_member.mention}.",
                 inline=False,
@@ -212,39 +239,30 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
         # Add promotion fields
         if attacker_actor.rank:
             if attacker_actor_promotion > 0:
-                embed.add_field(
+                post_combat_embed.add_field(
                     name="👍 Promotion",
                     value=f"{attacker_member.mention} has been promoted to **{attacker_actor.rank.name}**",
                 )
             elif attacker_actor_promotion < 0:
-                embed.add_field(
+                post_combat_embed.add_field(
                     name="👎 Demotion",
                     value=f"{attacker_member.mention} has been demoted to **{attacker_actor.rank.name}**",
                 )
         if defender_actor.rank:
             if defender_actor_promotion > 0:
-                embed.add_field(
+                post_combat_embed.add_field(
                     name="👍 Promotion",
                     value=f"{defender_member.mention} has been promoted to **{defender_actor.rank.name}**",
                 )
             elif defender_actor_promotion < 0:
-                embed.add_field(
+                post_combat_embed.add_field(
                     name="👎 Demotion",
                     value=f"{defender_member.mention} has been demoted to **{defender_actor.rank.name}**",
                 )
 
-        # Add media fields
-        embed.set_author(
-            name=attacker_member.display_name, icon_url=attacker_member.display_avatar
-        )
-        embed.set_thumbnail(url=defender_member.display_avatar)
-
-        # Send public response
+        # Send post-combat response
         if isinstance(interaction.channel, Messageable):
-            await interaction.channel.send(
-                content=f"{attacker_member.mention} 🆚 {defender_member.mention} 😱",
-                embed=embed,
-            )
+            await interaction.channel.send(embed=post_combat_embed)
 
     @app_commands.guild_only()
     # @app_commands.default_permissions(administrator=True)

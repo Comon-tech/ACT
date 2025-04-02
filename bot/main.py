@@ -198,6 +198,8 @@ class ActBot(Bot):
         """Get database reference of given guild. If nonexistent, create."""
         return DbRef(id=guild.id, name=guild.name)
 
+    # ----------------------------------------------------------------------------------------------------
+
     def create_actor(self, member: Member) -> Actor:
         """Create actor from given member."""
         return Actor(id=member.id, name=member.name, display_name=member.display_name)
@@ -205,6 +207,8 @@ class ActBot(Bot):
     def create_dm_actor(self, user: User) -> DmActor:
         """Create dm-actor from given user."""
         return DmActor(id=user.id, name=user.name, display_name=user.display_name)
+
+    # ----------------------------------------------------------------------------------------------------
 
     async def get_actors_members(
         self, guild: Guild, limit: int = 10, sort_by_top=True
