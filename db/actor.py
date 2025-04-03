@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any, ClassVar, Optional, cast
 
+from humanize import precisedelta
 from odmantic import Field, Model
 from pydantic import NonNegativeFloat, NonNegativeInt
 
@@ -31,14 +32,13 @@ class DmActor(Model):
 class Actor(Model):
     model_config = {"collection": "actors"}
 
-    # Member
+    # Membership
     id: int = Field(primary_field=True)
     name: str = ""
     display_name: str = ""
     is_member: bool = True  # Still member in the server
 
-    # Time
-    ai_interacted_at: Optional[datetime] = None  # Last time actor interacted with AI
+    # AI
     attacked_at: Optional[datetime] = None  # Last time actor attacked another actor
 
     # Health & Energy
@@ -56,6 +56,15 @@ class Actor(Model):
     defense_extra: int = 0
     speed_base: NonNegativeInt = 1
     speed_extra: int = 0
+
+    # Combat
+    ai_interacted_at: Optional[datetime] = None  # Last time actor interacted with AI
+    ATTACK_ENERGY_COST: ClassVar[NonNegativeInt] = 1
+    ATTACK_COOLDOWN_BASE: ClassVar[NonNegativeFloat] = 30.0  # seconds
+    ATTACK_COOLDOWN_MIN: ClassVar[NonNegativeFloat] = 2.0  # seconds
+    SPEED_COOLDOWN_FACTOR: ClassVar[NonNegativeFloat] = (
+        0.5  # 0.1 => 10 speed <=> -1 sec cooldown
+    )
 
     # Gold
     gold: int = 0  # Negative gold allowed
@@ -112,6 +121,38 @@ class Actor(Model):
     @property
     def speed(self):
         return max(0, self.speed_base + self.speed_extra)
+
+    # ----------------------------------------------------------------------------------------------------
+
+    @property
+    def has_energy_to_attack(self) -> bool:
+        """Check if player has enough energy to attack."""
+        return self.energy >= self.ATTACK_ENERGY_COST
+
+    @property
+    def has_cooled_down_since_last_attack(self) -> bool:
+        return self.remaining_attack_cooldown_timedelta.total_seconds() <= 0
+
+    @property
+    def remaining_attack_cooldown_timedelta(self) -> timedelta:
+        if self.attacked_at:
+            self.attacked_at = self.attacked_at.replace(
+                tzinfo=timezone.utc
+            )  # If naive datetime, Assign timezone info
+            return self.attack_cooldown_timedelta - (
+                datetime.now(timezone.utc) - self.attacked_at
+            )
+        return timedelta(seconds=0)
+
+    @property
+    def attack_cooldown_timedelta(self) -> timedelta:
+        """Calculate minimum cooldown time (seconds) required between consecutive attacks."""
+        return timedelta(
+            seconds=max(
+                self.ATTACK_COOLDOWN_MIN,
+                self.ATTACK_COOLDOWN_BASE - (self.speed * self.SPEED_COOLDOWN_FACTOR),
+            )
+        )
 
     # ----------------------------------------------------------------------------------------------------
 

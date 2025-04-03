@@ -16,7 +16,7 @@ class Experience:
     XP_PER_WORD: float = 0.5
 
     # Maximum number of words to count for XP (prevents wall-of-text exploit)
-    XP_WORD_COUNT_CAP: int = 100
+    XP_WORD_COUNT_CAP: int = 500
 
     # XP per attachment (image, file, etc.)
     XP_PER_ATTACHMENT: int = 3

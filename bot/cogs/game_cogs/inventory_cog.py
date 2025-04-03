@@ -431,7 +431,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
         return [
             app_commands.Choice(
                 name=f"{item_stack.item.alt_emoji} {item_stack.item.name} "
-                f"({item_stack.item.get_item_stats_text()}) ― x{item_stack.quantity}",
+                f"({item_stack.item.item_stats_text()}) ― x{item_stack.quantity}",
                 value=item_stack.item.id,
             )
             for item_stack in [
@@ -453,7 +453,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
         ) or self.bot.create_actor(member)
         return [
             app_commands.Choice(
-                name=f"{item.alt_emoji} {item.name} ({item.get_item_stats_text()})",
+                name=f"{item.alt_emoji} {item.name} ({item.item_stats_text()})",
                 value=item.id,
             )
             for item in [

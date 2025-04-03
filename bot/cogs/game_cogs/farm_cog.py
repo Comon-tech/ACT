@@ -70,6 +70,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
 
         # Log xp gain to a "log" named channel
         # TODO: This works better with a feature allowing to set log channel per server (maybe a command)
+        # 🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴
         log_channel = utils.find(
             lambda c: "📜・log" in c.name.lower(), message.guild.text_channels
         )
@@ -82,6 +83,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
                 name=member.display_name, icon_url=member.display_avatar.url
             )
             await log_channel.send(embed=embed)
+        # 🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴
 
         # Try level-up
         if actor.try_level_up():

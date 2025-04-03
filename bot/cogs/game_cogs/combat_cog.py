@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from discord import Interaction, Member, User, app_commands
 from discord.abc import Messageable
 from discord.ext.commands import Cog
-from humanize import intcomma, precisedelta
+from humanize import intcomma, naturaldelta, precisedelta
 
 from bot.main import ActBot
 from bot.ui import EmbedX
@@ -15,13 +15,6 @@ from utils.misc import numsign
 # * Combat Cog
 # ----------------------------------------------------------------------------------------------------
 class CombatCog(Cog, description="Allow players to engage in battles"):
-    # --- Speed ---
-    BASE_ATTACK_COOLDOWN = 10.0  # seconds
-    MIN_ATTACK_COOLDOWN = 2.0  # seconds
-    SPEED_COOLDOWN_FACTOR = 0.1  # 0.1 means 10 speed reduces cooldown by 1 second.
-    # --- Energy ---
-    ATTACK_ENERGY_COST = 1
-
     def __init__(self, bot: ActBot):
         self.bot = bot
 
@@ -82,38 +75,25 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             return
 
         # Check cooldown
-        now = datetime.now(timezone.utc)
-        attacker_speed = attacker_actor.speed
-        attacker_specific_cooldown_secs = max(
-            self.MIN_ATTACK_COOLDOWN,
-            self.BASE_ATTACK_COOLDOWN - (attacker_speed * self.SPEED_COOLDOWN_FACTOR),
-        )
-        attacker_specific_cooldown = timedelta(seconds=attacker_specific_cooldown_secs)
-        if attacker_actor.attacked_at:
-            attacker_actor.attacked_at = attacker_actor.attacked_at.replace(
-                tzinfo=timezone.utc
-            )  # If the loaded datetime is naive, assign UTC timezone info to it
-            time_since_last_attack = now - attacker_actor.attacked_at
-            if time_since_last_attack < attacker_specific_cooldown:
-                remaining_cooldown_delta = (
-                    attacker_specific_cooldown - time_since_last_attack
+        if not attacker_actor.has_cooled_down_since_last_attack:
+            await interaction.followup.send(
+                embed=EmbedX.warning(
+                    "Your speed grants a cooldown of "
+                    f"**{naturaldelta(attacker_actor.attack_cooldown_timedelta)}**.\n"
+                    "You need to wait "
+                    f"**{precisedelta(attacker_actor.remaining_attack_cooldown_timedelta, minimum_unit='seconds', format='%0.1f')}** more."
                 )
-                await interaction.followup.send(
-                    embed=EmbedX.warning(
-                        f"Your speed grants a cooldown of **{attacker_specific_cooldown_secs:.1f}s**.\n"
-                        f"You need to wait **{precisedelta(remaining_cooldown_delta, minimum_unit='seconds', format='%0.1f')}** more."
-                    )
-                )
-                return
+            )
+            return
 
         # Check energy
-        if attacker_actor.energy < self.ATTACK_ENERGY_COST:
+        if not attacker_actor.has_energy_to_attack:
             await interaction.followup.send(
                 embed=EmbedX.warning(f"You don't have enough energy to attack!.")
             )
             return
 
-        # Perform attack calculations &
+        # Perform attack calculations & 💚💚💚 refactor here into Actor 👇👇👇
         raw_damage = attacker_actor.attack - defender_actor.defense
         damage = raw_damage if raw_damage > 0 else 0
         recoil_damage = -raw_damage if raw_damage < 0 else 0
@@ -121,8 +101,8 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             defender_actor.health = max(0, defender_actor.health - damage)
         if recoil_damage > 0:
             attacker_actor.health = max(0, attacker_actor.health - recoil_damage)
-        attacker_actor.attacked_at = now
-        attacker_actor.energy = max(0, attacker_actor.energy - self.ATTACK_ENERGY_COST)
+        attacker_actor.attacked_at = datetime.now(timezone.utc)
+        attacker_actor.energy = max(0, attacker_actor.energy - Actor.ATTACK_ENERGY_COST)
 
         # Record duel
         attacker_actor_won = attacker_actor.health > 0 and defender_actor.health <= 0
@@ -168,7 +148,7 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             f"**:heart: {intcomma(attacker_actor.health)}** / {intcomma(attacker_actor.health_max_base)} "
             f"_`({numsign(intcomma(attacker_actor.health_max_extra))})`_\n`{attacker_actor.health_bar}`\n"
             f"**Energy 🔻**\n"
-            f"**🎆 {numsign(intcomma(-self.ATTACK_ENERGY_COST))}**\n"
+            f"**🎆 {numsign(intcomma(-Actor.ATTACK_ENERGY_COST))}**\n"
             f"**⚡ {intcomma(attacker_actor.energy)}** / {intcomma(attacker_actor.energy_max_base)} "
             f"_`({numsign(intcomma(attacker_actor.energy_max_extra))})`_\n`{attacker_actor.energy_bar}`",
         )
