@@ -7,6 +7,7 @@ from bot.main import ActBot
 from bot.ui import EmbedX
 from db.actor import Actor
 from db.item import Item
+from db.main import ActToml
 from utils.misc import numsign
 
 
@@ -91,7 +92,7 @@ class HelpCog(Cog, description="Provide help and information interface."):
                             ),
                             item.price,
                         )
-                        for item in Item.load_items().values()
+                        for item in ActToml.load_dict(Item).values()
                     ],
                     headers=["Item", "Stats", "Price"],
                     colalign=["right", "left", "left"],
@@ -99,9 +100,9 @@ class HelpCog(Cog, description="Provide help and information interface."):
                 )
             case "levels":
                 output = tabulate(
-                    Actor.level_xp_table(min, max),
-                    headers=["Level", "Experience"],
-                    colalign=["right", "left"],
+                    Actor.level_xp_gold_table(min, max),
+                    headers=["Level", "Experience", "Gold"],
+                    colalign=["right", "left", "left"],
                     tablefmt="simple_outline",
                 )
             case "ranks":

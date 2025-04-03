@@ -165,22 +165,22 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             name=f"{attacker_actor.display_name}",
             value=f"**Health{" 🔻" if recoil_damage  > 0 else ""}**"
             f"{f"\n**💥 {numsign(-recoil_damage )}**" if recoil_damage  > 0 else ""}\n"
-            f"**:heart: {intcomma(attacker_actor.health)}** / {intcomma(attacker_actor.base_max_health)} "
-            f"_`({numsign(intcomma(attacker_actor.extra_max_health))})`_\n`{attacker_actor.health_bar}`\n"
+            f"**:heart: {intcomma(attacker_actor.health)}** / {intcomma(attacker_actor.health_max_base)} "
+            f"_`({numsign(intcomma(attacker_actor.health_max_extra))})`_\n`{attacker_actor.health_bar}`\n"
             f"**Energy 🔻**\n"
             f"**🎆 {numsign(intcomma(-self.ATTACK_ENERGY_COST))}**\n"
-            f"**⚡ {intcomma(attacker_actor.energy)}** / {intcomma(attacker_actor.base_max_energy)} "
-            f"_`({numsign(intcomma(attacker_actor.extra_max_energy))})`_\n`{attacker_actor.energy_bar}`",
+            f"**⚡ {intcomma(attacker_actor.energy)}** / {intcomma(attacker_actor.energy_max_base)} "
+            f"_`({numsign(intcomma(attacker_actor.energy_max_extra))})`_\n`{attacker_actor.energy_bar}`",
         )
         combat_embed.add_field(
             name=f"{defender_actor.display_name}",
             value=f"**Health{" 🔻" if damage  > 0 else ""}**"
             f"{f"\n**💥 {numsign(-damage )}**" if damage  > 0 else ""}\n"
-            f"**:heart: {intcomma(defender_actor.health)}** / {intcomma(defender_actor.base_max_health)} "
-            f"_`({numsign(intcomma(defender_actor.extra_max_health))})`_\n`{defender_actor.health_bar}`\n"
+            f"**:heart: {intcomma(defender_actor.health)}** / {intcomma(defender_actor.health_max_base)} "
+            f"_`({numsign(intcomma(defender_actor.health_max_extra))})`_\n`{defender_actor.health_bar}`\n"
             f"**Energy**\n"
-            f"**⚡ {intcomma(defender_actor.energy)}** / {intcomma(defender_actor.base_max_energy)} "
-            f"_`({numsign(intcomma(defender_actor.extra_max_energy))})`_\n`{defender_actor.energy_bar}`",
+            f"**⚡ {intcomma(defender_actor.energy)}** / {intcomma(defender_actor.energy_max_base)} "
+            f"_`({numsign(intcomma(defender_actor.energy_max_extra))})`_\n`{defender_actor.energy_bar}`",
         )
 
         # Add damage feedback fields
@@ -320,7 +320,7 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
         db = self.bot.get_db(guild)
         actors = list(db.find(Actor))
         for actor in actors:
-            actor.equipped_items.clear()
+            actor.items_equipped.clear()
             actor.clear_extra_stats()
             actor.health = actor.max_health
             actor.energy = actor.max_energy

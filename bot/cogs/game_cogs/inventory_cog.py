@@ -66,7 +66,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
                 midpoint = len(items) // 2
                 row: Callable[[Item], str] = (
                     lambda item: f"{item.emoji or item.alt_emoji} **{item.name} \n"
-                    f"`💰{intcomma(item.price)}` `{item.get_item_stats_text()}`**"
+                    f"`💰{intcomma(item.price)}` `{item.item_stats_text()}`**"
                 )
                 first_column = [row(item) for item in items[:midpoint]]
                 second_column = [row(item) for item in items[midpoint:]]
@@ -184,12 +184,18 @@ class InventoryCog(Cog, description="Acquire and use items"):
         actor = db.find_one(Actor, Actor.id == member.id) or self.bot.create_actor(
             member
         )
+        if actor.health <= 0:
+            await interaction.response.send_message(
+                embed=EmbedX.warning("You are defeated and cannot equip item!"),
+                ephemeral=True,
+            )
+            return
 
         # Check max
-        if len(actor.equipped_items) >= actor.MAX_EQUIPMENT:
+        if len(actor.items_equipped) >= actor.ITEMS_EQUIP_MAX:
             await interaction.response.send_message(
                 embed=EmbedX.warning(
-                    f"You've reached your equipment limit of **{actor.MAX_EQUIPMENT}** items."
+                    f"You've reached your equipment limit of **{actor.ITEMS_EQUIP_MAX}** items."
                 ),
                 ephemeral=True,
             )
@@ -206,7 +212,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
             return
 
         # Equip item
-        equipped_item = actor.equipped_items.get(item.id)
+        equipped_item = actor.items_equipped.get(item.id)
         if equipped_item:
             await interaction.followup.send(
                 embed=EmbedX.info(
@@ -214,7 +220,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
                 )
             )
             return
-        actor.equipped_items[item.id] = item
+        actor.items_equipped[item.id] = item
         actor.add_item_stats(item)
         db.save(actor)
         await interaction.followup.send(
@@ -258,10 +264,16 @@ class InventoryCog(Cog, description="Acquire and use items"):
         actor = db.find_one(Actor, Actor.id == member.id) or self.bot.create_actor(
             member
         )
+        if actor.health <= 0:
+            await interaction.response.send_message(
+                embed=EmbedX.warning("You are defeated and cannot unequip item!"),
+                ephemeral=True,
+            )
+            return
 
         # Get item
         await interaction.response.defer(ephemeral=True)
-        item = actor.equipped_items.get(item_id)
+        item = actor.items_equipped.get(item_id)
         if not item or item.type != ItemType.EQUIPPABLE:
             await interaction.followup.send(
                 embed=EmbedX.error(f"Invalid **item** input: `{item_id}`\n")
@@ -269,7 +281,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
             return
 
         # Unequip item
-        equipped_item = actor.equipped_items.get(item.id)
+        equipped_item = actor.items_equipped.get(item.id)
         if not equipped_item:
             await interaction.followup.send(
                 embed=EmbedX.info(
@@ -277,7 +289,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
                 )
             )
             return
-        del actor.equipped_items[item.id]
+        del actor.items_equipped[item.id]
         actor.add_item_stats(item, scale=-1)
         db.save(actor)
         await interaction.followup.send(
@@ -321,6 +333,12 @@ class InventoryCog(Cog, description="Acquire and use items"):
         actor = db.find_one(Actor, Actor.id == member.id) or self.bot.create_actor(
             member
         )
+        if actor.health <= 0:
+            await interaction.response.send_message(
+                embed=EmbedX.warning("You are defeated and cannot use item!"),
+                ephemeral=True,
+            )
+            return
 
         # Get item
         await interaction.response.defer(ephemeral=True)
@@ -391,7 +409,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
     ) -> list[app_commands.Choice[str]]:
         return [
             app_commands.Choice(
-                name=f"{item.alt_emoji} {item.name} ({item.get_item_stats_text()}) ― 💰{intcomma(item.price)}",
+                name=f"{item.alt_emoji} {item.name} ({item.item_stats_text()}) ― 💰{intcomma(item.price)}",
                 value=item.id,
             )
             for item in [
@@ -442,7 +460,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
                 item_stack.item
                 for item_stack in actor.item_stacks.values()
                 if item_stack.item.type == ItemType.EQUIPPABLE
-                and not actor.equipped_items.get(item_stack.id)
+                and not actor.items_equipped.get(item_stack.id)
                 and current.lower() in item_stack.item.name.lower()
             ][:25]
         ]
@@ -458,12 +476,12 @@ class InventoryCog(Cog, description="Acquire and use items"):
         ) or self.bot.create_actor(member)
         return [
             app_commands.Choice(
-                name=f"{item.alt_emoji} {item.name} ({item.get_item_stats_text()})",
+                name=f"{item.alt_emoji} {item.name} ({item.item_stats_text()})",
                 value=item.id,
             )
             for item in [
                 equipped_item
-                for equipped_item in actor.equipped_items.values()
+                for equipped_item in actor.items_equipped.values()
                 if current.lower() in equipped_item.name.lower()
             ][:25]
         ]

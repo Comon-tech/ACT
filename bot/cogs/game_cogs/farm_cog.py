@@ -7,6 +7,7 @@ from discord.ext.commands import Cog
 from bot.main import ActBot
 from bot.ui import EmbedX
 from db.actor import Actor
+from utils.xp import Experience
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -57,23 +58,34 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
         )
 
         # Gain xp per message sent
-        xp_reward = self.calculate_xp_reward(message)
+        xp_reward = Experience.calculate_reward(
+            content=message.content,
+            attachment_count=len(message.attachments),
+            embed_count=len(message.embeds),
+            sticker_count=len(message.stickers),
+        )
+
         actor.xp += xp_reward
         print(f"👤 @{member.name} earned {xp_reward} xp.")
 
         # Log xp gain to a "log" named channel
         # TODO: This works better with a feature allowing to set log channel per server (maybe a command)
-        # log_channel = utils.find(
-        #     lambda c: "log" in c.name.lower(), message.guild.text_channels
-        # )
-        # if log_channel:
-        #     await log_channel.send(
-        #         f"👤 {member.display_name} earned **⏫ {xp_reward} Experience**."
-        #     )
+        log_channel = utils.find(
+            lambda c: "📜・log" in c.name.lower(), message.guild.text_channels
+        )
+        if log_channel:
+            embed = EmbedX.info(
+                emoji="", title="", description=f"{member.mention} earned experience."
+            )
+            embed.add_field(name="Experience 🔼", value=f"**⏫ +{xp_reward} **")
+            embed.set_author(
+                name=member.display_name, icon_url=member.display_avatar.url
+            )
+            await log_channel.send(embed=embed)
 
         # Try level-up
         if actor.try_level_up():
-            gold_reward = randint(1, 500) * actor.level
+            gold_reward = actor.current_level_gold
             actor.gold += gold_reward
             embed = EmbedX.success(
                 emoji="🏅",
@@ -111,26 +123,6 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
         db.save(actor)
 
     # ----------------------------------------------------------------------------------------------------
-
-    @staticmethod
-    def calculate_xp_reward(message: Message):
-        word_count = 0
-
-        # Exclude URLs
-        word_count += len(re.sub(r"https?://\S+", "", message.content).split())
-
-        # Handle embeds
-        if message.embeds:
-            word_count += len(message.embeds)  # Each embed counts as 1 word
-
-        # Handle attachments (including GIFs, images, files)
-        if message.attachments:
-            word_count += len(message.attachments)  # Each attachment counts as 1 word
-
-        # Minimum word count (to avoid 0 XP rewards)
-        word_count = max(1, word_count)  # Ensure at least 1 word is counted
-
-        return randint(1, word_count)
 
     # @staticmethod
     # async def try_award_role(member: Member, role_name: str) -> Role | None:

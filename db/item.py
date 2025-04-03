@@ -64,7 +64,7 @@ class Item(Model):
             stats["speed"] = scale * self.speed_bonus
         return stats
 
-    def get_item_stats_text(self, scale: int = 1) -> str:
+    def item_stats_text(self, scale: int = 1) -> str:
         stat_texts = []
         stat_safe_emojis = {
             "health": "♥",

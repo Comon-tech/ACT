@@ -239,38 +239,38 @@ class ProfileCog(
     @staticmethod
     def add_health_field(embed: Embed, actor: Actor):
         embed.add_field(
-            name="Health",
-            value=f"**:heart: {intcomma(actor.health)}** / {intcomma(actor.base_max_health)} "
-            f"_`({numsign(intcomma(actor.extra_max_health))})`_\n`{actor.health_bar}`",
+            name=f"Health{" `💀`" if actor.health <= 0 else ""}",
+            value=f"**:heart: {intcomma(actor.health)}** / {intcomma(actor.health_max_base)} "
+            f"_`({numsign(intcomma(actor.health_max_extra))})`_\n`{actor.health_bar}`",
         )
 
     @staticmethod
     def add_energy_field(embed: Embed, actor: Actor):
         embed.add_field(
-            name="Energy",
+            name=f"Energy{" `⚠️`" if actor.health <= 0 else ""}",
             value=f"**⚡ {intcomma(actor.energy)}** / {intcomma(actor.max_energy)} "
-            f"_`({numsign(intcomma(actor.extra_max_energy))})`_\n`{actor.energy_bar}`",
+            f"_`({numsign(intcomma(actor.energy_max_extra))})`_\n`{actor.energy_bar}`",
         )
 
     @staticmethod
     def add_attack_field(embed: Embed, actor: Actor):
         embed.add_field(
             name="Attack",
-            value=f"**:crossed_swords: {intcomma(actor.attack)}** _`({numsign(intcomma(actor.extra_attack))})`_",
+            value=f"**:crossed_swords: {intcomma(actor.attack)}** _`({numsign(intcomma(actor.attack_extra))})`_",
         )
 
     @staticmethod
     def add_defense_field(embed: Embed, actor: Actor):
         embed.add_field(
             name="Defense",
-            value=f"**🛡 {intcomma(actor.defense)}** _`({numsign(intcomma(actor.extra_defense))})`_",
+            value=f"**🛡 {intcomma(actor.defense)}** _`({numsign(intcomma(actor.defense_extra))})`_",
         )
 
     @staticmethod
     def add_speed_field(embed: Embed, actor: Actor):
         embed.add_field(
             name="Speed",
-            value=f"**🥾 {intcomma(actor.speed)}** _`({numsign(intcomma(actor.extra_speed))})`_",
+            value=f"**🥾 {intcomma(actor.speed)}** _`({numsign(intcomma(actor.speed_extra))})`_",
         )
 
     # ----------------------------------------------------------------------------------------------------
@@ -283,7 +283,7 @@ class ProfileCog(
     def add_equipment_field(embed: Embed, actor: Actor):
         embed.add_field(
             name="Equipment",
-            value=f"**🧰 {intcomma(len(actor.equipped_items))}/{actor.MAX_EQUIPMENT}**",
+            value=f"**🧰 {intcomma(len(actor.items_equipped))}/{actor.ITEMS_EQUIP_MAX}**",
         )
 
     @staticmethod
@@ -294,16 +294,16 @@ class ProfileCog(
 
     @staticmethod
     def add_equipment_list_field(embed: Embed, actor: Actor):
-        equipped_items = list(actor.equipped_items.values())
+        equipped_items = list(actor.items_equipped.values())
         embed.add_field(
-            name=f"Equipment **`🧰{intcomma(len(actor.equipped_items))}/{actor.MAX_EQUIPMENT}`**",
+            name=f"Equipment **`🧰{intcomma(len(actor.items_equipped))}/{actor.ITEMS_EQUIP_MAX}`**",
             value="",
             inline=False,
         )
         if equipped_items:
             midpoint = (len(equipped_items) + 1) // 2
             equipped_item_row: Callable[[Item], str] = lambda item: (
-                f"{item.emoji or item.alt_emoji} **{item.name} `{item.get_item_stats_text()}`**"
+                f"{item.emoji or item.alt_emoji} **{item.name} `{item.item_stats_text()}`**"
             )
             first_column = [
                 equipped_item_row(item) for item in equipped_items[:midpoint]
