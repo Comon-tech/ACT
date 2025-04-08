@@ -1,19 +1,18 @@
 from datetime import datetime, timedelta, timezone
-from typing import Any, ClassVar, Optional, cast
+from typing import Any, ClassVar, Optional, Self, cast
 
-from humanize import precisedelta
-from odmantic import Field, Model
+from odmantic import Field, Model, Reference
 from pydantic import NonNegativeFloat, NonNegativeInt
 
-from db.item import Item, ItemStack, ItemType
+from db.item import Item, ItemStack
 from db.main import ActToml
 from db.rank import Rank
-from utils.misc import clamp, scaled_linear, scaled_power, text_progress_bar
+from utils.misc import clamp, scaled_power, text_progress_bar
 
 
-# ----------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 # * DM Actor
-# ----------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 class DmActor(Model):
     model_config = {"collection": "dm_actors"}
 
@@ -26,9 +25,9 @@ class DmActor(Model):
     ai_chat_history: list[dict[str, Any]] = []
 
 
-# ----------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 # * Actor
-# ----------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 class Actor(Model):
     model_config = {"collection": "actors"}
 
@@ -39,7 +38,7 @@ class Actor(Model):
     is_member: bool = True  # Still member in the server
 
     # AI
-    attacked_at: Optional[datetime] = None  # Last time actor attacked another actor
+    ai_interacted_at: Optional[datetime] = None  # Last time actor interacted with AI
 
     # Health & Energy
     health: NonNegativeInt = 10
@@ -58,13 +57,13 @@ class Actor(Model):
     speed_extra: int = 0
 
     # Combat
-    ai_interacted_at: Optional[datetime] = None  # Last time actor interacted with AI
-    ATTACK_ENERGY_COST: ClassVar[NonNegativeInt] = 1
-    ATTACK_COOLDOWN_BASE: ClassVar[NonNegativeFloat] = 30.0  # seconds
-    ATTACK_COOLDOWN_MIN: ClassVar[NonNegativeFloat] = 2.0  # seconds
-    SPEED_COOLDOWN_FACTOR: ClassVar[NonNegativeFloat] = (
-        0.5  # 0.1 => 10 speed <=> -1 sec cooldown
+    attacked_at: Optional[datetime] = None  # Last time actor attacked another actor
+    defended_at: Optional[datetime] = (
+        None  # Last time actor received attack from another
     )
+    ATTACK_COOLDOWN_BASE: ClassVar[NonNegativeFloat] = 30.0  # sec
+    ATTACK_COOLDOWN_MIN: ClassVar[NonNegativeFloat] = 2.0  # sec
+    SPEED_COOLDOWN_FACTOR: ClassVar[NonNegativeFloat] = 0.5  # 0.1=> 10 spd <=> -1sec cd
 
     # Gold
     gold: int = 0  # Negative gold allowed
@@ -103,11 +102,11 @@ class Actor(Model):
     # ----------------------------------------------------------------------------------------------------
 
     @property
-    def max_health(self):
+    def health_max(self):
         return max(0, self.health_max_base + self.health_max_extra)
 
     @property
-    def max_energy(self):
+    def energy_max(self):
         return max(0, self.energy_max_base + self.energy_max_extra)
 
     @property
@@ -122,12 +121,15 @@ class Actor(Model):
     def speed(self):
         return max(0, self.speed_base + self.speed_extra)
 
-    # ----------------------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------------------
 
-    @property
-    def has_energy_to_attack(self) -> bool:
-        """Check if player has enough energy to attack."""
-        return self.energy >= self.ATTACK_ENERGY_COST
+    def rank_change(self, rank: Rank) -> int:
+        """Get value indicating how current rank is different from given rank."""
+        current_rank_id = self.rank.id if self.rank else -1
+        given_rank_id = rank.id if rank else -1
+        return current_rank_id - given_rank_id
+
+    # ----------------------------------------------------------------------------------------------------
 
     @property
     def has_cooled_down_since_last_attack(self) -> bool:
@@ -154,7 +156,7 @@ class Actor(Model):
             )
         )
 
-    # ----------------------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------------------
 
     def try_level_up(self) -> bool:
         """Check if player has enough xp to level up and increment level if so."""
@@ -173,7 +175,7 @@ class Actor(Model):
         """Calculate xp required to reach next level."""
         return self.level_xp(self.level + 1)
 
-    # ----------------------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------------------
 
     @property
     def duels(self) -> NonNegativeInt:
@@ -182,17 +184,8 @@ class Actor(Model):
 
     def record_duel(self, opponent_elo: int, won: bool) -> None:
         """Record duel result and update elo rating accordingly."""
-        expected = self.expected_score(opponent_elo)
-        actual = 1 if won else 0
-        elo_change = int(self.ELO_K_FACTOR * (actual - expected))
-        self.elo += elo_change
-        if won:
-            self.wins += 1
-        else:
-            self.losses += 1
-        self.placement_duels = min(self.wins + self.losses, self.PLACEMENT_DUELS_MAX)
 
-    # ----------------------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------------------
 
     @property
     def rank(self) -> Rank | None:
@@ -205,7 +198,7 @@ class Actor(Model):
         return self.RANKS[0]
 
     def expected_score(self, opponent_elo: int) -> float:
-        """Calculate expected score against an opponent."""
+        """Calculate expected score against given opponent."""
         return 1 / (1 + pow(10, (opponent_elo - self.elo) / 400))
 
     @staticmethod
@@ -217,7 +210,7 @@ class Actor(Model):
             else 0
         )
 
-    # ----------------------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------------------
 
     @classmethod
     def level_gold(cls, level: int) -> int:
@@ -233,17 +226,17 @@ class Actor(Model):
         """Calculate gold reward for reaching current level."""
         return self.level_gold(self.level)
 
-    # ----------------------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------------------
 
     def add_item_stats(self, item: Item, scale: int = 1):
         """Apply scaled item stat bonuses to actor stats."""
         self.health = cast(
             int,
-            clamp(self.health + (scale * item.health_bonus), 0, self.max_health),
+            clamp(self.health + (scale * item.health_bonus), 0, self.health_max),
         )
         self.energy = cast(
             int,
-            clamp(self.energy + (scale * item.energy_bonus), 0, self.max_energy),
+            clamp(self.energy + (scale * item.energy_bonus), 0, self.energy_max),
         )
         self.health_max_extra += scale * item.max_health_bonus
         self.energy_max_extra += scale * item.max_energy_bonus
@@ -258,7 +251,7 @@ class Actor(Model):
         self.defense_extra = 0
         self.speed_extra = 0
 
-    # ----------------------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------------------
 
     @property
     def health_bar(self) -> str:
@@ -266,7 +259,7 @@ class Actor(Model):
 
     @property
     def energy_bar(self) -> str:
-        return text_progress_bar(self.energy, self.max_energy, 10, "▰", "▱")
+        return text_progress_bar(self.energy, self.energy_max, 10, "▰", "▱")
 
     @property
     def rank_bar(self) -> str:
@@ -282,7 +275,7 @@ class Actor(Model):
     def xp_bar(self) -> str:
         return text_progress_bar(self.xp, self.next_level_xp, 10, "■", "□")
 
-    # ----------------------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------------------
 
     @classmethod
     def level_xp_gold_table(

@@ -4,10 +4,12 @@ from discord import Interaction, Member, User, app_commands
 from discord.abc import Messageable
 from discord.ext.commands import Cog
 from humanize import intcomma, naturaldelta, precisedelta
+from odmantic import ObjectId
 
 from bot.main import ActBot
 from bot.ui import EmbedX
 from db.actor import Actor
+from db.attack import Attack
 from utils.misc import numsign
 
 
@@ -87,40 +89,20 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             return
 
         # Check energy
-        if not attacker_actor.has_energy_to_attack:
+        if attacker_actor.energy < Attack.ENERGY_COST:
             await interaction.followup.send(
                 embed=EmbedX.warning(f"You don't have enough energy to attack!.")
             )
             return
 
-        # Perform attack calculations & 💚💚💚 refactor here into Actor 👇👇👇
-        raw_damage = attacker_actor.attack - defender_actor.defense
-        damage = raw_damage if raw_damage > 0 else 0
-        recoil_damage = -raw_damage if raw_damage < 0 else 0
-        if damage > 0:
-            defender_actor.health = max(0, defender_actor.health - damage)
-        if recoil_damage > 0:
-            attacker_actor.health = max(0, attacker_actor.health - recoil_damage)
-        attacker_actor.attacked_at = datetime.now(timezone.utc)
-        attacker_actor.energy = max(0, attacker_actor.energy - Actor.ATTACK_ENERGY_COST)
-
-        # Record duel
-        attacker_actor_won = attacker_actor.health > 0 and defender_actor.health <= 0
-        defender_actor_won = defender_actor.health > 0 and attacker_actor.health <= 0
-        attacker_actor_pre_rank = attacker_actor.rank
-        defender_actor_pre_rank = defender_actor.rank
-        if attacker_actor_won or defender_actor_won:
-            attacker_actor.record_duel(defender_actor.elo, attacker_actor_won)
-            defender_actor.record_duel(attacker_actor.elo, defender_actor_won)
-        attacker_actor_promotion = (
-            attacker_actor.rank.id - attacker_actor_pre_rank.id
-            if attacker_actor.rank and attacker_actor_pre_rank
-            else 0
-        )
-        defender_actor_promotion = (
-            defender_actor.rank.id - defender_actor_pre_rank.id
-            if defender_actor.rank and defender_actor_pre_rank
-            else 0
+        # Perform attack
+        # TODO?: Save attack in database ?
+        attack = Attack(
+            id=ObjectId(),
+            attacker=attacker_actor,
+            defender=defender_actor,
+            winner=None,
+            loser=None,
         )
 
         # Save user data
@@ -143,8 +125,8 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
         # Add health & energy fields
         combat_embed.add_field(
             name=f"{attacker_actor.display_name}",
-            value=f"**Health{" 🔻" if recoil_damage  > 0 else ""}**"
-            f"{f"\n**💥 {numsign(-recoil_damage )}**" if recoil_damage  > 0 else ""}\n"
+            value=f"**Health{" 🔻" if attack.recoil_damage  > 0 else ""}**"
+            f"{f"\n**💥 {numsign(-attack.recoil_damage )}**" if attack.recoil_damage  > 0 else ""}\n"
             f"**:heart: {intcomma(attacker_actor.health)}** / {intcomma(attacker_actor.health_max_base)} "
             f"_`({numsign(intcomma(attacker_actor.health_max_extra))})`_\n`{attacker_actor.health_bar}`\n"
             f"**Energy 🔻**\n"
@@ -154,8 +136,8 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
         )
         combat_embed.add_field(
             name=f"{defender_actor.display_name}",
-            value=f"**Health{" 🔻" if damage  > 0 else ""}**"
-            f"{f"\n**💥 {numsign(-damage )}**" if damage  > 0 else ""}\n"
+            value=f"**Health{" 🔻" if attack.effective_damage  > 0 else ""}**"
+            f"{f"\n**💥 {numsign(-attack.effective_damage )}**" if attack.effective_damage  > 0 else ""}\n"
             f"**:heart: {intcomma(defender_actor.health)}** / {intcomma(defender_actor.health_max_base)} "
             f"_`({numsign(intcomma(defender_actor.health_max_extra))})`_\n`{defender_actor.health_bar}`\n"
             f"**Energy**\n"
@@ -164,14 +146,14 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
         )
 
         # Add damage feedback fields
-        if recoil_damage > 0:
+        if attack.recoil_damage > 0:
             combat_embed.add_field(
                 name="🤺 Repellence",
                 value=f"{attacker_member.mention} attack has been repelled by {defender_member.mention}!\n"
                 f"{attacker_member.mention} has taken recoil damage.",
                 inline=False,
             )
-        elif damage > 0:
+        elif attack.effective_damage > 0:
             combat_embed.add_field(
                 name=":crossed_swords: Damage",
                 value=f"{attacker_member.mention} has dealt damage to {defender_member.mention}.",
@@ -198,43 +180,43 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             )
 
         # Create post-combat embed
-        if not (attacker_actor_won or defender_actor_won):
+        if not (attack.is_fatal):
             return
         post_combat_embed = EmbedX.info(emoji="🚩", title="Combat Over")
 
         # Add victory feedback field
-        if attacker_actor_won:
+        if attack.attacker_is_winner:
             post_combat_embed.add_field(
                 name="🏴 Takedown",
                 value=f"{attacker_member.mention} has defeated {defender_member.mention}.",
                 inline=False,
             )
-        if defender_actor_won:
+        if attack.defender_is_winner:
             post_combat_embed.add_field(
                 name="🔥 Backfire",
                 value=f"{defender_member.mention} has defeated {attacker_member.mention}.",
                 inline=False,
             )
 
-        # Add promotion fields
+        # Add promotion/demotion fields
         if attacker_actor.rank:
-            if attacker_actor_promotion > 0:
+            if attack.attacker_is_promoted:
                 post_combat_embed.add_field(
                     name="👍 Promotion",
                     value=f"{attacker_member.mention} has been promoted to **{attacker_actor.rank.name}**",
                 )
-            elif attacker_actor_promotion < 0:
+            elif attack.attacker_is_demoted:
                 post_combat_embed.add_field(
                     name="👎 Demotion",
                     value=f"{attacker_member.mention} has been demoted to **{attacker_actor.rank.name}**",
                 )
         if defender_actor.rank:
-            if defender_actor_promotion > 0:
+            if attack.defender_is_promoted:
                 post_combat_embed.add_field(
                     name="👍 Promotion",
                     value=f"{defender_member.mention} has been promoted to **{defender_actor.rank.name}**",
                 )
-            elif defender_actor_promotion < 0:
+            elif attack.defender_is_demoted:
                 post_combat_embed.add_field(
                     name="👎 Demotion",
                     value=f"{defender_member.mention} has been demoted to **{defender_actor.rank.name}**",
@@ -245,8 +227,6 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             await interaction.channel.send(embed=post_combat_embed)
 
     @app_commands.guild_only()
-    # @app_commands.default_permissions(administrator=True)
-    # @app_commands.checks.has_permissions(administrator=True)
     @app_commands.command(description="Recover your or a member's health and energy")
     async def revive(
         self,
@@ -270,8 +250,8 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
         )
 
         # Recover health & energy
-        actor.health = actor.max_health
-        actor.energy = actor.max_energy
+        actor.health = actor.health_max
+        actor.energy = actor.energy_max
         db.save(actor)
 
         # Send response
@@ -302,8 +282,8 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
         for actor in actors:
             actor.items_equipped.clear()
             actor.clear_extra_stats()
-            actor.health = actor.max_health
-            actor.energy = actor.max_energy
+            actor.health = actor.health_max
+            actor.energy = actor.energy_max
         db.save_all(actors)
         await interaction.followup.send(
             embed=EmbedX.success(f"Stats reset for **{len(actors)}** actors.")

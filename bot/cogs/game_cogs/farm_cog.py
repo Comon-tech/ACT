@@ -71,18 +71,18 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
         # Log xp gain to a "log" named channel
         # TODO: This works better with a feature allowing to set log channel per server (maybe a command)
         # 🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴
-        log_channel = utils.find(
-            lambda c: "📜・log" in c.name.lower(), message.guild.text_channels
-        )
-        if log_channel:
-            embed = EmbedX.info(
-                emoji="", title="", description=f"{member.mention} earned experience."
-            )
-            embed.add_field(name="Experience 🔼", value=f"**⏫ +{xp_reward} **")
-            embed.set_author(
-                name=member.display_name, icon_url=member.display_avatar.url
-            )
-            await log_channel.send(embed=embed)
+        # log_channel = utils.find(
+        #     lambda c: "📜・log" in c.name.lower(), message.guild.text_channels
+        # )
+        # if log_channel:
+        #     embed = EmbedX.info(
+        #         emoji="", title="", description=f"{member.mention} earned experience."
+        #     )
+        #     embed.add_field(name="Experience 🔼", value=f"**⏫ +{xp_reward} **")
+        #     embed.set_author(
+        #         name=member.display_name, icon_url=member.display_avatar.url
+        #     )
+        #     await log_channel.send(embed=embed)
         # 🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴
 
         # Try level-up

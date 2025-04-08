@@ -248,7 +248,7 @@ class ProfileCog(
     def add_energy_field(embed: Embed, actor: Actor):
         embed.add_field(
             name=f"Energy{" `⚠️`" if actor.health <= 0 else ""}",
-            value=f"**⚡ {intcomma(actor.energy)}** / {intcomma(actor.max_energy)} "
+            value=f"**⚡ {intcomma(actor.energy)}** / {intcomma(actor.energy_max)} "
             f"_`({numsign(intcomma(actor.energy_max_extra))})`_\n`{actor.energy_bar}`",
         )
 
