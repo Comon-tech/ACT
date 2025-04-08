@@ -96,14 +96,12 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             return
 
         # Perform attack
-        # TODO?: Save attack in database ?
+        # PS: Save attacks history in database ?
         attack = Attack(
-            id=ObjectId(),
             attacker=attacker_actor,
             defender=defender_actor,
-            winner=None,
-            loser=None,
-        )
+        )  # type: ignore
+        attack.perform()
 
         # Save user data
         db.save_all([attacker_actor, defender_actor])
@@ -130,7 +128,7 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             f"**:heart: {intcomma(attacker_actor.health)}** / {intcomma(attacker_actor.health_max_base)} "
             f"_`({numsign(intcomma(attacker_actor.health_max_extra))})`_\n`{attacker_actor.health_bar}`\n"
             f"**Energy 🔻**\n"
-            f"**🎆 {numsign(intcomma(-Actor.ATTACK_ENERGY_COST))}**\n"
+            f"**🎆 {numsign(intcomma(-Attack.ENERGY_COST))}**\n"
             f"**⚡ {intcomma(attacker_actor.energy)}** / {intcomma(attacker_actor.energy_max_base)} "
             f"_`({numsign(intcomma(attacker_actor.energy_max_extra))})`_\n`{attacker_actor.energy_bar}`",
         )
@@ -227,8 +225,76 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             await interaction.channel.send(embed=post_combat_embed)
 
     @app_commands.guild_only()
+    @app_commands.command(description="Pay a cost to recover from defeat.")
+    async def revive(self, interaction: Interaction):
+        # Check guild & member
+        member = interaction.user
+        if not interaction.guild or not isinstance(member, Member):
+            await interaction.response.send_message(
+                embed=EmbedX.warning("This command cannot be used in this context."),
+                ephemeral=True,
+            )
+            return
+
+        # Get actor
+        await interaction.response.defer(ephemeral=True)
+        db = self.bot.get_db(interaction.guild)
+        actor = db.find_one(Actor, Actor.id == member.id) or self.bot.create_actor(
+            member
+        )
+
+        # Check health
+        if actor.health > 0:
+            await interaction.followup.send(
+                embed=EmbedX.warning("You are not currently defeated.")
+            )
+            return
+
+        # Calculate & apply cost
+        revive_cost = Attack.REVIVE_COST_BASE + (
+            actor.level * Attack.REVIVE_COST_PER_LEVEL
+        )
+        actor.gold -= revive_cost
+
+        # Recover health & energy
+        actor.health = actor.health_max
+        actor.energy = actor.energy_max
+        db.save(actor)
+
+        # Send private response
+        await interaction.followup.send(
+            embed=EmbedX.success(
+                f"You have recovered!\nIt cost **💰 {revive_cost}** gold."
+            )
+        )
+        response_msg = f"✨ You have recovered for **{revive_cost}** gold."
+        if actor.gold < 0:
+            await interaction.followup.send(
+                embed=EmbedX.warning(
+                    f"⚠️ You are now in **debt**!\nYour current balance is **💰 {actor.gold}** gold.\n"
+                )
+            )
+
+        # Create & send public embed
+        embed = EmbedX.info(
+            emoji="🕊",
+            title="Revival",
+            description=(
+                f"{member.mention} has been revived with full health and energy."
+            ),
+        )
+        embed.add_field(
+            name="Gold 🔻",
+            value=f"**💰 -{revive_cost}**",
+        )
+        if isinstance(interaction.channel, Messageable):
+            await interaction.channel.send(embed=embed)
+
+    @app_commands.guild_only()
+    @app_commands.default_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
     @app_commands.command(description="Recover your or a member's health and energy")
-    async def revive(
+    async def recover(
         self,
         interaction: Interaction,
         member: Member | User | None = None,
@@ -265,7 +331,7 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
     @app_commands.command(
         description="Initialize stats and unequip items for all actors"
     )
-    async def reset_stats(self, interaction: Interaction):
+    async def init_stats(self, interaction: Interaction):
         # Check guild
         guild = interaction.guild
         if not guild:

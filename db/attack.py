@@ -16,12 +16,9 @@ class Attack(Model):
     model_config = {"collection": "attacks"}
 
     created_at: Optional[datetime] = datetime.now(timezone.utc)
-
     attacker: Actor = Reference()
     defender: Actor = Reference()
 
-    winner: Optional[Actor] = None  # TODO: FIX THIS 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
-    loser: Optional[Actor] = None  # TODO: FIX THIS 🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
     is_fatal: bool = False  # attack results in a winner/loser (duel over)
     attacker_is_winner: bool = False
     defender_is_winner: bool = False
@@ -68,6 +65,22 @@ class Attack(Model):
     # ----------------------------------------------------------------------------------------------------
 
     @property
+    def winner(self) -> Actor | None:
+        return (
+            self.attacker
+            if self.attacker_is_winner
+            else self.defender if self.defender_is_winner else None
+        )
+
+    @property
+    def loser(self) -> Actor | None:
+        return (
+            self.attacker
+            if self.attacker_is_loser
+            else self.defender if self.defender_is_loser else None
+        )
+
+    @property
     def damage(self) -> int:
         return self.attacker.attack - self.defender.defense
 
@@ -83,19 +96,18 @@ class Attack(Model):
 
     # ----------------------------------------------------------------------------------------------------
 
-    @model_validator(mode="after")
-    def perform(self) -> Self:
+    def perform(self):
         """Perform attack, determine winner/loser, and update players accordingly."""
 
         # Chek healths
         if self.attacker.health <= 0:
-            return self
+            return
         if self.defender.health <= 0:
-            return self
+            return
 
         # Consume energy
         if self.attacker.energy < self.ENERGY_COST:
-            return self
+            return
         self.attacker.energy = max(0, self.attacker.energy - self.ENERGY_COST)
 
         # Record attack datetime
@@ -110,26 +122,25 @@ class Attack(Model):
             self.attacker.health = max(0, self.attacker.health - self.recoil_damage)
 
         # Determine winner
+        winner: Actor | None = None
+        loser: Actor | None = None
         if self.attacker.health > 0 and self.defender.health <= 0:
-            self.winner = self.attacker
-            self.loser = self.defender
+            winner = self.attacker
+            loser = self.defender
             self.attacker_is_winner = True
             self.defender_is_loser = True
             self.is_fatal = True
         elif self.defender.health > 0 and self.attacker.health <= 0:
-            self.winner = self.defender
-            self.loser = self.attacker
+            winner = self.defender
+            loser = self.attacker
             self.defender_is_winner = True
             self.attacker_is_loser = True
             self.is_fatal = True
-        if not (self.winner and self.loser):
-            return self
-        self.level_difference = float(self.winner.level - self.loser.level)
+        if not (winner and loser):
+            return
+        self.level_difference = float(winner.level - loser.level)
 
         # Calculate winner gold reward
-        self.gold_reward_base = self.GOLD_REWARD_BASE + (
-            self.loser.level * self.GOLD_REWARD_PER_LEVEL
-        )
         self.gold_reward_modifier = max(
             0,
             max(
@@ -140,7 +151,10 @@ class Attack(Model):
                 ),
             ),
         )  # Modifier decreases if winner level > loser level, increases otherwise
-        self.gold_reward = int(self.gold_reward_base * self.gold_reward_modifier)
+        self.gold_reward = int(
+            (self.GOLD_REWARD_BASE + (loser.level * self.GOLD_REWARD_PER_LEVEL))
+            * self.gold_reward_modifier
+        )
 
         # Calculate Loser gold penalty
         self.gold_penalty_modifier = max(
@@ -157,37 +171,32 @@ class Attack(Model):
             int(
                 min(
                     (
-                        self.loser.gold
+                        loser.gold
                         * (self.GOLD_PENALTY_FACTOR_BASE * self.gold_penalty_modifier)
                     ),
                     self.GOLD_PENALTY_MAX,
                 )
             ),
-            self.loser.gold,
+            loser.gold,
         )
 
         # Apply Gold Changes
-        self.winner.gold += self.gold_reward
-        self.loser.gold -= self.gold_penalty
+        winner.gold += self.gold_reward
+        loser.gold -= self.gold_penalty
 
         # Record duel
-        self.winner.wins += 1
-        self.loser.losses += 1
-        self.winner.placement_duels = min(self.winner.duels, Actor.PLACEMENT_DUELS_MAX)
-        self.loser.placement_duels = min(self.loser.duels, Actor.PLACEMENT_DUELS_MAX)
+        winner.wins += 1
+        loser.losses += 1
+        winner.placement_duels = min(winner.duels, Actor.PLACEMENT_DUELS_MAX)
+        loser.placement_duels = min(loser.duels, Actor.PLACEMENT_DUELS_MAX)
 
         # Remember rank before elo update
         attacker_pre_rank = self.attacker.rank
         defender_pre_rank = self.defender.rank
 
         # Update elo
-        self.winner.elo += int(
-            Actor.ELO_K_FACTOR
-            * (1 - self.self.winner.expected_score(self.self.loser.elo))
-        )
-        self.loser.elo += int(
-            Actor.ELO_K_FACTOR * (-self.loser.expected_score(self.winer.elo))
-        )
+        winner.elo += int(Actor.ELO_K_FACTOR * (1 - winner.expected_score(loser.elo)))
+        loser.elo += int(Actor.ELO_K_FACTOR * (-loser.expected_score(winner.elo)))
 
         # Record elo change (rank promotion/demotion)
         if self.attacker.rank:
@@ -200,4 +209,4 @@ class Attack(Model):
             self.defender_is_demoted = defender_rank_change < 0
 
         # Done
-        return self
+        return
