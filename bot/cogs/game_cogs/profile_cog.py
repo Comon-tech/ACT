@@ -242,7 +242,7 @@ class ProfileCog(
         if stat:
             embed.add_field(
                 name=f"{stat.name}{" `💀`" if actor.health <= 0 else ""}",
-                value=f"**{(stat.emoji or stat.alt_emoji)} {intcomma(actor.health)}** / {intcomma(actor.health_max_base)} "
+                value=f"**{(stat.emoji or stat.alt_emoji)} {intcomma(actor.health)}** / {intcomma(actor.health_max)} "
                 f"_`({numsign(intcomma(actor.health_max_extra))})`_\n`{actor.health_bar}`",
             )
 
