@@ -12,6 +12,8 @@ from discord import (
     Interaction,
     Member,
     Message,
+    Sticker,
+    StickerItem,
     User,
     app_commands,
 )
@@ -450,6 +452,14 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
             # Add author
             text += f"{message.author.name}:"
 
+            # Check for stickers first
+            if message.stickers:
+                sticker = message.stickers[0]
+                file = await self.get_sticker_file(sticker)
+                text += f"_sent sticker:{sticker.name}_"
+                if not file:
+                    text += f"(but u can't receive it cuz it's larger than ur allowed min size limit of {self.MAX_FILE_SIZE}byte)"
+
             # Add file from attachment or embed (With file action description prompt)
             if message.attachments:
                 attachment = message.attachments[0]
@@ -480,6 +490,12 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         return (text, file)
 
     # ----------------------------------------------------------------------------------------------------
+
+    async def get_sticker_file(self, sticker: StickerItem) -> ActFile | None:
+        """Get file from sticker. If file size limit exceeded, get None."""
+        sticker_file = ActFile.load(sticker.url) if sticker.url else None
+        if sticker_file and sticker_file.size <= self.MAX_FILE_SIZE:
+            return sticker_file
 
     async def get_attachment_file(self, attachment: Attachment) -> ActFile | None:
         """Get file from attachment. If file size limit exceeded, get None."""
