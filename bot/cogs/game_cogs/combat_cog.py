@@ -197,28 +197,62 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             )
 
         # Add promotion/demotion fields
-        if attacker_actor.rank:
-            if attack.attacker_is_promoted:
-                post_combat_embed.add_field(
-                    name="👍 Promotion",
-                    value=f"{attacker_member.mention} has been promoted to **{attacker_actor.rank.name}**",
-                )
-            elif attack.attacker_is_demoted:
-                post_combat_embed.add_field(
-                    name="👎 Demotion",
-                    value=f"{attacker_member.mention} has been demoted to **{attacker_actor.rank.name}**",
-                )
-        if defender_actor.rank:
-            if attack.defender_is_promoted:
-                post_combat_embed.add_field(
-                    name="👍 Promotion",
-                    value=f"{defender_member.mention} has been promoted to **{defender_actor.rank.name}**",
-                )
-            elif attack.defender_is_demoted:
-                post_combat_embed.add_field(
-                    name="👎 Demotion",
-                    value=f"{defender_member.mention} has been demoted to **{defender_actor.rank.name}**",
-                )
+        if attack.attacker_is_promoted:
+            post_combat_embed.add_field(
+                name="👍 Promotion",
+                value=f"{attacker_member.mention} has been promoted to higher rank.",
+            )
+        elif attack.attacker_is_demoted:
+            post_combat_embed.add_field(
+                name="👎 Demotion",
+                value=f"{attacker_member.mention} has been demoted to lower rank.",
+            )
+        if attack.defender_is_promoted:
+            post_combat_embed.add_field(
+                name="👍 Promotion",
+                value=f"{defender_member.mention} has been promoted to higher rank.",
+            )
+        elif attack.defender_is_demoted:
+            post_combat_embed.add_field(
+                name="👎 Demotion",
+                value=f"{defender_member.mention} has been demoted to lower rank.",
+            )
+
+        # Add Gold & Rank fields
+        attacker_gold_mod_emoji = " 🔼" if attack.attacker_is_winner else " 🔻"
+        defender_gold_mod_emoji = " 🔼" if attack.defender_is_winner else " 🔻"
+        attacker_gold_mod_value = (
+            attack.gold_reward if attack.attacker_is_winner else -attack.gold_penalty
+        )
+        defender_gold_mod_value = (
+            attack.gold_reward if attack.defender_is_winner else -attack.gold_penalty
+        )
+        attacker_rank_mod_emoji = (
+            " 🔼"
+            if attack.attacker_is_promoted
+            else " 🔻" if attack.attacker_is_demoted else ""
+        )
+        defender_rank_mod_emoji = (
+            " 🔼"
+            if attack.defender_is_promoted
+            else " 🔻" if attack.defender_is_demoted else ""
+        )
+        attacker_rank_name = attacker_actor.rank.name if attacker_actor.rank else None
+        defender_rank_name = defender_actor.rank.name if defender_actor.rank else None
+        post_combat_embed.add_field(
+            name=f"{attacker_actor.display_name}",
+            value=f"**Gold{attacker_gold_mod_emoji}**\n"
+            f"**💰 {numsign(intcomma(attacker_gold_mod_value))}**\n"
+            f"**Rank{attacker_rank_mod_emoji}**\n"
+            f"**🏆 {attacker_rank_name}**",
+        )
+        post_combat_embed.add_field(
+            name=f"{defender_actor.display_name}",
+            value=f"**Gold{defender_gold_mod_emoji}**\n"
+            f"**💰 {numsign(intcomma(defender_gold_mod_value))}**\n"
+            f"**Rank{defender_rank_mod_emoji}**\n"
+            f"**🏆 {defender_rank_name}**",
+        )
 
         # Send post-combat response
         if isinstance(interaction.channel, Messageable):
