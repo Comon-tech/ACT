@@ -1,4 +1,4 @@
-# 🤖 Assistant of Common Tech (ACT)
+# ![ACT](./icon.png) Assistant of Comon Tech (ACT)
 
 [![Web](https://img.shields.io/badge/web-blue?logo=googlechrome)](https://github.com/topics/web)
 [![Python](https://img.shields.io/badge/python-blue?logo=python)](https://github.com/topics/python)
@@ -6,7 +6,7 @@
 [![FastAPI](https://img.shields.io/badge/fastapi-blue?logo=fastapi)](https://github.com/topics/fastapi)
 [![MongoDB](https://img.shields.io/badge/mongodb-blue?logo=mongodb)](https://github.com/topics/mongo)
 
-ACT is a [Discord](http://discord.com) bot designed to boost community engagement and interaction by providing a robust economy system and an array of entertaining commands, all tailored to deliver a dynamic and lively server experience.
+ACT (Assisstant of Comon Tech) is an AI-powered [Discord](http://discord.com) bot that combines advanced conversational capabilities with engaging role-playing game (RPG) features to create a dynamic and interactive social experience for users.
 
 <!-- ![Screenshot](./screenshot.gif?raw=true) -->
 
