@@ -125,21 +125,21 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             name=f"{attacker_actor.display_name}",
             value=f"**Health{" 🔻" if attack.recoil_damage  > 0 else ""}**"
             f"{f"\n**💥 {numsign(-attack.recoil_damage )}**" if attack.recoil_damage  > 0 else ""}\n"
-            f"**:heart: {intcomma(attacker_actor.health)}** / {intcomma(attacker_actor.health_max_base)} "
+            f"**:heart: {intcomma(attacker_actor.health)}** / {intcomma(attacker_actor.health_max)} "
             f"_`({numsign(intcomma(attacker_actor.health_max_extra))})`_\n`{attacker_actor.health_bar}`\n"
             f"**Energy 🔻**\n"
             f"**🎆 {numsign(intcomma(-Attack.ENERGY_COST))}**\n"
-            f"**⚡ {intcomma(attacker_actor.energy)}** / {intcomma(attacker_actor.energy_max_base)} "
+            f"**⚡ {intcomma(attacker_actor.energy)}** / {intcomma(attacker_actor.energy_max)} "
             f"_`({numsign(intcomma(attacker_actor.energy_max_extra))})`_\n`{attacker_actor.energy_bar}`",
         )
         combat_embed.add_field(
             name=f"{defender_actor.display_name}",
             value=f"**Health{" 🔻" if attack.effective_damage  > 0 else ""}**"
             f"{f"\n**💥 {numsign(-attack.effective_damage )}**" if attack.effective_damage  > 0 else ""}\n"
-            f"**:heart: {intcomma(defender_actor.health)}** / {intcomma(defender_actor.health_max_base)} "
+            f"**:heart: {intcomma(defender_actor.health)}** / {intcomma(defender_actor.health_max)} "
             f"_`({numsign(intcomma(defender_actor.health_max_extra))})`_\n`{defender_actor.health_bar}`\n"
             f"**Energy**\n"
-            f"**⚡ {intcomma(defender_actor.energy)}** / {intcomma(defender_actor.energy_max_base)} "
+            f"**⚡ {intcomma(defender_actor.energy)}** / {intcomma(defender_actor.energy_max)} "
             f"_`({numsign(intcomma(defender_actor.energy_max_extra))})`_\n`{defender_actor.energy_bar}`",
         )
 
