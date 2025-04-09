@@ -1,4 +1,5 @@
 from discord import ClientException, Interaction, VoiceChannel, app_commands
+from discord.abc import Messageable
 from discord.ext.commands import Cog
 
 from bot.main import ActBot
@@ -126,3 +127,26 @@ class ConsoleCog(Cog, description="Provide control and management interface"):
                 embed=EmbedX.error(f"Could not join the voice channel: {e}"),
                 ephemeral=True,
             )
+
+    # ----------------------------------------------------------------------------------------------------
+    # * Proxy
+    # ----------------------------------------------------------------------------------------------------
+    @app_commands.default_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.command(description="Make the bot send a message on your behalf")
+    @app_commands.describe(message="The message you want the bot to send")
+    async def proxy(self, interaction: Interaction, message: str):
+        # Deny non-messageable channel
+        if not isinstance(interaction.channel, Messageable):
+            await interaction.response.send_message(
+                embed=EmbedX.warning("This command cannot be used in this context."),
+                ephemeral=True,
+            )
+            return
+
+        # Send message
+        await interaction.response.send_message(
+            embed=EmbedX.success("Message proxied.")
+        )
+        async with interaction.channel.typing():
+            await interaction.channel.send(message)
