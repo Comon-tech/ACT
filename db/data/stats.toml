@@ -1,0 +1,48 @@
+[health]
+id = "health"
+name = "Health"
+description = "Your current life force. Reaching zero means defeat."
+emoji = ":heart:"
+alt_emoji = "❤️"
+
+[health_max]
+id = "health_max"
+name = "Max Health"
+description = "The maximum amount of damage you can endure before being defeated. Represents your overall toughness."
+emoji = ":heart:"
+alt_emoji = "❤️"
+
+[energy]
+id = "energy"
+name = "Energy"
+description = "Your current stamina or focus, used to perform special actions or skills."
+emoji = ":zap:"
+alt_emoji = "⚡"
+
+[energy_max]
+id = "energy_max"
+name = "Max Energy"
+description = "The maximum pool of energy you possess for performing actions. Represents your total stamina."
+emoji = ":zap:"
+alt_emoji = "⚡"
+
+[attack]
+id = "attack"
+name = "Attack"
+description = "Determines the effectiveness and potential damage of your offensive actions."
+emoji = ":crossed_swords:"
+alt_emoji = "⚔️"
+
+[defense]
+id = "defense"
+name = "Defense"
+description = "Reduces incoming damage and enhances your ability to withstand attacks. Represents your resilience."
+emoji = ":shield:"
+alt_emoji = "🛡️"
+
+[speed]
+id = "speed"
+name = "Speed"
+description = "Influences your agility, reaction time, and potentially the order of actions in combat."
+emoji = ":athletic_shoe:"
+alt_emoji = "👟"

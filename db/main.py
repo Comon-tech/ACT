@@ -6,6 +6,7 @@ from typing import Any, Self, Type, TypeVar
 
 from colorama import Fore
 from odmantic import Field, Model, SyncEngine
+from pydantic import BaseModel
 from pymongo import MongoClient
 from pymongo.database import Database
 
@@ -14,6 +15,15 @@ from utils.misc import text_block
 
 log = logger(__name__)
 T = TypeVar("T", bound=Model)
+
+
+# ----------------------------------------------------------------------------------------------------
+# * Display
+# ----------------------------------------------------------------------------------------------------
+class TextUnit(BaseModel):
+    title: str
+    emoji: str
+    alt_emoji: str
 
 
 # ----------------------------------------------------------------------------------------------------

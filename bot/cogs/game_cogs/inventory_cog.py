@@ -19,13 +19,11 @@ from utils.misc import numsign
 class InventoryCog(Cog, description="Acquire and use items"):
     STORE_ICON_URL = "https://cdn.discordapp.com/attachments/1349262615431483473/1350655944706752663/store.png?ex=67dad39f&is=67d9821f&hm=df852700992931016996079be4a0cba5a0707db0572ef1d1dc55566aec61d6db&"
     BUYABLE_ITEMS: list[Item]
+    ITEMS = ActToml.load_dict(Item)
+    BUYABLE_ITEMS = [item for item in ITEMS.values() if item.is_buyable == True]
 
     def __init__(self, bot: ActBot):
         self.bot = bot
-        self.ITEMS = ActToml.load_dict(Item)
-        self.BUYABLE_ITEMS = [
-            item for item in self.ITEMS.values() if item.is_buyable == True
-        ]
         self.buy.autocomplete("item_id")(self.buyable_items_autocomplete)
         self.store.autocomplete("item_id")(self.buyable_items_autocomplete)
         self.equip.autocomplete("item_id")(self.actor_equippable_items_autocomplete)
@@ -384,22 +382,14 @@ class InventoryCog(Cog, description="Acquire and use items"):
     def add_item_stat_embed_fields(
         self, embed: Embed, item: Item, scale: int = 1, show_mod_emoji: bool = True
     ) -> Embed:
-        stat_emojis = {
-            "health": ":heart:",
-            "max_health": ":heart:",
-            "energy": "⚡",
-            "max_energy": "⚡",
-            "attack": ":crossed_swords:",
-            "defense": "🛡",
-            "speed": "🥾",
-        }
         stat_mod_emoji = (" 🔼" if scale >= 0 else " 🔻") if show_mod_emoji else ""
-        for stat_name, stat_value in item.effective_stats(scale=scale).items():
-            stat_emoji = stat_emojis.get(stat_name, "")
-            embed.add_field(
-                name=f"{stat_name.capitalize()}{stat_mod_emoji}",
-                value=f"{stat_emoji} **{numsign(intcomma(stat_value))}**",
-            )
+        for id, value in item.effective_stats(scale=scale).items():
+            stat = Item.STATS.get(id)
+            if stat:
+                embed.add_field(
+                    name=f"{stat.name}{stat_mod_emoji}",
+                    value=f"{stat.emoji} **{numsign(intcomma(value))}**",
+                )
         return embed
 
     # ----------------------------------------------------------------------------------------------------

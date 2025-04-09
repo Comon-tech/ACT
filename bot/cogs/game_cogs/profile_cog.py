@@ -238,40 +238,50 @@ class ProfileCog(
 
     @staticmethod
     def add_health_field(embed: Embed, actor: Actor):
-        embed.add_field(
-            name=f"Health{" `💀`" if actor.health <= 0 else ""}",
-            value=f"**:heart: {intcomma(actor.health)}** / {intcomma(actor.health_max_base)} "
-            f"_`({numsign(intcomma(actor.health_max_extra))})`_\n`{actor.health_bar}`",
-        )
+        stat = Item.STATS.get("health")
+        if stat:
+            embed.add_field(
+                name=f"{stat.name}{" `💀`" if actor.health <= 0 else ""}",
+                value=f"**{(stat.emoji or stat.alt_emoji)} {intcomma(actor.health)}** / {intcomma(actor.health_max_base)} "
+                f"_`({numsign(intcomma(actor.health_max_extra))})`_\n`{actor.health_bar}`",
+            )
 
     @staticmethod
     def add_energy_field(embed: Embed, actor: Actor):
-        embed.add_field(
-            name=f"Energy{" `⚠️`" if actor.energy <= 0 else ""}",
-            value=f"**⚡ {intcomma(actor.energy)}** / {intcomma(actor.energy_max)} "
-            f"_`({numsign(intcomma(actor.energy_max_extra))})`_\n`{actor.energy_bar}`",
-        )
+        stat = Item.STATS.get("energy")
+        if stat:
+            embed.add_field(
+                name=f"Energy{" `⚠️`" if actor.energy <= 0 else ""}",
+                value=f"**{stat.emoji or stat.alt_emoji} {intcomma(actor.energy)}** / {intcomma(actor.energy_max)} "
+                f"_`({numsign(intcomma(actor.energy_max_extra))})`_\n`{actor.energy_bar}`",
+            )
 
     @staticmethod
     def add_attack_field(embed: Embed, actor: Actor):
-        embed.add_field(
-            name="Attack",
-            value=f"**:crossed_swords: {intcomma(actor.attack)}** _`({numsign(intcomma(actor.attack_extra))})`_",
-        )
+        stat = Item.STATS.get("attack")
+        if stat:
+            embed.add_field(
+                name="Attack",
+                value=f"**{stat.emoji or stat.alt_emoji} {intcomma(actor.attack)}** _`({numsign(intcomma(actor.attack_extra))})`_",
+            )
 
     @staticmethod
     def add_defense_field(embed: Embed, actor: Actor):
-        embed.add_field(
-            name="Defense",
-            value=f"**🛡 {intcomma(actor.defense)}** _`({numsign(intcomma(actor.defense_extra))})`_",
-        )
+        stat = Item.STATS.get("defense")
+        if stat:
+            embed.add_field(
+                name="Defense",
+                value=f"**{stat.emoji or stat.alt_emoji} {intcomma(actor.defense)}** _`({numsign(intcomma(actor.defense_extra))})`_",
+            )
 
     @staticmethod
     def add_speed_field(embed: Embed, actor: Actor):
-        embed.add_field(
-            name="Speed",
-            value=f"**🥾 {intcomma(actor.speed)}** _`({numsign(intcomma(actor.speed_extra))})`_",
-        )
+        stat = Item.STATS.get("speed")
+        if stat:
+            embed.add_field(
+                name="Speed",
+                value=f"**{stat.emoji or stat.alt_emoji} {intcomma(actor.speed)}** _`({numsign(intcomma(actor.speed_extra))})`_",
+            )
 
     # ----------------------------------------------------------------------------------------------------
 

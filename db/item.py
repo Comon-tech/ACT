@@ -1,9 +1,12 @@
 from enum import Enum
+from typing import ClassVar, Self
 
 from humanize import intcomma
 from odmantic import Field, Model, Reference
 from pydantic import NonNegativeInt
 
+from db.main import ActToml, TextUnit
+from db.stat import Stat
 from utils.misc import numsign
 
 
@@ -33,8 +36,8 @@ class Item(Model):
     type: ItemType
 
     # Equippable
-    max_health_bonus: int = 0
-    max_energy_bonus: int = 0
+    health_max_bonus: int = 0
+    energy_max_bonus: int = 0
     attack_bonus: int = 0
     defense_bonus: int = 0
     speed_bonus: int = 0
@@ -42,6 +45,9 @@ class Item(Model):
     # Consumable
     health_bonus: int = 0
     energy_bonus: int = 0
+
+    # Display
+    STATS: ClassVar[dict[str, Stat]] = ActToml.load_dict(Stat)
 
     # ----------------------------------------------------------------------------------------------------
 
@@ -52,10 +58,10 @@ class Item(Model):
             stats["health"] = scale * self.health_bonus
         if self.energy_bonus:
             stats["energy"] = scale * self.energy_bonus
-        if self.max_health_bonus:
-            stats["max_health"] = scale * self.max_health_bonus
-        if self.max_energy_bonus:
-            stats["max_energy"] = scale * self.max_energy_bonus
+        if self.health_max_bonus:
+            stats["health_max"] = scale * self.health_max_bonus
+        if self.energy_max_bonus:
+            stats["energy_max"] = scale * self.energy_max_bonus
         if self.attack_bonus:
             stats["attack"] = scale * self.attack_bonus
         if self.defense_bonus:
@@ -66,18 +72,10 @@ class Item(Model):
 
     def item_stats_text(self, scale: int = 1) -> str:
         stat_texts = []
-        stat_safe_emojis = {
-            "health": "♥",
-            "max_health": "♥",
-            "energy": "⚡",
-            "max_energy": "⚡",
-            "attack": "⚔",
-            "defense": "🛡",
-            "speed": "🥾",
-        }
-        for stat_name, stat_value in self.effective_stats(scale=scale).items():
-            stat_emoji = stat_safe_emojis.get(stat_name, "")
-            stat_texts.append(f"{stat_emoji}{numsign(intcomma(stat_value))}")
+        for id, value in self.effective_stats(scale=scale).items():
+            stat = self.STATS.get(id)
+            if stat:
+                stat_texts.append(f"{stat.alt_emoji}{numsign(intcomma(value))}")
         return " ".join(stat_texts)
 
 

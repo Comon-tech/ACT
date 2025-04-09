@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta, timezone
-from typing import Any, ClassVar, Optional, Self, cast
+from typing import Any, ClassVar, Optional, cast
 
-from odmantic import Field, Model, Reference
+from odmantic import Field, Model
 from pydantic import NonNegativeFloat, NonNegativeInt
 
 from db.item import Item, ItemStack
-from db.main import ActToml
+from db.main import ActToml, TextUnit
 from db.rank import Rank
 from utils.misc import clamp, scaled_power, text_progress_bar
 
@@ -238,8 +238,8 @@ class Actor(Model):
             int,
             clamp(self.energy + (scale * item.energy_bonus), 0, self.energy_max),
         )
-        self.health_max_extra += scale * item.max_health_bonus
-        self.energy_max_extra += scale * item.max_energy_bonus
+        self.health_max_extra += scale * item.health_max_bonus
+        self.energy_max_extra += scale * item.energy_max_bonus
         self.attack_extra += scale * item.attack_bonus
         self.defense_extra += scale * item.defense_bonus
         self.speed_extra += scale * item.speed_bonus

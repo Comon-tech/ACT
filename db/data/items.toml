@@ -15,8 +15,8 @@ type = "equippable"
 attack_bonus = 1
 speed_bonus = 2 # Focus: Speed. Total +3 stats.
 defense_bonus = 0
-max_health_bonus = 0
-max_energy_bonus = 0
+health_max_bonus = 0
+energy_max_bonus = 0
 price = 4500 # 3 * 1500
 
 [short_sword]
@@ -30,8 +30,8 @@ type = "equippable"
 attack_bonus = 2
 speed_bonus = 1 # Focus: Balanced Attack/Speed. Total +3 stats.
 defense_bonus = 0
-max_health_bonus = 0
-max_energy_bonus = 0
+health_max_bonus = 0
+energy_max_bonus = 0
 price = 4500 # 3 * 1500
 
 [sword]
@@ -43,10 +43,10 @@ alt_emoji = "⚔️"
 icon_url = "https://cdn.discordapp.com/attachments/1348859490203734057/1350655934141038616/sword.png?ex=67d787dc&is=67d6365c&hm=ca9e16a8374db65f3d940a8ae7c883eda4c1891fca47fc33c46dd0abec9b2a&"
 type = "equippable"
 attack_bonus = 3
-max_health_bonus = 1 # Focus: Pure Attack + some HP for sturdiness. Total +4 stats.
+health_max_bonus = 1 # Focus: Pure Attack + some HP for sturdiness. Total +4 stats.
 speed_bonus = 0
 defense_bonus = 0
-max_energy_bonus = 0
+energy_max_bonus = 0
 price = 6000 # 4 * 1500
 
 [scimitar]
@@ -60,8 +60,8 @@ type = "equippable"
 attack_bonus = 4 # Focus: High Attack with Speed penalty. Total +4 positive, -1 negative = Net 3.
 speed_bonus = -1
 defense_bonus = 0
-max_health_bonus = 0
-max_energy_bonus = 0
+health_max_bonus = 0
+energy_max_bonus = 0
 price = 5500 # Priced slightly below pure 4-stat due to drawback, but higher than pure 3-stat for peak attack.
 
 [spear]
@@ -75,8 +75,8 @@ type = "equippable"
 attack_bonus = 2
 defense_bonus = 1 # Focus: Balanced Attack/Defense. Total +3 stats.
 speed_bonus = 0
-max_health_bonus = 0
-max_energy_bonus = 0
+health_max_bonus = 0
+energy_max_bonus = 0
 price = 4500 # 3 * 1500
 
 [axe]
@@ -88,10 +88,10 @@ alt_emoji = "🪓"
 icon_url = "https://cdn.discordapp.com/attachments/1348859490203734057/1350655921411461210/axe.png?ex=67d787d9&is=67d63659&hm=fef92de5958e86ddc6e314e6aa1fe33e54322eb6a012a93de139ca7f73dd1a1b&"
 type = "equippable"
 attack_bonus = 4
-max_health_bonus = 1 # Focus: High Attack + some HP, with Defense penalty. Total +5 positive, -1 negative = Net 4.
+health_max_bonus = 1 # Focus: High Attack + some HP, with Defense penalty. Total +5 positive, -1 negative = Net 4.
 defense_bonus = -1
 speed_bonus = 0
-max_energy_bonus = 0
+energy_max_bonus = 0
 price = 6500 # High potential stats offset by drawback.
 
 [mace]
@@ -104,9 +104,9 @@ icon_url = "https://cdn.discordapp.com/attachments/1348859490203734057/135065593
 type = "equippable"
 attack_bonus = 2
 defense_bonus = 1 # Focus: Attack/Defense + Energy for sustained fighting. Total +4 stats.
-max_energy_bonus = 1 # Represents stamina/utility against armor
+energy_max_bonus = 1 # Represents stamina/utility against armor
 speed_bonus = 0
-max_health_bonus = 0
+health_max_bonus = 0
 price = 6000 # 4 * 1500
 
 [bow]
@@ -119,9 +119,9 @@ icon_url = "https://cdn.discordapp.com/attachments/1348859490203734057/135065592
 type = "equippable"
 attack_bonus = 2
 speed_bonus = 1
-max_energy_bonus = 1 # Focus: Attack/Speed + Energy for focus/stamina. Total +4 stats.
+energy_max_bonus = 1 # Focus: Attack/Speed + Energy for focus/stamina. Total +4 stats.
 defense_bonus = 0
-max_health_bonus = 0
+health_max_bonus = 0
 price = 6000 # 4 * 1500
 
 #----------------------------------------------------------------------------------------------------
@@ -139,10 +139,10 @@ alt_emoji = "🛡️"
 icon_url = "https://cdn.discordapp.com/attachments/1348859490203734057/1350655932866232360/shield.png?ex=67d787dc&is=67d6365c&hm=2c6ca7a3edd62fdbe9006320ea435f4c0d50714d1c8776565726a82d09a94b4e&"
 type = "equippable"
 defense_bonus = 3
-max_health_bonus = 1 # Focus: High Defense + Health, with Speed penalty. Total +4 positive, -1 negative = Net 3.
+health_max_bonus = 1 # Focus: High Defense + Health, with Speed penalty. Total +4 positive, -1 negative = Net 3.
 speed_bonus = -1
 attack_bonus = 0
-max_energy_bonus = 0
+energy_max_bonus = 0
 price = 5500 # Priced slightly below pure 4-stat due to drawback.
 
 [helmet]
@@ -154,10 +154,10 @@ alt_emoji = "⛑️"
 icon_url = "https://cdn.discordapp.com/attachments/1348859490203734057/1350655920371404911/helmet.png?ex=67d787d9&is=67d63659&hm=ccebe366e9ec93bfcc9679bc6321bd47245cdada5498e86ddc6e314e6aa1fe33e54322eb6a012a93de139ca7f73dd1a1b&"
 type = "equippable"
 defense_bonus = 1 # Focus: Simple Defense. Total +1 stat.
-max_health_bonus = 0
+health_max_bonus = 0
 speed_bonus = 0
 attack_bonus = 0
-max_energy_bonus = 0
+energy_max_bonus = 0
 price = 1500 # 1 * 1500
 
 [armor] # Renaming slightly to Plate Armor for clarity vs Chainmail
@@ -168,11 +168,11 @@ emoji = "<:armor:1350705245625253888>"
 alt_emoji = "🦺"
 icon_url = "https://cdn.discordapp.com/attachments/1348859490203734057/1350655920962666580/armor.png?ex=67d787d9&is=67d63659&hm=80ab8ea8e8e86ddc6e096a6374839d409aeccde039cff87da7f8615ac51a3c8ccf&"
 type = "equippable"
-max_health_bonus = 2
+health_max_bonus = 2
 defense_bonus = 3 # Focus: High Defense/Health with Speed penalty. Total +5 positive, -1 negative = Net 4.
 speed_bonus = -1 # Added speed penalty for heavy plate
 attack_bonus = 0
-max_energy_bonus = 0
+energy_max_bonus = 0
 price = 6500 # High potential stats offset by drawback.
 
 [chainmail]
@@ -185,9 +185,9 @@ icon_url = "https://cdn.discordapp.com/attachments/1348859490203734057/135065592
 type = "equippable"
 defense_bonus = 2
 speed_bonus = 1 # Focus: Balanced Defense/Speed. No health/energy focus. Total +3 stats.
-max_health_bonus = 0
+health_max_bonus = 0
 attack_bonus = 0
-max_energy_bonus = 0
+energy_max_bonus = 0
 price = 4500 # 3 * 1500 (Changed concept from heavy to more balanced/agile medium armor)
 
 
@@ -206,9 +206,9 @@ alt_emoji = "👡"
 icon_url = "https://cdn.discordapp.com/attachments/1348859490203734057/1350655932253868114/sandals.png?ex=67d787dc&is=67d6365c&hm=2a86819852e1e282b35e62d142a40947e34f84db1e0960c274b9220aef7b312c&"
 type = "equippable"
 speed_bonus = 1
-max_energy_bonus = 1 # Focus: Speed + Energy (lightness). Total +2 stats.
+energy_max_bonus = 1 # Focus: Speed + Energy (lightness). Total +2 stats.
 defense_bonus = 0
-max_health_bonus = 0
+health_max_bonus = 0
 attack_bonus = 0
 price = 3000 # 2 * 1500
 
@@ -222,9 +222,9 @@ icon_url = "https://cdn.discordapp.com/attachments/1348859490203734057/135065593
 type = "equippable"
 speed_bonus = 2 # Focus: Pure Speed. Total +2 stats.
 defense_bonus = 0
-max_health_bonus = 0
+health_max_bonus = 0
 attack_bonus = 0
-max_energy_bonus = 0
+energy_max_bonus = 0
 price = 3000 # 2 * 1500
 
 [boots]
@@ -236,10 +236,10 @@ alt_emoji = "🥾"
 icon_url = "https://cdn.discordapp.com/attachments/1348859490203734057/1350655921793269853/boots.png?ex=67d787d9&is=67d63659&hm=0b72f2267e232100531686bc6321bd47245cdada5498e86ddc6e314e6aa1fe33e54322eb6a012a93de139ca7f73dd1a1b&"
 type = "equippable"
 defense_bonus = 1
-max_health_bonus = 1 # Focus: Defense + Health (sturdiness). Total +2 stats.
+health_max_bonus = 1 # Focus: Defense + Health (sturdiness). Total +2 stats.
 speed_bonus = 0 # Removed speed bonus to emphasize defensive nature
 attack_bonus = 0
-max_energy_bonus = 0
+energy_max_bonus = 0
 price = 3000 # 2 * 1500
 
 #----------------------------------------------------------------------------------------------------
