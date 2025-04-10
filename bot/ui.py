@@ -79,7 +79,7 @@ class TextParagraphModal(Modal, title="Proxy Text Message"):
         style=TextStyle.paragraph,  # Use paragraph style for multi-line input
         placeholder="Enter the text you want the bot to send...\nLeave blank if only sending the attachment.",
         required=False,  # Make it optional if they only attached a file
-        max_length=1900,  # Discord message limit is 2000, leave some buffer
+        max_length=2000,  # Discord message limit is 2000
     )
 
     def __init__(self, attachment: Attachment | None = None):
