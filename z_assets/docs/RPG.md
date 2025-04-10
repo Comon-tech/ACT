@@ -108,7 +108,7 @@ Here’s a quick reference for the main commands:
 
 ---
 
-### **Getting Started**
+### 🔰 **Getting Started**
 
 1.  Check your initial stats with `/profile status`.
 2.  Start chatting to gain XP and level up for gold rewards! Track this via `/profile progress`.
