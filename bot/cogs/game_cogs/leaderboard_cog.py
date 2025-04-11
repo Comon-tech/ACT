@@ -51,7 +51,8 @@ class LeaderboardCog(Cog, description="Allows players to view their data"):
             xp = naturalsize(actor.xp, binary=False, gnu=True).replace("B", "")
             gold = naturalsize(actor.gold, binary=False, gnu=True).replace("B", "")
             medal = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else ""
-            names_column_text += f"**# {(i+1)}** ― {medal} {name}\n**`🏆{rank} 🏅{level} ⏫{xp} 💰{gold}`**\n\n"
+            skull = "`💀`" if actor.health <= 0 else ""
+            names_column_text += f"**# {(i+1)}** ― {medal} {name} {skull}\n**`🏆{rank} 🏅{level} ⏫{xp} 💰{gold}`**\n\n"
             # stats_column_text += f"**`🏆{rank} 🏅{level} ⏫{xp} 💰{gold}`**\n"
 
         # Create embed
