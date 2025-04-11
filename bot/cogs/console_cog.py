@@ -1,6 +1,7 @@
 from discord import (
     Attachment,
     ClientException,
+    Emoji,
     Interaction,
     TextInput,
     TextStyle,
@@ -144,7 +145,9 @@ class ConsoleCog(Cog, description="Provide control and management interface"):
     @app_commands.default_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.command(description="Send a message on your behalf")
-    @app_commands.describe(attachment="File to send along with text")
+    @app_commands.describe(
+        attachment="File to send along with text",
+    )
     async def proxy(
         self,
         interaction: Interaction,
