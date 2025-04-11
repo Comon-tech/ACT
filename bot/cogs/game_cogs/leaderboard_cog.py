@@ -46,7 +46,7 @@ class LeaderboardCog(Cog, description="Allows players to view their data"):
             if i == 0:
                 top_actor = actor
             name = member.mention
-            rank = actor.rank
+            rank = actor.rank.name if actor.rank else "?"
             level = str(actor.level)
             xp = naturalsize(actor.xp, binary=False, gnu=True).replace("B", "")
             gold = naturalsize(actor.gold, binary=False, gnu=True).replace("B", "")

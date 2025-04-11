@@ -237,8 +237,8 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             if attack.defender_is_promoted
             else " 🔻" if attack.defender_is_demoted else ""
         )
-        attacker_rank_name = attacker_actor.rank.name if attacker_actor.rank else None
-        defender_rank_name = defender_actor.rank.name if defender_actor.rank else None
+        attacker_rank_name = attacker_actor.rank.name if attacker_actor.rank else "?"
+        defender_rank_name = defender_actor.rank.name if defender_actor.rank else "?"
         post_combat_embed.add_field(
             name=f"{attacker_actor.display_name}",
             value=f"**Gold{attacker_gold_mod_emoji}**\n"
@@ -296,18 +296,15 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
         db.save(actor)
 
         # Send private response
-        await interaction.followup.send(
-            embed=EmbedX.success(
-                f"You have recovered!\nIt cost **💰 {revive_cost}** gold."
-            )
-        )
-        response_msg = f"✨ You have recovered for **{revive_cost}** gold."
+        response_msg = f"You have recovered!\nIt cost **💰 {revive_cost}** gold."
         if actor.gold < 0:
             await interaction.followup.send(
                 embed=EmbedX.warning(
-                    f"⚠️ You are now in **debt**!\nYour current balance is **💰 {actor.gold}** gold.\n"
+                    f"{response_msg}\nYou are now in **debt**!\nYour current balance is **💰 {actor.gold}** gold.\n"
                 )
             )
+        else:
+            await interaction.followup.send(embed=EmbedX.success(response_msg))
 
         # Create & send public embed
         embed = EmbedX.info(
