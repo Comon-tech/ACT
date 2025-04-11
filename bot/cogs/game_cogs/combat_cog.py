@@ -201,21 +201,25 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             post_combat_embed.add_field(
                 name="👍 Promotion",
                 value=f"{attacker_member.mention} has been promoted to higher rank.",
+                inline=False,
             )
         elif attack.attacker_is_demoted:
             post_combat_embed.add_field(
                 name="👎 Demotion",
                 value=f"{attacker_member.mention} has been demoted to lower rank.",
+                inline=False,
             )
         if attack.defender_is_promoted:
             post_combat_embed.add_field(
                 name="👍 Promotion",
                 value=f"{defender_member.mention} has been promoted to higher rank.",
+                inline=False,
             )
         elif attack.defender_is_demoted:
             post_combat_embed.add_field(
                 name="👎 Demotion",
                 value=f"{defender_member.mention} has been demoted to lower rank.",
+                inline=False,
             )
 
         # Add Gold & Rank fields
