@@ -167,13 +167,15 @@ class Attack(Model):
                 ),
             ),
         )  # Modifier decreases if winner level > loser level, increases otherwise
-        self.gold_penalty = int(
-            min(
-                (
-                    loser.gold
-                    * (self.GOLD_PENALTY_FACTOR_BASE * self.gold_penalty_modifier)
-                ),
-                self.GOLD_PENALTY_MAX,
+        self.gold_penalty = abs(
+            int(
+                min(
+                    (
+                        loser.gold
+                        * (self.GOLD_PENALTY_FACTOR_BASE * self.gold_penalty_modifier)
+                    ),
+                    self.GOLD_PENALTY_MAX,
+                )
             )
         )
 
