@@ -1,18 +1,18 @@
-import tomllib
 from asyncio import CancelledError
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 from random import choice, randint, random
+from typing import Any
 
 from discord import (
     Attachment,
+    DMChannel,
     Embed,
     Guild,
     HTTPException,
     Interaction,
     Member,
     Message,
-    Sticker,
+    PartialMessageable,
     StickerItem,
     User,
     app_commands,
@@ -41,7 +41,8 @@ log = logger(__name__)
 # * AI Cog
 # ----------------------------------------------------------------------------------------------------
 class AiCog(Cog, description="Integrated generative AI chat bot"):
-    MAX_ACTORS = 10
+    MAX_ACTORS = 10  # last interactors
+    MAX_CHANNEL_HISTORY = 20  # last messages/participants
     COOLDOWN_TIME = 60  # 1 min
     MAX_FILE_SIZE = 2097152  # 2 MB
     REPLY_DELAY_RANGE = (1, 5)  # 1 sec - 5 sec
@@ -96,11 +97,16 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.default_permissions(administrator=True)
     @app_commands.command(description="Incite AI chat bot to interact on its own")
+    @app_commands.rename(
+        content="prompt", attachment="file", replyable_message_id="message"
+    )
     async def incite(
         self,
         interaction: Interaction,
-        prompt: str | None = None,
+        content: str | None = None,
+        attachment: Attachment | None = None,
         member: Member | None = None,
+        replyable_message_id: str | None = None,
     ):
         # Deny bot-self & DM & non-messageable channel
         if (
@@ -114,19 +120,32 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
             )
             return
 
-        # Prepare prompt
-        text_prompt, _ = await self.create_prompt(
-            user=member,
-            guild=interaction.guild,
-            preface=(
-                f"Begin natural talk{f" w/ {member.mention} " if member else " "}that feels like ur own initiative."
-                f"Absolutely avoid references to instructions, prompts, or being told to message them."
-                f"{ f'follow this prompt:"{prompt.strip()}".' if prompt else "" }"
-            ),
-        )
-
         # Defer response to prevent timeout
         await interaction.response.defer(ephemeral=True)
+
+        # Handle reply functionality
+        replyable_message = None
+        if replyable_message_id:
+            # Extract message ID from link or use directly if it's an ID
+            if "/" in replyable_message_id:  # Assuming it's a message link
+                message_id = int(replyable_message_id.split("/")[-1])
+            else:  # Assuming it's a raw message ID
+                message_id = int(replyable_message_id)
+            replyable_message = await interaction.channel.fetch_message(message_id)
+
+        # Prepare prompt
+        text_prompt, _ = await self.create_prompt(
+            message=replyable_message,
+            user=member,
+            channel=interaction.channel,
+            guild=interaction.guild,
+            preface=(
+                f"{self.create_prompt_intiative_preface(member)}"
+                f"{ f'follow this prompt:"{content.strip()}".' if content else "" }\n"
+                f"{await self.create_prompt_reply_preface(replyable_message)}"
+            ),
+        )
+        file_prompt = await self.get_attachment_file(attachment) if attachment else None
 
         # Perform prompt & send reply
         async with interaction.channel.typing():
@@ -143,10 +162,14 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
                     interaction.guild.id,
                     history=self.load_guild_history(interaction.guild),
                 )
-                await interaction.channel.send(
-                    await self.ai.prompt(text=text_prompt)
+                messagge_content = (
+                    await self.ai.prompt(text=text_prompt, file=file_prompt)
                     or f"👋 {member.mention if member else "👋"}"
                 )
+                if replyable_message:
+                    await replyable_message.reply(messagge_content)
+                else:
+                    await interaction.channel.send(messagge_content)
             except Exception as e:
                 await interaction.followup.send(
                     embed=EmbedX.error(str(e)), ephemeral=True
@@ -167,9 +190,8 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
             return
 
         # Ignore mentionless message or attempt auto-reply
-        message_is_mentionless = self.bot.user not in message.mentions
         reply_delay = 0
-        if message_is_mentionless:
+        if self.bot.user not in message.mentions:
             if random() > self.AUTO_REPLY_CHANCE:
                 return
             else:
@@ -181,27 +203,9 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
                 )
         reply_delay = randint(self.REPLY_DELAY_RANGE[0], self.REPLY_DELAY_RANGE[1])
 
-        # Check if message is a reply to someone else
-        preface = ""
-        if (
-            message_is_mentionless
-            and message.reference
-            and message.reference.message_id
-        ):
-            referenced_message = await message.channel.fetch_message(
-                message.reference.message_id
-            )
-            if referenced_message.author != self.bot.user:
-                preface = (
-                    f"[Context: {message.author.name} was replying to {referenced_message.author.name} "
-                    f"who said: '{referenced_message.content}']"
-                )
-            else:
-                preface = "[Context: Replying to ur previous message] "
-
         # Create prompt
         text_prompt, file_prompt = await self.create_prompt(
-            message=message, preface=preface
+            message=message, preface=await self.create_prompt_reply_preface(message)
         )
 
         # Prepare delayed reply task
@@ -339,7 +343,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
 
         #  Get the last messages in the channel
         messages: list[Message] = []
-        async for message in channel.history(limit=20):
+        async for message in channel.history(limit=self.MAX_CHANNEL_HISTORY):
             if not message.author.bot:  # Filter out bot messages
                 messages.append(message)
         if not messages:
@@ -354,10 +358,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
 
         # Prepare prompt
         text_prompt, file_prompt = await self.create_prompt(
-            preface=(
-                f"Begin natural talk{f" w/ {member.mention} " if member else " "}that feels like ur own initiative."
-                f"Absolutely avoid references to instructions, prompts, or being told to message them."
-            ),
+            preface=self.create_prompt_intiative_preface(member),
             message=message,
         )
 
@@ -414,16 +415,18 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         self,
         message: Message | None = None,
         user: User | Member | None = None,
+        channel: Messageable | None = None,
         guild: Guild | None = None,
         preface="",
     ) -> tuple[str, ActFile | None]:
         """
         Create prompt with flexible input options.
-            - Text prompt structure: '{**preface**}\\n{**message.author.name**}:{file_action_desc}{**message.content**}\\n{csv}'
+            - Text prompt structure: '{**preface**}\\n{**message.author.name**}:{file_action_desc}{**message.content**}\\n{**csv**}'
 
         Args:
             message: Message object (contains **message.author**, and **message.guild**).
             user: User or Member object (prioritized over **message.author**).
+            channel: Channel object (prioritized over **message.channel**).
             guild: Guild object (prioritized over **member.guild** and **message.guild**).
             preface: Text to prepend to the prompt
 
@@ -483,11 +486,86 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
             self.save_dm_actor(user)
 
         # Load saved guild members to prompt for context
+        if message:
+            channel = message.channel
+        if channel:
+            channel_name = (
+                channel.name if hasattr(channel, "name") else "DM"  # type: ignore
+            )
+            channel_messages_csv, channel_members_csv = (
+                await self.get_channel_history_csv(channel)
+            )
+            text += f"\nCurrent channel:{channel_name}"
+            text += f"\nMembers with recent messages in current channel:\n{channel_members_csv}"
+            text += f"\nLatest {self.MAX_CHANNEL_HISTORY} messages in current channel:{channel_messages_csv}\n"
         if guild:
-            text += f"\n{self.load_actors_csv(guild)}"
+            text += f"\nMembers u talked with recently:\n{self.load_actors_csv(guild)}"
 
         # Return prompt components as tuple
         return (text, file)
+
+    # ----------------------------------------------------------------------------------------------------
+
+    def create_prompt_intiative_preface(self, member: Member | User | None) -> str:
+        return (
+            f"Begin natural talk{f" w/ {member.mention} " if member else " "}that feels like ur own initiative."
+            f"Absolutely avoid references to instructions, prompts, or being told to message them."
+        )
+
+    async def create_prompt_reply_preface(self, message: Message | None) -> str:
+        """Check if message is a reply to someone else and generate a context prompt preface."""
+        preface = ""
+        if (
+            message
+            and self.bot.user not in message.mentions
+            and message.reference
+            and message.reference.message_id
+        ):
+            referenced_message = await message.channel.fetch_message(
+                message.reference.message_id
+            )
+            if referenced_message.author != self.bot.user:
+                preface += (
+                    f"[Context: {message.author.name} was replying to {referenced_message.author.name} "
+                    f"who said: '{referenced_message.content}']"
+                )
+            else:
+                preface += "[Context: You were replying to ur own previous message] "
+        return f"\nReply to this member:\n{preface}" if message else ""
+
+    # ----------------------------------------------------------------------------------------------------
+
+    async def get_channel_history(
+        self, channel: Messageable
+    ) -> tuple[list[Message], list[Member]]:
+        """Fetch (messages, members) of latest messages in given channel and unique members who sent those messages."""
+        messages = [
+            msg async for msg in channel.history(limit=self.MAX_CHANNEL_HISTORY)
+        ]
+        members = list(
+            {msg.author for msg in messages if isinstance(msg.author, Member)}
+        )
+        return messages, members
+
+    async def get_channel_history_csv(self, channel: Messageable) -> tuple[str, str]:
+        """Fetch (messages, members) CSV of latest messages in given channel and unique members who sent those messages."""
+        messages, members = await self.get_channel_history(channel)
+        messages_data = [
+            {
+                "author_id": str(msg.author.id),
+                "message_content": msg.content.replace("\n", " "),
+            }
+            for msg in messages
+        ]
+        members_data = [
+            {
+                "id": str(member.id),
+                "name": member.name,
+                "display_name": member.display_name,
+            }
+            for member in members
+        ]
+        return text_csv(messages_data, "|"), text_csv(members_data, "|")
 
     # ----------------------------------------------------------------------------------------------------
 
@@ -534,7 +612,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         dm_actor.ai_interacted_at = datetime.now(UTC)
         main_db.save(dm_actor)
 
-    def load_actors(self, guild: Guild):
+    def load_actors(self, guild: Guild) -> list[dict[str, Any]]:
         actors = self.bot.get_db(guild).find(
             Actor, sort=query.desc(Actor.ai_interacted_at), limit=self.MAX_ACTORS
         )
@@ -543,7 +621,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
             for actor in actors
         ]
 
-    def load_actors_csv(self, guild: Guild):
+    def load_actors_csv(self, guild: Guild) -> str:
         actors = self.load_actors(guild)
         return f"{text_csv(actors, "|")}" if actors else ""
 
