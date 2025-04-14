@@ -1,5 +1,7 @@
+from typing import Any
+
 from discord import Color, Embed, Guild, Interaction, Member, User, app_commands
-from discord.ext.commands import Cog
+from discord.ext.commands import GroupCog
 from humanize import intcomma, naturalsize, naturaltime
 from odmantic import query
 
@@ -11,15 +13,49 @@ from db.actor import Actor
 # ----------------------------------------------------------------------------------------------------
 # * Leaderboard Cog
 # ----------------------------------------------------------------------------------------------------
-class LeaderboardCog(Cog, description="Allows players to view their data"):
+class LeaderboardCog(
+    GroupCog, group_name="leaderboard", description="Allows players to view their data"
+):
     def __init__(self, bot: ActBot):
         self.bot = bot
 
     # ----------------------------------------------------------------------------------------------------
 
     @app_commands.guild_only()
-    @app_commands.command(description="View top members")
-    async def leaderboard(self, interaction: Interaction):
+    @app_commands.command(description="View top members sorted by level")
+    async def level(self, interaction: Interaction):
+        embed = EmbedX.info(emoji="🏅", title="Level Leaderboard")
+        await self.show_leaderboard(
+            interaction=interaction,
+            embed=embed,
+            sort=(
+                query.desc(Actor.level),
+                query.desc(Actor.xp),
+                query.desc(Actor.gold),
+            ),
+        )
+
+    @app_commands.guild_only()
+    @app_commands.command(description="View top members sorted by rank")
+    async def rank(self, interaction: Interaction):
+        embed = EmbedX.info(emoji="🏆", title="Rank Leaderboard")
+        await self.show_leaderboard(
+            interaction=interaction,
+            embed=embed,
+            sort=(
+                query.desc(Actor.elo),
+                query.desc(Actor.gold),
+            ),
+        )
+
+    # ----------------------------------------------------------------------------------------------------
+
+    async def show_leaderboard(
+        self,
+        interaction: Interaction,
+        embed: Embed,
+        sort: Any,
+    ):
         # Check guild
         guild = interaction.guild
         if not guild:
@@ -31,7 +67,7 @@ class LeaderboardCog(Cog, description="Allows players to view their data"):
 
         # Get top actors
         await interaction.response.defer()
-        actors_members = await self.bot.get_actors_members(guild)
+        actors_members = await self.bot.get_actors_members(guild=guild, sort=sort)
         if not actors_members:
             await interaction.followup.send(
                 embed=EmbedX.warning(description="No actors found.")
@@ -39,7 +75,7 @@ class LeaderboardCog(Cog, description="Allows players to view their data"):
             return
 
         # Create board table
-        top_actor: Actor
+        # top_actor: Actor
         names_column_text = ""
         stats_column_text = ""
         for i, (actor, member) in enumerate(actors_members):
@@ -55,8 +91,7 @@ class LeaderboardCog(Cog, description="Allows players to view their data"):
             names_column_text += f"**# {(i+1)}** ― {medal} {name} {skull}\n**`🏆{rank} 🏅{level} ⏫{xp} 💰{gold}`**\n\n"
             # stats_column_text += f"**`🏆{rank} 🏅{level} ⏫{xp} 💰{gold}`**\n"
 
-        # Create embed
-        embed = EmbedX.info(emoji="🏆", title="Leaderboard")
+        # Send embed
         # try:
         #     top_member = guild.get_member(top_actor.id) or await guild.fetch_member(
         #         top_actor.id

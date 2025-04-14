@@ -1,4 +1,5 @@
 import pathlib
+from typing import Any
 
 from colorama import Fore
 from discord import Guild, Interaction, Member, Message, Object, User, app_commands
@@ -211,7 +212,14 @@ class ActBot(Bot):
     # ----------------------------------------------------------------------------------------------------
 
     async def get_actors_members(
-        self, guild: Guild, limit: int = 10, sort_by_top=True
+        self,
+        guild: Guild,
+        limit: int = 10,
+        sort: Any | None = (
+            query.desc(Actor.level),
+            query.desc(Actor.xp),
+            query.desc(Actor.gold),
+        ),
     ) -> list[tuple[Actor, Member]]:
         """Get actors with their associated members."""
         db = self.get_db(guild)
@@ -219,15 +227,10 @@ class ActBot(Bot):
             db.find(
                 Actor,
                 Actor.is_member == True,
-                sort=(
-                    query.desc(Actor.elo),
-                    query.desc(Actor.level),
-                    query.desc(Actor.xp),
-                    query.desc(Actor.gold),
-                ),
+                sort=sort,
                 limit=limit,
             )
-            if sort_by_top
+            if sort
             else db.find(Actor, limit=limit)
         )
         actors_members: list[tuple[Actor, Member]] = []
