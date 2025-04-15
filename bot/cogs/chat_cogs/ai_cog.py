@@ -153,8 +153,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
                 await interaction.followup.send(
                     embed=EmbedX.success(
                         title="Incentive",
-                        description=f"{self.bot.user} has been incited to talk {f"with {member.mention}" if member else ""}."
-                        f"\n\n**Prompt:**```{text_prompt}```",
+                        description=f"{self.bot.user} has been incited to talk {f"with {member.mention}" if member else ""}.",
                     ),
                     ephemeral=True,
                 )
