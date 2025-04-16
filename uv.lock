@@ -3,7 +3,7 @@ requires-python = ">=3.13"
 
 [[package]]
 name = "act"
-version = "0.0.1"
+version = "0.1"
 source = { virtual = "." }
 dependencies = [
     { name = "alt-profanity-check" },

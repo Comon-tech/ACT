@@ -36,16 +36,16 @@ class Attack(Model):
     gold_penalty: NonNegativeInt = 0
 
     ENERGY_COST: ClassVar[NonNegativeInt] = 1
-    GOLD_REWARD_BASE: ClassVar[NonNegativeInt] = 40  # Win base gold reward
+    GOLD_REWARD_BASE: ClassVar[NonNegativeInt] = 100  # Win base gold reward
     GOLD_REWARD_PER_LEVEL: ClassVar[NonNegativeInt] = (
-        8  # Extra gold per level (of loser)
+        20  # Extra gold per level (of loser)
     )
     LEVEL_DIFF_SCALE: ClassVar[NonNegativeFloat] = 15.0  # level diff impact
     GOLD_REWARD_ADVANTAGE_REDUCTION: ClassVar[NonNegativeFloat] = (
-        0.7  # Max reduction (e.g., winner gets 1.0 - 0.7 = 30% reward if much higher)
+        0.0  # Max reduction (e.g., winner gets 1.0 - 0.0 = 100% reward if much higher)
     )
     GOLD_REWARD_UNDERDOG_BONUS: ClassVar[NonNegativeFloat] = (
-        0.6  # Max bonus (e.g., winner gets 1.0 + 0.6 = 160% reward if much lower)
+        1.0  # Max bonus (e.g., winner gets 1.0 + 1.0 = 200% reward if much lower)
     )
     GOLD_PENALTY_ADVANTAGE_REDUCTION: ClassVar[NonNegativeFloat] = (
         0.5  # Max reduction (loser pays 1.0 - 0.5 = 50% penalty % if winner much higher)
@@ -57,7 +57,7 @@ class Attack(Model):
         0.025  # Loser base loss: 2.5% of their current gold (slightly lowered base)
     )
     GOLD_PENALTY_MAX: ClassVar[NonNegativeInt] = (
-        400  # Max gold loser can lose in one duel
+        500  # Max gold loser can lose in one duel
     )
     REVIVE_COST_BASE: ClassVar[NonNegativeInt] = 75
     REVIVE_COST_PER_LEVEL: ClassVar[NonNegativeInt] = 15
