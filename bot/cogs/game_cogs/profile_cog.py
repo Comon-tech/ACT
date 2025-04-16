@@ -1,10 +1,8 @@
-from enum import Enum
 from typing import Callable
 
-from discord import Color, Embed, Guild, Interaction, Member, User, app_commands
-from discord.ext.commands import Cog, GroupCog
-from humanize import intcomma, naturalsize, naturaltime
-from odmantic import query
+from discord import Embed, Interaction, Member, User, app_commands
+from discord.ext.commands import GroupCog
+from humanize import intcomma, naturaltime
 
 from bot.main import ActBot
 from bot.ui import EmbedX

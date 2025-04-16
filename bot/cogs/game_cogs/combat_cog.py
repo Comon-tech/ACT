@@ -21,7 +21,7 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
         self.bot = bot
 
     @app_commands.guild_only()
-    @app_commands.command(description="Attack a member")
+    @app_commands.command(description="Engage in battle with another member")
     async def attack(self, interaction: Interaction, member: Member):
         # Check guild & member
         if not interaction.guild or not isinstance(interaction.user, Member):

@@ -1,7 +1,17 @@
 [project]
 name = "ACT"
-version = "0.0.1"
-description = "Assistant of Comon Tech"
+version = "0.1"
+description = """
+**A**ssistant of **C**omon **T**ech.
+Your AI Companion for Social Chat & RPG Adventures.
+📧 Support Server: [Discord.gg/fpqMWc2zbr](https://discord.gg/fpqMWc2zbr)
+📜 Source Code: [Github.com/Comon-tech/ACT](https://github.com/Comon-tech/ACT)
+
+© **Comon** 2025
+📩 Server: [Discord.gg/eqSU46Y7xW](https://discord.gg/eqSU46Y7xW)
+🌐 Website: [Comon.tech](https://www.comon.tech)
+📜 Github: [Github.com/Comon-tech](https://github.com/Comon-tech)
+"""
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
