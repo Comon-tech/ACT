@@ -38,8 +38,10 @@ class MemberRouter(APIRouter):
                     if guild.id == guild_id:
                         return [
                             member_dict(actor, member)
-                            for actor, member in await bot.get_actors_members(
-                                guild, limit, top
+                            for actor, member in await (
+                                bot.get_actors_members(guild, limit)
+                                if top
+                                else bot.get_actors_members(guild, limit, None)
                             )
                         ]
                     raise HTTPException(
