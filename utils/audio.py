@@ -1,5 +1,7 @@
 import asyncio
 import functools
+import os
+from pathlib import Path
 from typing import Any
 
 import yt_dlp
@@ -34,6 +36,9 @@ class YouTubeSource(MediaSource):
 
     YTDL = yt_dlp.YoutubeDL(
         {
+            "cookiefile": str(
+                Path(__file__).parent.parent / "db" / "data" / "cookies.txt"
+            ),
             "format": "bestaudio[acodec=opus]/bestaudio[acodec=aac]/bestaudio/best",  # Prefer opus or aac for Discord
             "noplaylist": False,  # Allow playlists
             "quiet": True,  # Suppress console output
