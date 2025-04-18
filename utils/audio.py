@@ -34,11 +34,19 @@ class MediaSource:
 class YouTubeSource(MediaSource):
     """Audio source for YouTube videos and playlists."""
 
+    YTDL_COOKIES_PATH = Path(__file__).parent.parent / "db" / "data" / "cookies.txt"
+
+    if not os.path.exists(YTDL_COOKIES_PATH):
+        log.error(
+            f"Cookies file not found at '{YTDL_COOKIES_PATH}'. "
+            "Some videos may require authentication. "
+            "Place cookies.txt in './db/data/cookies.txt' or set YTDL_COOKIES_PATH. "
+            "See https://github.com/yt-dlp/yt-dlp#authentication-with-cookies."
+        )
+
     YTDL = yt_dlp.YoutubeDL(
         {
-            "cookiefile": str(
-                Path(__file__).parent.parent / "db" / "data" / "cookies.txt"
-            ),
+            "cookiefile": str(YTDL_COOKIES_PATH),
             "format": "bestaudio[acodec=opus]/bestaudio[acodec=aac]/bestaudio/best",  # Prefer opus or aac for Discord
             "noplaylist": False,  # Allow playlists
             "quiet": True,  # Suppress console output

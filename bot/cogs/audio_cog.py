@@ -156,8 +156,8 @@ class AudioCog(
         if not voice_client:
             return
 
-        player = self.get_audio_player(interaction.guild)
-        if not player.playing:
+        audio_player = self.get_audio_player(interaction.guild)
+        if not audio_player.playing:
             await interaction.response.send_message(
                 "Nothing is playing!", ephemeral=True
             )
@@ -168,32 +168,32 @@ class AudioCog(
 
     @app_commands.command(name="queue", description="Show the current queue")
     async def queue(self, interaction: Interaction):
-        player = self.get_audio_player(interaction.guild)
-        if not player.queue and not player.current:
+        audio_player = self.get_audio_player(interaction.guild)
+        if not audio_player.queue and not audio_player.current:
             await interaction.response.send_message("Queue is empty!", ephemeral=True)
             return
 
         embed = EmbedX.info(title="Queue", color=discord.Color.blue())
-        if player.current:
+        if audio_player.current:
             # Truncate current track title to avoid exceeding field limits
             current_title = (
-                player.current.title[:200] + "..."
-                if len(player.current.title) > 200
-                else player.current.title
+                audio_player.current.title[:200] + "..."
+                if len(audio_player.current.title) > 200
+                else audio_player.current.title
             )
             embed.add_field(
                 name="Now Playing",
-                value=f"{current_title} ({player.current.url})",
+                value=f"{current_title} ({audio_player.current.url})",
                 inline=False,
             )
 
-        if player.queue:
+        if audio_player.queue:
             # Limit tracks per field to avoid exceeding 1024 chars
             max_field_length = 1024
             max_tracks_per_field = 5  # Adjust based on typical title lengths
             queue_chunks = [
-                player.queue[i : i + max_tracks_per_field]
-                for i in range(0, len(player.queue), max_tracks_per_field)
+                audio_player.queue[i : i + max_tracks_per_field]
+                for i in range(0, len(audio_player.queue), max_tracks_per_field)
             ]
 
             for i, chunk in enumerate(
@@ -221,9 +221,9 @@ class AudioCog(
                         inline=False,
                     )
 
-            if len(player.queue) > max_tracks_per_field * 2:
+            if len(audio_player.queue) > max_tracks_per_field * 2:
                 embed.set_footer(
-                    text=f"And {len(player.queue) - max_tracks_per_field * 2} more tracks..."
+                    text=f"And {len(audio_player.queue) - max_tracks_per_field * 2} more tracks..."
                 )
 
         await interaction.response.send_message(embed=embed)
