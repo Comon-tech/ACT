@@ -6,7 +6,7 @@ from discord.ext.commands import Cog
 from humanize import intcomma, intword
 
 from bot.main import ActBot
-from bot.ui import EmbedX
+from bot.ui.embed import EmbedX
 from db.actor import Actor
 from db.item import Item, ItemStack, ItemType
 from db.main import ActToml
@@ -33,7 +33,9 @@ class InventoryCog(Cog, description="Acquire and use items"):
     # ----------------------------------------------------------------------------------------------------
 
     @app_commands.guild_only()
-    @app_commands.command(description="View purchasable items")
+    @app_commands.command(
+        description="View purchasable items", extras={"category": "Inventory"}
+    )
     @app_commands.rename(item_id="item")
     @app_commands.describe(item_id="Choose item you wish to view")
     async def store(self, interaction: Interaction, item_id: str = ""):
@@ -77,7 +79,9 @@ class InventoryCog(Cog, description="Acquire and use items"):
 
     @app_commands.guild_only()
     @app_commands.guild_only()
-    @app_commands.command(description="Purchase an item")
+    @app_commands.command(
+        description="Purchase an item", extras={"category": "Inventory"}
+    )
     @app_commands.rename(item_id="item")
     @app_commands.describe(
         item_id="Choose item you wish to buy", quantity="Amount of items to buy"
@@ -165,7 +169,9 @@ class InventoryCog(Cog, description="Acquire and use items"):
             await interaction.channel.send(embed=embed)
 
     @app_commands.guild_only()
-    @app_commands.command(description="Equip an equippable item")
+    @app_commands.command(
+        description="Equip an equippable item", extras={"category": "Inventory"}
+    )
     @app_commands.rename(item_id="item")
     async def equip(self, interaction: Interaction, item_id: str):
         # Check guild & member
@@ -245,7 +251,9 @@ class InventoryCog(Cog, description="Acquire and use items"):
             )
 
     @app_commands.guild_only()
-    @app_commands.command(description="Unequip an equipped item")
+    @app_commands.command(
+        description="Unequip an equipped item", extras={"category": "Inventory"}
+    )
     @app_commands.rename(item_id="item")
     async def unequip(self, interaction: Interaction, item_id: str):
         # Check guild & member
@@ -314,7 +322,9 @@ class InventoryCog(Cog, description="Acquire and use items"):
             )
 
     @app_commands.guild_only()
-    @app_commands.command(description="Use a consumable item")
+    @app_commands.command(
+        description="Use a consumable item", extras={"category": "Inventory"}
+    )
     @app_commands.rename(item_id="item")
     async def use(self, interaction: Interaction, item_id: str):
         # Check guild & member

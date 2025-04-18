@@ -6,7 +6,7 @@ from discord import Guild, Interaction, Member, Message, Object, User, app_comma
 from discord.ext.commands import Bot, Cog
 from odmantic import SyncEngine, query
 
-from bot.ui import EmbedX
+from bot.ui.embed import EmbedX
 from db.actor import Actor, DmActor
 from db.main import ActDb, DbRef
 from utils.log import logger

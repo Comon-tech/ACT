@@ -5,7 +5,7 @@ from discord.ext.commands import GroupCog
 from humanize import intcomma, naturaltime
 
 from bot.main import ActBot
-from bot.ui import EmbedX
+from bot.ui.embed import EmbedX
 from db.actor import Actor
 from db.item import Item, ItemStack
 from utils.misc import numsign

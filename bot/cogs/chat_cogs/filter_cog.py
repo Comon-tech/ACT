@@ -7,7 +7,7 @@ from humanize import naturaltime, precisedelta
 from profanity_check import predict_prob
 
 from bot.main import ActBot
-from bot.ui import EmbedX
+from bot.ui.embed import EmbedX
 from db.actor import Actor
 from utils.log import logger
 

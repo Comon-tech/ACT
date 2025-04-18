@@ -1,20 +1,9 @@
-from discord import (
-    Attachment,
-    ClientException,
-    Emoji,
-    Interaction,
-    TextInput,
-    TextStyle,
-    VoiceChannel,
-    app_commands,
-)
-from discord.abc import Messageable
+from discord import Attachment, ClientException, Interaction, VoiceChannel, app_commands
 from discord.ext.commands import Cog
-from discord.ui import Modal
-from ui import TextParagraphModal
 
 from bot.main import ActBot
-from bot.ui import EmbedX
+from bot.ui.embed import EmbedX
+from bot.ui.modal import TextParagraphModal
 from db.actor import Actor
 from db.main import DbRef
 from utils.log import logger
@@ -34,7 +23,9 @@ class ConsoleCog(Cog, description="Provide control and management interface"):
     # ----------------------------------------------------------------------------------------------------
     @app_commands.default_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    @app_commands.command(description="Patch database records")
+    @app_commands.command(
+        description="Patch database records", extras={"category": "Console"}
+    )
     async def migrate_data(self, interaction: Interaction):
         return await interaction.response.send_message(
             embed=EmbedX.info("No patch currently.")
@@ -64,7 +55,9 @@ class ConsoleCog(Cog, description="Provide control and management interface"):
     # ----------------------------------------------------------------------------------------------------
     @app_commands.default_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    @app_commands.command(description="Synchronize commands")
+    @app_commands.command(
+        description="Synchronize commands", extras={"category": "Console"}
+    )
     async def sync(self, interaction: Interaction, global_sync: bool = True):
         await interaction.response.defer(ephemeral=True)
         count = await self.bot.sync_commands(None if global_sync else interaction.guild)
@@ -84,6 +77,7 @@ class ConsoleCog(Cog, description="Provide control and management interface"):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.command(
         description="Update actors with fresh data from associated guild members",
+        extras={"category": "Console"},
     )
     async def sync_actors(self, interaction: Interaction):
         await interaction.response.defer(ephemeral=True)
@@ -122,7 +116,9 @@ class ConsoleCog(Cog, description="Provide control and management interface"):
     # ----------------------------------------------------------------------------------------------------
     @app_commands.default_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    @app_commands.command(description="Add bot to a voice channel")
+    @app_commands.command(
+        description="Add bot to a voice channel", extras={"category": "Console"}
+    )
     async def join(self, interaction: Interaction, channel: VoiceChannel):
         try:
             await channel.connect()
@@ -144,7 +140,9 @@ class ConsoleCog(Cog, description="Provide control and management interface"):
     # ----------------------------------------------------------------------------------------------------
     @app_commands.default_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    @app_commands.command(description="Send a message on your behalf")
+    @app_commands.command(
+        description="Send a message on your behalf", extras={"category": "Console"}
+    )
     @app_commands.describe(
         attachment="File to send along with text",
     )

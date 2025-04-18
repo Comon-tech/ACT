@@ -5,7 +5,7 @@ from discord import Member, Message, Role, utils
 from discord.ext.commands import Cog
 
 from bot.main import ActBot
-from bot.ui import EmbedX
+from bot.ui.embed import EmbedX
 from db.actor import Actor
 from utils.xp import Experience
 

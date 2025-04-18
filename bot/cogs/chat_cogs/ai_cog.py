@@ -5,14 +5,12 @@ from typing import Any
 
 from discord import (
     Attachment,
-    DMChannel,
     Embed,
     Guild,
     HTTPException,
     Interaction,
     Member,
     Message,
-    PartialMessageable,
     StickerItem,
     User,
     app_commands,
@@ -24,7 +22,7 @@ from humanize import naturaldelta
 from odmantic import query
 
 from bot.main import ActBot
-from bot.ui import EmbedX
+from bot.ui.embed import EmbedX
 from db.actor import Actor, DmActor
 from db.main import ActToml, DbRef
 from db.persona import Persona
@@ -69,7 +67,9 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
     # ----------------------------------------------------------------------------------------------------
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.default_permissions(administrator=True)
-    @app_commands.command(description="Clear AI chat bot session")
+    @app_commands.command(
+        description="Clear AI chat bot session", extras={"category": "AI"}
+    )
     @app_commands.describe(id="AI chat sessions ID")
     async def reset(self, interaction: Interaction, id: int | None = None):
         await interaction.response.defer(ephemeral=True)
@@ -96,7 +96,10 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
     @app_commands.guild_only()
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.default_permissions(administrator=True)
-    @app_commands.command(description="Incite AI chat bot to interact on its own")
+    @app_commands.command(
+        description="Incite AI chat bot to interact on its own",
+        extras={"category": "AI"},
+    )
     @app_commands.rename(
         content="prompt", attachment="file", replyable_message_id="message"
     )

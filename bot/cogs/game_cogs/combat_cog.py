@@ -1,13 +1,10 @@
-from datetime import datetime, timedelta, timezone
-
 from discord import Interaction, Member, User, app_commands
 from discord.abc import Messageable
 from discord.ext.commands import Cog
 from humanize import intcomma, naturaldelta, precisedelta
-from odmantic import ObjectId
 
 from bot.main import ActBot
-from bot.ui import EmbedX
+from bot.ui.embed import EmbedX
 from db.actor import Actor
 from db.attack import Attack
 from utils.misc import numsign
@@ -21,7 +18,10 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
         self.bot = bot
 
     @app_commands.guild_only()
-    @app_commands.command(description="Engage in battle with another member")
+    @app_commands.command(
+        description="Engage in battle with another member",
+        extras={"category": "Combat"},
+    )
     async def attack(self, interaction: Interaction, member: Member):
         # Check guild & member
         if not interaction.guild or not isinstance(interaction.user, Member):
@@ -263,7 +263,9 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
             await interaction.channel.send(embed=post_combat_embed)
 
     @app_commands.guild_only()
-    @app_commands.command(description="Pay a cost to recover from defeat.")
+    @app_commands.command(
+        description="Pay a cost to recover from defeat.", extras={"category": "Combat"}
+    )
     async def revive(self, interaction: Interaction):
         # Check guild & member
         member = interaction.user
@@ -328,7 +330,10 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
     @app_commands.guild_only()
     @app_commands.default_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    @app_commands.command(description="Recover your or a member's health and energy")
+    @app_commands.command(
+        description="Recover your or a member's health and energy",
+        extras={"category": "Combat"},
+    )
     async def recover(
         self,
         interaction: Interaction,
@@ -364,7 +369,8 @@ class CombatCog(Cog, description="Allow players to engage in battles"):
     @app_commands.default_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.command(
-        description="Initialize stats and unequip items for all actors"
+        description="Initialize stats and unequip items for all actors",
+        extras={"category": "Combat"},
     )
     async def init_stats(self, interaction: Interaction):
         # Check guild

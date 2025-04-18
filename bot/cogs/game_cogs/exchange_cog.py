@@ -5,7 +5,7 @@ from discord.abc import Messageable
 from discord.ext.commands import Cog
 
 from bot.main import ActBot
-from bot.ui import EmbedX
+from bot.ui.embed import EmbedX
 from db.actor import Actor
 from utils.misc import numsign
 
@@ -21,7 +21,9 @@ class ExchangeCog(Cog, description="Allow players to exchange gold and goods"):
     # * Donate
     # ----------------------------------------------------------------------------------------------------
     @app_commands.guild_only()
-    @app_commands.command(description="Give your gold to another member")
+    @app_commands.command(
+        description="Give your gold to another member", extras={"category": "Exchange"}
+    )
     @app_commands.describe(
         member="Recipient member to send gold to", gold="Amount of gold to donate"
     )

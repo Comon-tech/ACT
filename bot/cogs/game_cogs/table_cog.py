@@ -4,7 +4,7 @@ from humanize import intcomma
 from tabulate import tabulate
 
 from bot.main import ActBot
-from bot.ui import EmbedX
+from bot.ui.embed import EmbedX
 from db.actor import Actor
 from db.item import Item
 from db.main import ActToml
