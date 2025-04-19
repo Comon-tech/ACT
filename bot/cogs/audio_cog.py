@@ -36,7 +36,7 @@ class DiscordAudioPlayer:
         self.current_track: AudioTrack | None = None
         self.voice_client: VoiceClient | None = None
         self.playing: bool = False
-        self.loop_queue: bool = True  # Configurable queue looping
+        self.loop_queue: bool = False  # Configurable queue looping
         self.loop = get_event_loop()
 
     def add_tracks(self, queue: AudioQueue) -> None:
@@ -269,13 +269,8 @@ class AudioCog(
             value=f"**🔊 [{track.title}]({track.url})**\n👤 {track.artist}\n⏲ {precisedelta(timedelta(seconds=track.duration or 0))}",
         )
         embed.add_field(
-            name=f"Source",
+            name="Source",
             value=f"**💿 {queue.title}**\n🎙 {queue.source_name.capitalize()} {queue.source_type.capitalize()}\n🎼 {len(queue.tracks)} tracks",
-        )
-        embed.add_field(
-            name="Looping",
-            value="Enabled" if player.loop_queue else "Disabled",
-            inline=False,
         )
         await interaction.followup.send(embed=embed, ephemeral=True)
 
@@ -357,11 +352,7 @@ class AudioCog(
         else:
             embed.add_field(
                 name="Queue",
-                value=(
-                    "No more tracks in queue."
-                    if not player.loop_queue
-                    else "Queue will loop."
-                ),
+                value="No more tracks in queue.",
                 inline=False,
             )
         await interaction.followup.send(embed=embed, ephemeral=True)
@@ -417,22 +408,18 @@ class AudioCog(
         else:
             embed.add_field(
                 name="Up Next",
-                value=(
-                    "No tracks queued." if not player.loop_queue else "Queue will loop."
-                ),
+                value="No tracks queued.",
                 inline=False,
             )
 
-        embed.add_field(
-            name="Looping",
-            value="Enabled" if player.loop_queue else "Disabled",
-            inline=False,
-        )
         await interaction.followup.send(embed=embed, ephemeral=True)
         log.info(f"[{interaction.guild.name}] Displayed audio queue.")
 
-    @app_commands.command(name="loop", description="Toggle queue looping")
-    async def loop(self, interaction: Interaction):
+    @app_commands.command(
+        name="settings", description="View or configure audio settings"
+    )
+    @app_commands.describe(loop="Enable or disable queue looping")
+    async def settings(self, interaction: Interaction, loop: bool | None = None):
         await interaction.response.defer(ephemeral=True)
 
         # Ensure user is in a guild
@@ -444,18 +431,30 @@ class AudioCog(
             return
 
         player = self.get_player(interaction.guild)
-        player.loop_queue = not player.loop_queue  # Toggle looping
 
-        embed = EmbedX.info(emoji="🔁", title="Queue Looping")
-        embed.add_field(
-            name="Status",
-            value=f"Queue looping {'enabled' if player.loop_queue else 'disabled'}.",
-            inline=False,
-        )
+        if loop is not None:
+            # Update loop setting
+            player.loop_queue = loop
+            embed = EmbedX.info(emoji="⚙️", title="Audio Settings Updated")
+            embed.add_field(
+                name="Queue Looping",
+                value=f"{'Enabled' if player.loop_queue else 'Disabled'}",
+                inline=False,
+            )
+            log.info(
+                f"[{interaction.guild.name}] Queue looping set to {player.loop_queue}."
+            )
+        else:
+            # Display current settings
+            embed = EmbedX.info(emoji="⚙️", title="Audio Settings")
+            embed.add_field(
+                name="Queue Looping",
+                value=f"{'Enabled' if player.loop_queue else 'Disabled'}",
+                inline=False,
+            )
+            log.info(f"[{interaction.guild.name}] Displayed audio settings.")
+
         await interaction.followup.send(embed=embed, ephemeral=True)
-        log.info(
-            f"[{interaction.guild.name}] Queue looping set to {player.loop_queue}."
-        )
 
 
 # ----------------------------------------------------------------------------------------------------
