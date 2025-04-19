@@ -1,20 +1,23 @@
-import asyncio
+from asyncio import get_event_loop
+from datetime import timedelta
+from typing import Optional
 
 from discord import (
-    AudioSource,
     FFmpegPCMAudio,
     Guild,
     Interaction,
     Member,
+    VoiceChannel,
     VoiceClient,
+    VoiceState,
     app_commands,
-    utils,
 )
 from discord.ext.commands import GroupCog
+from humanize import naturaldelta
 
 from bot.main import ActBot
 from bot.ui.embed import EmbedX
-from utils.audio import MediaSource, YouTubeSource
+from utils.audio import AudioManager, AudioQueue, AudioTrack
 from utils.log import logger
 
 log = logger(__name__)
@@ -24,48 +27,108 @@ log = logger(__name__)
 # * Audio Player
 # ----------------------------------------------------------------------------------------------------
 class DiscordAudioPlayer:
+    """Interface for Managing audio playback for discord guild."""
+
     def __init__(self, guild: Guild):
         self.guild = guild
-        self.queue: list[MediaSource] = []
-        self.current: MediaSource | None = None
-        self.playing = False
-        self.loop = asyncio.get_event_loop()
+        self.playback_queue: list[AudioTrack] = []
+        self.current_track: AudioTrack | None = None
+        self.voice_client: VoiceClient | None = None
+        self.playing: bool = False
+        self.loop = get_event_loop()
 
-    async def play_next(self, voice_client: VoiceClient) -> bool:
-        if not self.queue or not voice_client:
+    def add_tracks(self, queue: AudioQueue) -> None:
+        """Add tracks from an AudioQueue to the playback queue."""
+        self.playback_queue.extend(queue.tracks)
+        log.debug(f"[{self.guild.name}] Added {len(queue.tracks)} tracks to queue.")
+
+    async def play_next(self) -> bool:
+        """Play the next track in the queue. Get True if played."""
+        if not self.playback_queue or not self.voice_client:
             self.playing = False
-            await voice_client.disconnect()
+            self.current_track = None
+            if self.voice_client and self.voice_client.is_connected():
+                await self.disconnect()
             return False
 
-        self.current = self.queue.pop(0)
+        self.current_track = self.playback_queue.pop(0)
         self.playing = True
 
+        if not self.current_track:  # Type checker safety
+            self.playing = False
+            return False
+
         try:
-            source = FFmpegPCMAudio(
-                self.current.url,
-                before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
+            self.voice_client.play(
+                source=FFmpegPCMAudio(
+                    source=self.current_track.stream_url or self.current_track.url,
+                    before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
+                ),
+                after=lambda e: self.loop.create_task(self._after_playback(e)),
             )
-            voice_client.play(
-                source,
-                after=lambda e: self.loop.create_task(self.play_next(voice_client)),
+            log.info(
+                f"[{self.guild.name}] 🔊 Playing track '{self.current_track.title}'."
             )
             return True
         except Exception as e:
-            log.error(f"Error playing audio: {e}")
+            log.exception(
+                f"[{self.guild.name}] Failed to play track '{self.current_track.title}'."
+            )
+            self.current_track = None
             self.playing = False
-            await self.play_next(voice_client)
+            return await self.play_next()
+
+    async def _after_playback(self, e: Exception | None):
+        """Handle playback completion or errors."""
+        if e:
+            log.exception(f"[{self.guild.name}] Playback error: {e}")
+        await self.play_next()
+
+    async def connect(self, channel) -> bool:
+        """Connect to a voice channel."""
+        if not isinstance(channel, VoiceChannel):
+            log.warning(
+                f"[{self.guild.name}] Cannot connect to {channel.name}: Stage channels are not supported."
+            )
+            return False
+        try:
+            perms = channel.permissions_for(self.guild.me)
+            if not perms.connect or not perms.speak:
+                log.warning(
+                    f"[{self.guild.name}] Missing connect or speak permissions in {channel.name}."
+                )
+                return False
+
+            if self.voice_client and self.voice_client.channel != channel:
+                await self.voice_client.disconnect()
+                self.voice_client = None
+            if not self.voice_client:
+                self.voice_client = await channel.connect()
+                log.info(
+                    f"[{self.guild.name}][{channel.name}] Connected to voice channel."
+                )
+            return True
+        except Exception as e:
+            log.exception(
+                f"[{self.guild.name}][{channel.name}] Failed to connect to voice channel: {e}"
+            )
             return False
 
-    def add_to_queue(self, sources: list[MediaSource]):
-        self.queue.extend(sources)
+    async def disconnect(self) -> None:
+        """Disconnect from the voice channel."""
+        if self.voice_client:
+            await self.voice_client.disconnect()
+            self.voice_client = None
+            log.info(f"[{self.guild.name}] Disconnected from voice channel.")
 
-    def clear_queue(self):
-        self.queue.clear()
-
-    def stop(self):
-        self.clear_queue()
+    def stop(self) -> None:
+        """Stop playback and clear the queue."""
+        self.playback_queue.clear()
+        self.current_track = None
         self.playing = False
-        self.current = None
+        if self.voice_client and self.voice_client.is_playing():
+            self.voice_client.stop()
+        log.info(f"[{self.guild.name}] Playback stopped and queue cleared.")
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -74,183 +137,264 @@ class DiscordAudioPlayer:
 class AudioCog(
     GroupCog, group_name="audio", description="Provide audio playback interface."
 ):
-
     def __init__(self, bot: ActBot):
         self.bot = bot
-        self.queue: list[AudioSource] = []
-        self.current: AudioSource | None = None
-        self.playing = False
-        self.loop = asyncio.get_event_loop()
-        self.audio_players: dict[int, DiscordAudioPlayer] = {}
-        self.source_providers = {
-            "youtube": YouTubeSource,
-            # Add more providers here (e.g., 'soundcloud': SoundCloudSource)
-        }
+        self.audio_manager = AudioManager()
+        self.audio_players: dict[int, DiscordAudioPlayer] = {}  # guild_id: AudioPlayer
 
-    # ----------------------------------------------------------------------------------------------------
-
-    @GroupCog.listener()
-    async def on_voice_state_update(self, member: Member, before, after):
-        if member == self.bot.user and not after.channel:  # Bot was disconnected
-            audio_player = self.get_audio_player(member.guild)
-            if audio_player:
-                audio_player.stop()
-                self.audio_players.pop(member.guild.id, None)
-
-    # ----------------------------------------------------------------------------------------------------
-
-    @app_commands.command(
-        name="play", description="Play audio from a YouTube URL or search query"
-    )
-    @app_commands.describe(query="YouTube URL or search query")
-    async def play(self, interaction: Interaction, query: str):
-        await interaction.response.defer(ephemeral=True)
-
-        voice_client = await self.ensure_voice(interaction)
-        if not voice_client:
-            return
-
-        audio_player = self.get_audio_player(interaction.guild)
-        if not audio_player:
-            return
-
-        # Determine source provider (default to YouTube)
-        source_provider = self.source_providers["youtube"]
-
-        # Extract sources
-        sources = await source_provider.from_url(query, loop=self.bot.loop)
-
-        if not sources:
-            await interaction.followup.send("No audio sources found!", ephemeral=True)
-            return
-
-        audio_player.add_to_queue(sources)
-
-        if not audio_player.playing:
-            await audio_player.play_next(voice_client)
-
-        await interaction.followup.send(
-            f"Added {len(sources)} track(s) to queue. Now playing: {audio_player.current.title}"
-            if audio_player.current
-            else f"Added {len(sources)} track(s) to queue."
-        )
-
-    @app_commands.command(name="stop", description="Stop playback and clear queue")
-    async def stop(self, interaction: Interaction):
-        voice_client = await self.ensure_voice(interaction)
-        if not voice_client:
-            return
-
-        audio_player = self.get_audio_player(interaction.guild)
-        if audio_player:
-            audio_player.stop()
-
-        if voice_client.is_connected():
-            await voice_client.disconnect()
-
-        await interaction.response.send_message("Stopped playback and cleared queue.")
-
-    @app_commands.command(name="skip", description="Skip the current track")
-    async def skip(self, interaction: Interaction):
-        voice_client = await self.ensure_voice(interaction)
-        if not voice_client:
-            return
-
-        audio_player = self.get_audio_player(interaction.guild)
-        if not audio_player.playing:
-            await interaction.response.send_message(
-                "Nothing is playing!", ephemeral=True
-            )
-            return
-
-        voice_client.stop()
-        await interaction.response.send_message("Skipped current track.")
-
-    @app_commands.command(name="queue", description="Show the current queue")
-    async def queue(self, interaction: Interaction):
-        audio_player = self.get_audio_player(interaction.guild)
-        if not audio_player.queue and not audio_player.current:
-            await interaction.response.send_message("Queue is empty!", ephemeral=True)
-            return
-
-        embed = EmbedX.info(title="Queue", color=discord.Color.blue())
-        if audio_player.current:
-            # Truncate current track title to avoid exceeding field limits
-            current_title = (
-                audio_player.current.title[:200] + "..."
-                if len(audio_player.current.title) > 200
-                else audio_player.current.title
-            )
-            embed.add_field(
-                name="Now Playing",
-                value=f"{current_title} ({audio_player.current.url})",
-                inline=False,
-            )
-
-        if audio_player.queue:
-            # Limit tracks per field to avoid exceeding 1024 chars
-            max_field_length = 1024
-            max_tracks_per_field = 5  # Adjust based on typical title lengths
-            queue_chunks = [
-                audio_player.queue[i : i + max_tracks_per_field]
-                for i in range(0, len(audio_player.queue), max_tracks_per_field)
-            ]
-
-            for i, chunk in enumerate(
-                queue_chunks[:2]
-            ):  # Limit to 2 fields to stay within embed limits
-                queue_str = ""
-                for j, source in enumerate(chunk):
-                    # Truncate title to avoid exceeding field limits
-                    title = (
-                        source.title[:100] + "..."
-                        if len(source.title) > 100
-                        else source.title
-                    )
-                    entry = (
-                        f"{i * max_tracks_per_field + j + 1}. {title} ({source.url})\n"
-                    )
-                    if len(queue_str) + len(entry) > max_field_length:
-                        break
-                    queue_str += entry
-
-                if queue_str:
-                    embed.add_field(
-                        name=f"Up Next (Part {i + 1})" if i > 0 else "Up Next",
-                        value=queue_str,
-                        inline=False,
-                    )
-
-            if len(audio_player.queue) > max_tracks_per_field * 2:
-                embed.set_footer(
-                    text=f"And {len(audio_player.queue) - max_tracks_per_field * 2} more tracks..."
-                )
-
-        await interaction.response.send_message(embed=embed)
-
-    # ----------------------------------------------------------------------------------------------------
-
-    def get_audio_player(self, guild: Guild | None) -> DiscordAudioPlayer | None:
-        if not guild:
-            return None
+    def get_player(self, guild: Guild) -> DiscordAudioPlayer:
+        """Get or create an AudioPlayer for the guild."""
         if guild.id not in self.audio_players:
             self.audio_players[guild.id] = DiscordAudioPlayer(guild)
         return self.audio_players[guild.id]
 
-    async def ensure_voice(self, interaction: Interaction) -> VoiceClient | None:
-        if not interaction.user.voice:
+    # ----------------------------------------------------------------------------------------------------
+    @GroupCog.listener()
+    async def on_voice_state_update(
+        self, member: Member, before: VoiceState, after: VoiceState
+    ):
+        log.info(
+            f"[🔊 {before.channel} -> {after.channel}] 👤{member.name} voice state changed."
+        )
+        if member == self.bot.user and not after.channel:  # Bot was disconnected
+            player = self.audio_players.get(member.guild.id)
+            if player:
+                player.stop()
+                await player.disconnect()
+                self.audio_players.pop(member.guild.id, None)
+                log.info(
+                    f"[{member.guild.name}] Cleared audio player due to disconnection."
+                )
+
+    # ----------------------------------------------------------------------------------------------------
+    @app_commands.command(
+        name="play", description="Play audio from a URL or search query"
+    )
+    @app_commands.describe(
+        query="URL or search query", vc_channel="Voice channel to join (optional)"
+    )
+    async def play(
+        self,
+        interaction: Interaction,
+        query: str,
+        vc_channel: Optional[VoiceChannel] = None,
+    ):
+        await interaction.response.defer(ephemeral=True)
+
+        # Ensure user is in a guild
+        if not interaction.guild:
             await interaction.followup.send(
-                "You need to be in a voice channel!", ephemeral=True
+                embed=EmbedX.warning("This command can only be used in a server."),
+                ephemeral=True,
             )
-            return None
+            return
 
-        voice_channel = interaction.user.voice.channel
-        voice_client = utils.get(self.bot.voice_clients, guild=interaction.guild)
+        # Get player's voice channel
+        player = self.get_player(interaction.guild)
+        user = interaction.user
 
-        if voice_client and voice_client.is_connected():
-            if voice_client.channel != voice_channel:
-                await voice_client.move_to(voice_channel)
+        # Determine voice channel
+        target_channel = None
+        if vc_channel:
+            target_channel = vc_channel
+        elif isinstance(user, Member) and user.voice and user.voice.channel:
+            target_channel = user.voice.channel
+        else:  # Pick a random voice channel
+            voice_channels = [
+                ch
+                for ch in interaction.guild.voice_channels
+                if ch.permissions_for(interaction.guild.me).connect
+                and isinstance(ch, VoiceChannel)
+            ]
+            if voice_channels:
+                target_channel = voice_channels[0]
+            else:
+                await interaction.followup.send(
+                    embed=EmbedX.error("No accessible voice channels found."),
+                    ephemeral=True,
+                )
+                return
+
+        # Connect to voice channel
+        if not await player.connect(target_channel):
+            await interaction.followup.send(
+                embed=EmbedX.error(f"Failed to connect to {target_channel.name}."),
+                ephemeral=True,
+            )
+            return
+
+        # Fetch audio data
+        queue = await self.audio_manager.get_audio(query)
+        if not queue:
+            await interaction.followup.send(
+                embed=EmbedX.error("Could not find audio for the provided query."),
+                ephemeral=True,
+            )
+            return
+
+        # Add tracks to queue & Start playback if not already playing
+        player.add_tracks(queue)
+        if not player.playing:
+            if not await player.play_next():
+                await interaction.followup.send(
+                    embed=EmbedX.error("Could not play audio."),
+                    ephemeral=True,
+                )
+                return
+
+        # Send feedback
+        embed = EmbedX.info(emoji="🎵", title="Audio Playback")
+        track = queue.tracks[0]
+        embed.add_field(
+            name="Playing",
+            value=f"**🔊 [{track.title}]({track.url})**\n👤 {track.artist}\n⏲ {naturaldelta(timedelta(seconds=track.duration or 0))}",
+        )
+        embed.add_field(
+            name=f"Source",
+            value=f"**💿 {queue.title}**\n🎙 {queue.source_name.capitalize()} {queue.source_type.capitalize()}\n🎼 {len(queue.tracks)} tracks",
+        )
+        await interaction.followup.send(embed=embed, ephemeral=True)
+
+    @app_commands.command(name="stop", description="Stop playback and clear queue")
+    async def stop(self, interaction: Interaction):
+        await interaction.response.defer(ephemeral=True)
+
+        # Ensure user is in a guild
+        if not interaction.guild:
+            await interaction.followup.send(
+                embed=EmbedX.warning("This command can only be used in a server."),
+                ephemeral=True,
+            )
+            return
+
+        player = self.get_player(interaction.guild)
+        if not player.voice_client or not player.voice_client.is_connected():
+            await interaction.followup.send(
+                embed=EmbedX.warning("Not connected to a voice channel."),
+                ephemeral=True,
+            )
+            return
+
+        player.stop()
+        await player.disconnect()
+
+        embed = EmbedX.info(emoji="🛑", title="Playback Stopped")
+        embed.add_field(
+            name="Status",
+            value="Playback stopped and queue cleared.",
+            inline=False,
+        )
+        await interaction.followup.send(embed=embed, ephemeral=True)
+        log.info(f"[{interaction.guild.name}] Stopped playback via command.")
+
+    @app_commands.command(name="skip", description="Skip the current track")
+    async def skip(self, interaction: Interaction):
+        await interaction.response.defer(ephemeral=True)
+
+        # Ensure user is in a guild
+        if not interaction.guild:
+            await interaction.followup.send(
+                embed=EmbedX.warning("This command can only be used in a server."),
+                ephemeral=True,
+            )
+            return
+
+        player = self.get_player(interaction.guild)
+        if not player.voice_client or not player.voice_client.is_connected():
+            await interaction.followup.send(
+                embed=EmbedX.warning("Not connected to a voice channel."),
+                ephemeral=True,
+            )
+            return
+
+        if not player.playing or not player.current_track:
+            await interaction.followup.send(
+                embed=EmbedX.warning("Nothing is playing."),
+                ephemeral=True,
+            )
+            return
+
+        skipped_track = player.current_track
+        player.voice_client.stop()  # Stop current playback, triggering _after_playback
+
+        embed = EmbedX.info(emoji="⏭", title="Track Skipped")
+        embed.add_field(
+            name="Skipped",
+            value=f"**[{skipped_track.title}]({skipped_track.url})**",
+            inline=False,
+        )
+        if player.playback_queue:
+            next_track = player.playback_queue[0]
+            embed.add_field(
+                name="Next Up",
+                value=f"**[{next_track.title}]({next_track.url})**\n⏲ {naturaldelta(timedelta(seconds=next_track.duration or 0))}",
+                inline=False,
+            )
         else:
-            voice_client = await voice_channel.connect()
+            embed.add_field(
+                name="Queue",
+                value="No more tracks in queue.",
+                inline=False,
+            )
+        await interaction.followup.send(embed=embed, ephemeral=True)
+        log.info(f"[{interaction.guild.name}] Skipped track '{skipped_track.title}'.")
 
-        return voice_client
+    @app_commands.command(name="queue", description="Show the current queue")
+    async def queue(self, interaction: Interaction):
+        await interaction.response.defer(ephemeral=True)
+
+        # Ensure user is in a guild
+        if not interaction.guild:
+            await interaction.followup.send(
+                embed=EmbedX.warning("This command can only be used in a server."),
+                ephemeral=True,
+            )
+            return
+
+        player = self.get_player(interaction.guild)
+        if not player.current_track and not player.playback_queue:
+            await interaction.followup.send(
+                embed=EmbedX.warning("The queue is empty."),
+                ephemeral=True,
+            )
+            return
+
+        embed = EmbedX.info(emoji="🎶", title="Audio Queue")
+        if player.current_track:
+            embed.add_field(
+                name="Now Playing",
+                value=(
+                    f"**🔊 [{player.current_track.title}]({player.current_track.url})**\n"
+                    f"👤 {player.current_track.artist or 'Unknown'}\n"
+                    f"⏲ {naturaldelta(timedelta(seconds=player.current_track.duration or 0))}"
+                ),
+                inline=False,
+            )
+
+        if player.playback_queue:
+            # Limit to 10 tracks to avoid embed field limits
+            queue_str = ""
+            for i, track in enumerate(player.playback_queue[:10], 1):
+                queue_str += (
+                    f"{i}. **[{track.title}]({track.url})** "
+                    f"({naturaldelta(timedelta(seconds=track.duration or 0))})\n"
+                )
+            if len(player.playback_queue) > 10:
+                queue_str += f"...and {len(player.playback_queue) - 10} more tracks."
+            embed.add_field(
+                name=f"Up Next ({len(player.playback_queue)} tracks)",
+                value=queue_str or "No tracks queued.",
+                inline=False,
+            )
+        else:
+            embed.add_field(
+                name="Up Next",
+                value="No tracks queued.",
+                inline=False,
+            )
+
+        await interaction.followup.send(embed=embed, ephemeral=True)
+        log.info(f"[{interaction.guild.name}] Displayed audio queue.")
+
+
+# ----------------------------------------------------------------------------------------------------

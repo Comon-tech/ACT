@@ -1,7 +1,7 @@
 import os
 from io import BytesIO
 from mimetypes import guess_file_type
-from typing import Self
+from typing import Any, Self
 from urllib.parse import urlparse
 
 from filetype import guess_mime
@@ -28,14 +28,14 @@ class ActFile(BaseModel):
     _default_name = "__unnamed__.bin"
     _type_category = ""
 
-    def model_post_init(self, __context):
+    def model_post_init(self, context: Any):
         if not self.mime_type:
             self.mime_type = (
                 guess_mime(self.data) or guess_file_type(self.name or "")[0]
             )
         if not self.name:
             self.name = self._default_name
-        return super().model_post_init(__context)
+        return super().model_post_init(context)
 
     def __str__(self):
         return f"{self.name}, {self.major_type} ({self.mime_type or "unknown"}), {self.size} bytes"

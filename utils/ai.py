@@ -1,3 +1,5 @@
+from typing import Any
+
 from google.genai import Client
 from google.genai.chats import AsyncChat
 from google.genai.types import Content, GenerateContentConfig, Part
@@ -29,10 +31,10 @@ class ActAi(BaseModel):
     _chats: dict[int | str, AsyncChat | None] = {}
     _current_chat_id: int = 0
 
-    def model_post_init(self, __context):
+    def model_post_init(self, context: Any):
         self._client = Client(api_key=self.api_key)
         self._config = GenerateContentConfig(system_instruction=self.instructions)
-        return super().model_post_init(__context)
+        return super().model_post_init(context)
 
     # ----------------------------------------------------------------------------------------------------
 
