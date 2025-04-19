@@ -13,7 +13,7 @@ from discord import (
     app_commands,
 )
 from discord.ext.commands import GroupCog
-from humanize import naturaldelta
+from humanize import precisedelta
 
 from bot.main import ActBot
 from bot.ui.embed import EmbedX
@@ -32,9 +32,11 @@ class DiscordAudioPlayer:
     def __init__(self, guild: Guild):
         self.guild = guild
         self.playback_queue: list[AudioTrack] = []
+        self.played_tracks: list[AudioTrack] = []  # Tracks that have been played
         self.current_track: AudioTrack | None = None
         self.voice_client: VoiceClient | None = None
         self.playing: bool = False
+        self.loop_queue: bool = True  # Configurable queue looping
         self.loop = get_event_loop()
 
     def add_tracks(self, queue: AudioQueue) -> None:
@@ -44,12 +46,25 @@ class DiscordAudioPlayer:
 
     async def play_next(self) -> bool:
         """Play the next track in the queue. Get True if played."""
-        if not self.playback_queue or not self.voice_client:
+        if not self.voice_client or (
+            not self.playback_queue and not (self.loop_queue and self.played_tracks)
+        ):
             self.playing = False
             self.current_track = None
             if self.voice_client and self.voice_client.is_connected():
                 await self.disconnect()
+                log.info(
+                    f"[{self.guild.name}] Disconnected due to empty queue (looping: {self.loop_queue})."
+                )
             return False
+
+        # If queue is empty but looping is enabled, repopulate from played tracks
+        if not self.playback_queue and self.loop_queue:
+            self.playback_queue.extend(self.played_tracks)
+            self.played_tracks.clear()
+            log.debug(
+                f"[{self.guild.name}] Looped {len(self.playback_queue)} tracks back to queue."
+            )
 
         self.current_track = self.playback_queue.pop(0)
         self.playing = True
@@ -57,6 +72,9 @@ class DiscordAudioPlayer:
         if not self.current_track:  # Type checker safety
             self.playing = False
             return False
+
+        # Store the current track in played_tracks for potential looping
+        self.played_tracks.append(self.current_track)
 
         try:
             self.voice_client.play(
@@ -124,11 +142,12 @@ class DiscordAudioPlayer:
     def stop(self) -> None:
         """Stop playback and clear the queue."""
         self.playback_queue.clear()
+        self.played_tracks.clear()  # Clear played tracks to prevent looping
         self.current_track = None
         self.playing = False
         if self.voice_client and self.voice_client.is_playing():
             self.voice_client.stop()
-        log.info(f"[{self.guild.name}] Playback stopped and queue cleared.")
+        log.info(f"[{self.guild.name}] Playback stopped and queues cleared.")
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -247,11 +266,16 @@ class AudioCog(
         track = queue.tracks[0]
         embed.add_field(
             name="Added",
-            value=f"**🔊 [{track.title}]({track.url})**\n👤 {track.artist}\n⏲ {naturaldelta(timedelta(seconds=track.duration or 0))}",
+            value=f"**🔊 [{track.title}]({track.url})**\n👤 {track.artist}\n⏲ {precisedelta(timedelta(seconds=track.duration or 0))}",
         )
         embed.add_field(
             name=f"Source",
             value=f"**💿 {queue.title}**\n🎙 {queue.source_name.capitalize()} {queue.source_type.capitalize()}\n🎼 {len(queue.tracks)} tracks",
+        )
+        embed.add_field(
+            name="Looping",
+            value="Enabled" if player.loop_queue else "Disabled",
+            inline=False,
         )
         await interaction.followup.send(embed=embed, ephemeral=True)
 
@@ -327,13 +351,17 @@ class AudioCog(
             next_track = player.playback_queue[0]
             embed.add_field(
                 name="Next Up",
-                value=f"**🔊 {next_track.title}**\n👤 {next_track.artist}\n⏲ {naturaldelta(timedelta(seconds=next_track.duration or 0))}",
+                value=f"**🔊 {next_track.title}**\n👤 {next_track.artist}\n⏲ {precisedelta(timedelta(seconds=next_track.duration or 0))}",
                 inline=False,
             )
         else:
             embed.add_field(
                 name="Queue",
-                value="No more tracks in queue.",
+                value=(
+                    "No more tracks in queue."
+                    if not player.loop_queue
+                    else "Queue will loop."
+                ),
                 inline=False,
             )
         await interaction.followup.send(embed=embed, ephemeral=True)
@@ -366,7 +394,7 @@ class AudioCog(
                 value=(
                     f"**🔊 [{player.current_track.title}]({player.current_track.url})**\n"
                     f"👤 {player.current_track.artist or 'Unknown'}\n"
-                    f"⏲ {naturaldelta(timedelta(seconds=player.current_track.duration or 0))}"
+                    f"⏲ {precisedelta(timedelta(seconds=player.current_track.duration or 0))}"
                 ),
                 inline=False,
             )
@@ -377,7 +405,7 @@ class AudioCog(
             for i, track in enumerate(player.playback_queue[:10], 1):
                 queue_str += (
                     f"{i}. **{track.title}** "
-                    f"({naturaldelta(timedelta(seconds=track.duration or 0))})\n"
+                    f"({precisedelta(timedelta(seconds=track.duration or 0))})\n"
                 )
             if len(player.playback_queue) > 10:
                 queue_str += f"...and {len(player.playback_queue) - 10} more tracks."
@@ -389,12 +417,45 @@ class AudioCog(
         else:
             embed.add_field(
                 name="Up Next",
-                value="No tracks queued.",
+                value=(
+                    "No tracks queued." if not player.loop_queue else "Queue will loop."
+                ),
                 inline=False,
             )
 
+        embed.add_field(
+            name="Looping",
+            value="Enabled" if player.loop_queue else "Disabled",
+            inline=False,
+        )
         await interaction.followup.send(embed=embed, ephemeral=True)
         log.info(f"[{interaction.guild.name}] Displayed audio queue.")
+
+    @app_commands.command(name="loop", description="Toggle queue looping")
+    async def loop(self, interaction: Interaction):
+        await interaction.response.defer(ephemeral=True)
+
+        # Ensure user is in a guild
+        if not interaction.guild:
+            await interaction.followup.send(
+                embed=EmbedX.warning("This command can only be used in a server."),
+                ephemeral=True,
+            )
+            return
+
+        player = self.get_player(interaction.guild)
+        player.loop_queue = not player.loop_queue  # Toggle looping
+
+        embed = EmbedX.info(emoji="🔁", title="Queue Looping")
+        embed.add_field(
+            name="Status",
+            value=f"Queue looping {'enabled' if player.loop_queue else 'disabled'}.",
+            inline=False,
+        )
+        await interaction.followup.send(embed=embed, ephemeral=True)
+        log.info(
+            f"[{interaction.guild.name}] Queue looping set to {player.loop_queue}."
+        )
 
 
 # ----------------------------------------------------------------------------------------------------
