@@ -246,7 +246,7 @@ class AudioCog(
         embed = EmbedX.info(emoji="🎵", title="Audio Playback")
         track = queue.tracks[0]
         embed.add_field(
-            name="Playing",
+            name="Added",
             value=f"**🔊 [{track.title}]({track.url})**\n👤 {track.artist}\n⏲ {naturaldelta(timedelta(seconds=track.duration or 0))}",
         )
         embed.add_field(
@@ -317,17 +317,17 @@ class AudioCog(
         skipped_track = player.current_track
         player.voice_client.stop()  # Stop current playback, triggering _after_playback
 
-        embed = EmbedX.info(emoji="⏭", title="Track Skipped")
+        embed = EmbedX.info(emoji="⏭", title="Audio Skip")
         embed.add_field(
             name="Skipped",
-            value=f"**[{skipped_track.title}]({skipped_track.url})**",
+            value=f"**🔈 {skipped_track.title}**",
             inline=False,
         )
         if player.playback_queue:
             next_track = player.playback_queue[0]
             embed.add_field(
                 name="Next Up",
-                value=f"**[{next_track.title}]({next_track.url})**\n⏲ {naturaldelta(timedelta(seconds=next_track.duration or 0))}",
+                value=f"**🔊 {next_track.title}**\n👤 {next_track.artist}\n⏲ {naturaldelta(timedelta(seconds=next_track.duration or 0))}",
                 inline=False,
             )
         else:
@@ -376,7 +376,7 @@ class AudioCog(
             queue_str = ""
             for i, track in enumerate(player.playback_queue[:10], 1):
                 queue_str += (
-                    f"{i}. **[{track.title}]({track.url})** "
+                    f"{i}. **{track.title}** "
                     f"({naturaldelta(timedelta(seconds=track.duration or 0))})\n"
                 )
             if len(player.playback_queue) > 10:
