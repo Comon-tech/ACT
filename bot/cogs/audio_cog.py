@@ -36,7 +36,7 @@ class DiscordAudioPlayer:
         self.current_track: AudioTrack | None = None
         self.voice_client: VoiceClient | None = None
         self.playing: bool = False
-        self.loop_queue: bool = False  # Configurable queue looping
+        self.loop_queue: bool = True  # Configurable queue looping
         self.loop = get_event_loop()
 
     def add_tracks(self, queue: AudioQueue) -> None:
@@ -266,11 +266,15 @@ class AudioCog(
         track = queue.tracks[0]
         embed.add_field(
             name="Added",
-            value=f"**🔊 [{track.title}]({track.url})**\n👤 {track.artist}\n⏲ {precisedelta(timedelta(seconds=track.duration or 0))}",
+            value=f"> **🔊 [{track.title}]({track.url})**\n"
+            f"> 👤 {track.artist}\n"
+            f"> ⏲ {precisedelta(timedelta(seconds=track.duration or 0))}",
         )
         embed.add_field(
             name="Source",
-            value=f"**💿 {queue.title}**\n🎙 {queue.source_name.capitalize()} {queue.source_type.capitalize()}\n🎼 {len(queue.tracks)} tracks",
+            value=f"> **💿 {queue.title}**\n"
+            f"> 🎙 {queue.source_name.capitalize()} {queue.source_type.capitalize()}\n"
+            f"> 🎼 {len(queue.tracks)} tracks",
         )
         await interaction.followup.send(embed=embed, ephemeral=True)
 
@@ -297,7 +301,7 @@ class AudioCog(
         player.stop()
         await player.disconnect()
 
-        embed = EmbedX.info(emoji="🛑", title="Playback Stopped")
+        embed = EmbedX.info(emoji="🛑", title="Audio Stop")
         embed.add_field(
             name="Status",
             value="Playback stopped and queue cleared.",
@@ -339,20 +343,20 @@ class AudioCog(
         embed = EmbedX.info(emoji="⏭", title="Audio Skip")
         embed.add_field(
             name="Skipped",
-            value=f"**🔈 {skipped_track.title}**",
+            value=f"> **🔈 {skipped_track.title}**",
             inline=False,
         )
         if player.playback_queue:
             next_track = player.playback_queue[0]
             embed.add_field(
                 name="Next Up",
-                value=f"**🔊 {next_track.title}**\n👤 {next_track.artist}\n⏲ {precisedelta(timedelta(seconds=next_track.duration or 0))}",
+                value=f"> **🔊 {next_track.title}**\n👤 {next_track.artist}\n> ⏲ {precisedelta(timedelta(seconds=next_track.duration or 0))}",
                 inline=False,
             )
         else:
             embed.add_field(
                 name="Queue",
-                value="No more tracks in queue.",
+                value="> No more tracks in queue.",
                 inline=False,
             )
         await interaction.followup.send(embed=embed, ephemeral=True)
@@ -383,9 +387,9 @@ class AudioCog(
             embed.add_field(
                 name="Now Playing",
                 value=(
-                    f"**🔊 [{player.current_track.title}]({player.current_track.url})**\n"
-                    f"👤 {player.current_track.artist or 'Unknown'}\n"
-                    f"⏲ {precisedelta(timedelta(seconds=player.current_track.duration or 0))}"
+                    f"> **🔊 [{player.current_track.title}]({player.current_track.url})**\n"
+                    f"> 👤 {player.current_track.artist or 'Unknown'}\n"
+                    f"> ⏲ {precisedelta(timedelta(seconds=player.current_track.duration or 0))}"
                 ),
                 inline=False,
             )
@@ -395,20 +399,20 @@ class AudioCog(
             queue_str = ""
             for i, track in enumerate(player.playback_queue[:10], 1):
                 queue_str += (
-                    f"{i}. **{track.title}** "
+                    f"> {i}. **{track.title}** "
                     f"({precisedelta(timedelta(seconds=track.duration or 0))})\n"
                 )
             if len(player.playback_queue) > 10:
                 queue_str += f"...and {len(player.playback_queue) - 10} more tracks."
             embed.add_field(
                 name=f"Up Next ({len(player.playback_queue)} tracks)",
-                value=queue_str or "No tracks queued.",
+                value=queue_str or "> No tracks queued.",
                 inline=False,
             )
         else:
             embed.add_field(
                 name="Up Next",
-                value="No tracks queued.",
+                value="> No tracks queued.",
                 inline=False,
             )
 
@@ -435,10 +439,10 @@ class AudioCog(
         if loop is not None:
             # Update loop setting
             player.loop_queue = loop
-            embed = EmbedX.info(emoji="⚙️", title="Audio Settings Updated")
+            embed = EmbedX.info(emoji="⚙️", title="Audio Settings Update")
             embed.add_field(
                 name="Queue Looping",
-                value=f"{'Enabled' if player.loop_queue else 'Disabled'}",
+                value=f"➰ {'Enabled' if player.loop_queue else 'Disabled'}",
                 inline=False,
             )
             log.info(
@@ -449,7 +453,7 @@ class AudioCog(
             embed = EmbedX.info(emoji="⚙️", title="Audio Settings")
             embed.add_field(
                 name="Queue Looping",
-                value=f"{'Enabled' if player.loop_queue else 'Disabled'}",
+                value=f"➰ {'Enabled' if player.loop_queue else 'Disabled'}",
                 inline=False,
             )
             log.info(f"[{interaction.guild.name}] Displayed audio settings.")
