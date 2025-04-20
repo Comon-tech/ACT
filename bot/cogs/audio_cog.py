@@ -384,7 +384,9 @@ class AudioCog(
             )
             return
 
-        embed = EmbedX.info(emoji="🎶", title="Audio Queue")
+        embed = EmbedX.info(
+            emoji="🎶", title=f"Audio Queue{' (Loop)' if player.loop_queue else ''}"
+        )
         if player.current_track:
             embed.add_field(
                 name="Now Playing",
