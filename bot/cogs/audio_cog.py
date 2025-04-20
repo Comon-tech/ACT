@@ -350,7 +350,9 @@ class AudioCog(
             next_track = player.playback_queue[0]
             embed.add_field(
                 name="Next Up",
-                value=f"> **🔊 {next_track.title}**\n👤 {next_track.artist}\n> ⏲ {precisedelta(timedelta(seconds=next_track.duration or 0))}",
+                value=f"> **🔊 {next_track.title}**\n"
+                f"> 👤 {next_track.artist}\n"
+                f"> ⏲ {precisedelta(timedelta(seconds=next_track.duration or 0))}",
                 inline=False,
             )
         else:
@@ -403,7 +405,7 @@ class AudioCog(
                     f"({precisedelta(timedelta(seconds=track.duration or 0))})\n"
                 )
             if len(player.playback_queue) > 10:
-                queue_str += f"...and {len(player.playback_queue) - 10} more tracks."
+                queue_str += f"> ...and {len(player.playback_queue) - 10} more tracks."
             embed.add_field(
                 name=f"Up Next ({len(player.playback_queue)} tracks)",
                 value=queue_str or "> No tracks queued.",
@@ -436,28 +438,22 @@ class AudioCog(
 
         player = self.get_player(interaction.guild)
 
+        embed = EmbedX.info(emoji="⚙️", title="Audio Settings")
+
+        # Update loop setting
         if loop is not None:
-            # Update loop setting
+            embed.description = "✔ Updated"
             player.loop_queue = loop
-            embed = EmbedX.info(emoji="⚙️", title="Audio Settings Update")
-            embed.add_field(
-                name="Queue Looping",
-                value=f"➰ {'Enabled' if player.loop_queue else 'Disabled'}",
-                inline=False,
-            )
             log.info(
                 f"[{interaction.guild.name}] Queue looping set to {player.loop_queue}."
             )
-        else:
-            # Display current settings
-            embed = EmbedX.info(emoji="⚙️", title="Audio Settings")
-            embed.add_field(
-                name="Queue Looping",
-                value=f"➰ {'Enabled' if player.loop_queue else 'Disabled'}",
-                inline=False,
-            )
-            log.info(f"[{interaction.guild.name}] Displayed audio settings.")
 
+        # Display current settings
+        settings_str = (
+            f"➰ Queue Looping: `{'ON' if player.loop_queue else 'OFF'}`\n"
+            f""  # add future settings here...
+        )
+        embed.add_field(name="", value=settings_str, inline=False)
         await interaction.followup.send(embed=embed, ephemeral=True)
 
 
