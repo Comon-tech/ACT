@@ -1,8 +1,10 @@
+from io import BytesIO
 from typing import Any
 
 from google.genai import Client
 from google.genai.chats import AsyncChat
 from google.genai.types import Content, GenerateContentConfig, Part
+from PIL import Image
 from pydantic import BaseModel, Field, StringConstraints, field_validator
 from typing_extensions import Annotated
 
@@ -33,7 +35,9 @@ class ActAi(BaseModel):
 
     def model_post_init(self, context: Any):
         self._client = Client(api_key=self.api_key)
-        self._config = GenerateContentConfig(system_instruction=self.instructions)
+        self._config = GenerateContentConfig(
+            system_instruction=self.instructions, response_modalities=["TEXT"]  # type: ignore
+        )
         return super().model_post_init(context)
 
     # ----------------------------------------------------------------------------------------------------
@@ -54,11 +58,26 @@ class ActAi(BaseModel):
             message.append(
                 Part.from_bytes(data=file.data, mime_type=file.mime_type or "")
             )
-        response = await chat.send_message(message, self._config)
+        response = await chat.send_message(message, self._config)  # type: ignore
         response_text = response.text if response else None
         if response_text and len(response_text) > self.response_char_limit:
             response_text = response_text[: (self.response_char_limit - 3)] + "..."
         return response_text
+
+    # async def prompt_image(self, text: str) -> BytesIO | None:
+    #     candiates = response.candidates[0] if response and response.candidates else None
+    #     parts =  candiates.content.parts if candiates and candiates.content else None
+
+    #     if not parts:
+    #         return ""
+
+    #     for part in parts:
+    #         if part.text is not None:
+    #             print(part.text)
+    #         elif part.inline_data is not None:
+    #             image = Image.open(BytesIO((part.inline_data.data)))
+    #             image.save('gemini-native-image.png')
+    #             image.show()
 
     # ----------------------------------------------------------------------------------------------------
 
