@@ -1,10 +1,8 @@
-from io import BytesIO
 from typing import Any
 
 from google.genai import Client
 from google.genai.chats import AsyncChat
 from google.genai.types import Content, GenerateContentConfig, Part
-from PIL import Image
 from pydantic import BaseModel, Field, StringConstraints, field_validator
 from typing_extensions import Annotated
 
