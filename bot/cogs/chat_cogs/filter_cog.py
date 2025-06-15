@@ -31,6 +31,8 @@ class FilterCog(Cog, description="Filter blacklisted message content."):
     # ----------------------------------------------------------------------------------------------------
     @Cog.listener()
     async def on_message(self, message: Message):
+        return  # 🛑 OFF
+
         # Ignore DM & bot messages
         member = message.author
         if not message.guild or not isinstance(member, Member) or member.bot:
