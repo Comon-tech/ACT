@@ -40,7 +40,7 @@ log = logger(__name__)
 # ----------------------------------------------------------------------------------------------------
 class AiCog(Cog, description="Integrated generative AI chat bot"):
     MAX_ACTORS = 10  # last interactors
-    MAX_CHANNEL_HISTORY = 40  # last messages/participants
+    MAX_CHANNEL_HISTORY = 100  # last messages/participants
     COOLDOWN_TIME = 60  # 1 min
     MAX_FILE_SIZE = 2097152  # 2 MB
     REPLY_DELAY_RANGE = (1, 5)  # 1 sec - 5 sec
