@@ -1,6 +1,5 @@
 from discord import (
     Attachment,
-    ClientException,
     Interaction,
     Member,
     TextChannel,
@@ -127,21 +126,52 @@ class ConsoleCog(Cog, description="Provide control and management interface"):
     @app_commands.default_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.command(
-        description="Add bot to a voice channel", extras={"category": "Console"}
+        description="Connect, disconnect, or switch voice channel",
+        extras={"category": "Console"},
     )
-    async def join(self, interaction: Interaction, channel: VoiceChannel):
+    async def join(self, interaction: Interaction, channel: VoiceChannel | None = None):
+        await interaction.response.defer(ephemeral=True)
+        guild = interaction.guild
+        if not guild:
+            return
+
+        voice_client = guild.voice_client
+
         try:
-            await channel.connect()
-            await interaction.response.send_message(
-                embed=EmbedX.info(f"Joined {channel.name}."), ephemeral=True
-            )
-        except ClientException:
-            await interaction.response.send_message(
-                embed=EmbedX.warning("Already in a voice channel."), ephemeral=True
-            )
+            if channel:
+                if voice_client:
+                    if voice_client.channel.id == channel.id:
+                        return await interaction.followup.send(
+                            embed=EmbedX.info(f"Already in {channel.mention}."),
+                            ephemeral=True,
+                        )
+                    await voice_client.move_to(channel)
+                    await interaction.followup.send(
+                        embed=EmbedX.info(f"Switched to {channel.mention}."),
+                        ephemeral=True,
+                    )
+                else:
+                    await channel.connect()
+                    await interaction.followup.send(
+                        embed=EmbedX.info(f"Joined {channel.mention}."), ephemeral=True
+                    )
+            else:
+                if voice_client:
+                    await voice_client.disconnect()
+                    await interaction.followup.send(
+                        embed=EmbedX.info("Disconnected from voice channel."),
+                        ephemeral=True,
+                    )
+                else:
+                    await interaction.followup.send(
+                        embed=EmbedX.warning(
+                            "Not in a voice channel. Provide a channel to join."
+                        ),
+                        ephemeral=True,
+                    )
         except Exception as e:
-            await interaction.response.send_message(
-                embed=EmbedX.error(f"Could not join the voice channel: {e}"),
+            await interaction.followup.send(
+                embed=EmbedX.error(f"An error occurred: {e}"),
                 ephemeral=True,
             )
 
