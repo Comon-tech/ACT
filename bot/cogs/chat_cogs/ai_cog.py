@@ -473,10 +473,26 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
                 if not file:
                     text += f"(but u can't receive it cuz it's larger than ur allowed min size limit of {self.MAX_FILE_SIZE}byte)"
             elif message.embeds:
-                file = self.get_embed_file(message.embeds[0])
-                text += f"_sent embed_"
-                if not file:
-                    text += f"(but u can't receive it cuz it's larger than ur allowed min size limit of {self.MAX_FILE_SIZE}byte)"
+                embed = message.embeds[0]
+                embed_content = []
+                if embed.title:
+                    embed_content.append(f"Title: {embed.title}")
+                if embed.description:
+                    embed_content.append(f"Description: {embed.description}")
+                if embed.author and embed.author.name:
+                    embed_content.append(f"Author: {embed.author.name}")
+                for field in embed.fields:
+                    embed_content.append(f"Field '{field.name}': {field.value}")
+                if embed.footer and embed.footer.text:
+                    embed_content.append(f"Footer: {embed.footer.text}")
+                file = self.get_embed_file(embed)
+                if file:
+                    embed_content.append(f"File: {file.name}")
+                else:
+                    embed_content.append(
+                        f"File: (larger than ur allowed min size limit of {self.MAX_FILE_SIZE}byte)"
+                    )
+                text += f"_sent embed: {{ {'; '.join(embed_content)} }}_"
 
             # Add main text prompt from message content
             text += f"{message.content.replace(self.bot.user.mention, '').strip()}"  # type: ignore
@@ -588,7 +604,15 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
 
     def get_embed_file(self, embed: Embed) -> ActFile | None:
         """Get file from embed. If file size limit exceeded, get None."""
-        embed_file = ActFile.load(embed.url) if embed.url else None
+        url = None
+        if embed.image and embed.image.url:
+            url = embed.image.url
+        elif embed.thumbnail and embed.thumbnail.url:
+            url = embed.thumbnail.url
+        elif embed.url:
+            url = embed.url
+
+        embed_file = ActFile.load(url) if url else None
         if embed_file and embed_file.size <= self.MAX_FILE_SIZE:
             return embed_file
 
