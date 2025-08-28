@@ -2,11 +2,14 @@ from discord import (
     Attachment,
     ClientException,
     Interaction,
+    Member,
     TextChannel,
+    User,
     VoiceChannel,
     app_commands,
 )
 from discord.ext.commands import Cog
+from discord.utils import MISSING
 
 from bot.main import ActBot
 from bot.ui.embed import EmbedX
@@ -170,6 +173,7 @@ class ConsoleCog(Cog, description="Provide control and management interface"):
     )
     @app_commands.describe(
         limit="Maximum number of messages to purge (default: 1)",
+        member="Only purge messages from this member (optional)",
         before="Purge messages before this message ID (optional)",
         after="Purge messages after this message ID (optional)",
     )
@@ -177,39 +181,57 @@ class ConsoleCog(Cog, description="Provide control and management interface"):
         self,
         interaction: Interaction,
         limit: int = 1,
+        member: Member | User | None = None,
         before: str | None = None,
         after: str | None = None,
     ):
         """
         Purge messages in the current channel with better handling of before/after fields.
         """
-        await interaction.response.defer(ephemeral=True)
-        channel = interaction.channel
-        if not channel:
-            return await interaction.followup.send(
-                embed=EmbedX.error("No channel to purge messages from."), ephemeral=True
+        try:
+            await interaction.response.defer(ephemeral=True)
+            channel = interaction.channel
+            if not channel:
+                return await interaction.followup.send(
+                    embed=EmbedX.error("No channel to purge messages from."),
+                    ephemeral=True,
+                )
+            if not isinstance(channel, TextChannel):
+                return await interaction.followup.send(
+                    embed=EmbedX.error(
+                        "This command can only be used in text channels."
+                    ),
+                    ephemeral=True,
+                )
+
+            # Convert before and after to discord.Message objects if provided
+            before_msg = None
+            after_msg = None
+            try:
+                if before:
+                    before_msg = await channel.fetch_message(int(before))
+                if after:
+                    after_msg = await channel.fetch_message(int(after))
+            except Exception as e:
+                return await interaction.followup.send(
+                    embed=EmbedX.error(f"Invalid message ID provided: {e}"),
+                    ephemeral=True,
+                )
+
+            # Purge messages
+            deleted = await channel.purge(
+                limit=limit,
+                check=(lambda msg: msg.author == member) if member else MISSING,
+                before=before_msg,
+                after=after_msg,
             )
-        if not isinstance(channel, TextChannel):
-            return await interaction.followup.send(
-                embed=EmbedX.error("This command can only be used in text channels."),
+            await interaction.followup.send(
+                embed=EmbedX.success(
+                    f"Purged {len(deleted)} message(s){f" by {member.mention}" if member else ""}."
+                ),
                 ephemeral=True,
             )
-
-        # Convert before and after to discord.Message objects if provided
-        before_msg = None
-        after_msg = None
-        try:
-            if before:
-                before_msg = await channel.fetch_message(int(before))
-            if after:
-                after_msg = await channel.fetch_message(int(after))
         except Exception as e:
-            return await interaction.followup.send(
-                embed=EmbedX.error(f"Invalid message ID provided: {e}"), ephemeral=True
+            await interaction.followup.send(
+                embed=EmbedX.error(f"Failed to purge messages: {e}"), ephemeral=True
             )
-
-        # Purge messages
-        deleted = await channel.purge(limit=limit, before=before_msg, after=after_msg)
-        await interaction.followup.send(
-            embed=EmbedX.success(f"Purged {len(deleted)} message(s)."), ephemeral=True
-        )
