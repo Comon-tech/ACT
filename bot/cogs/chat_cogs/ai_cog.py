@@ -568,10 +568,34 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
     async def get_channel_history_csv(self, channel: Messageable) -> tuple[str, str]:
         """Fetch (messages, members) CSV of latest messages in given channel and unique members who sent those messages."""
         messages, members = await self.get_channel_history(channel)
+
+        def format_embed_to_str(embed: Embed) -> str:
+            parts = []
+            if embed.title:
+                parts.append(f"Title: {embed.title}")
+            if embed.description:
+                parts.append(f"Description: {embed.description}")
+            if embed.author and embed.author.name:
+                parts.append(f"Author: {embed.author.name}")
+            for field in embed.fields:
+                parts.append(f"Field '{field.name}': {field.value}")
+            if embed.footer and embed.footer.text:
+                parts.append(f"Footer: {embed.footer.text}")
+            if embed.image and embed.image.url:
+                parts.append(f"Image URL: {embed.image.url}")
+            if embed.thumbnail and embed.thumbnail.url:
+                parts.append(f"Thumbnail URL: {embed.thumbnail.url}")
+            if embed.url:
+                parts.append(f"URL: {embed.url}")
+            return f"{{ {'; '.join(parts)} }}"
+
         messages_data = [
             {
                 "author_id": str(msg.author.id),
                 "message_content": msg.content.replace("\n", " "),
+                "message_embed": (
+                    format_embed_to_str(msg.embeds[0]) if msg.embeds else ""
+                ),
             }
             for msg in messages
         ]
