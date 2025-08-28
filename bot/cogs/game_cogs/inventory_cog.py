@@ -25,6 +25,7 @@ class InventoryCog(Cog, description="Acquire and use items"):
     def __init__(self, bot: ActBot):
         self.bot = bot
         self.buy.autocomplete("item_id")(self.buyable_items_autocomplete)
+        self.sell.autocomplete("item_id")(self.actor_sellable_items_autocomplete)
         self.store.autocomplete("item_id")(self.buyable_items_autocomplete)
         self.equip.autocomplete("item_id")(self.actor_equippable_items_autocomplete)
         self.unequip.autocomplete("item_id")(self.actor_equipped_items_autocomplete)
@@ -162,6 +163,104 @@ class InventoryCog(Cog, description="Acquire and use items"):
         embed.add_field(
             name="Gold 🔻",
             value=f"**💰 -{intcomma(total_price)}**",
+        )
+        embed.set_author(name=member.display_name, icon_url=member.display_avatar)
+        embed.set_thumbnail(url=item.icon_url)
+        if isinstance(interaction.channel, Messageable):
+            await interaction.channel.send(embed=embed)
+
+    @app_commands.guild_only()
+    @app_commands.command(
+        description="Sell an item from your inventory",
+        extras={"category": "Inventory"},
+    )
+    @app_commands.rename(item_id="item")
+    @app_commands.describe(
+        item_id="Choose item you wish to sell", quantity="Amount of items to sell"
+    )
+    async def sell(self, interaction: Interaction, item_id: str, quantity: int = 1):
+        # Check guild & member
+        member = interaction.user
+        if not interaction.guild or not isinstance(member, Member):
+            await interaction.response.send_message(
+                embed=EmbedX.warning("This command cannot be used in this context."),
+                ephemeral=True,
+            )
+            return
+
+        # Check quantity
+        if quantity <= 0:
+            await interaction.response.send_message(
+                embed=EmbedX.error(
+                    f"Your quantity input value of `{quantity}` is invalid.\nDid you mean **{-quantity if quantity else 1}** ?"
+                ),
+                ephemeral=True,
+            )
+            return
+
+        # Get actor
+        await interaction.response.defer(ephemeral=True)
+        db = self.bot.get_db(interaction.guild)
+        actor = db.find_one(Actor, Actor.id == member.id) or self.bot.create_actor(
+            member
+        )
+
+        # Get item stack
+        item_stack = actor.item_stacks.get(item_id)
+        if not item_stack:
+            await interaction.followup.send(
+                embed=EmbedX.error(f"Invalid **item** input: `{item_id}`\n")
+            )
+            return
+
+        item = item_stack.item
+        if not item.is_buyable:
+            await interaction.followup.send(
+                embed=EmbedX.warning(
+                    f"**{item.emoji or item.alt_emoji} {item.name}** cannot be sold."
+                )
+            )
+            return
+
+        # Check if actor has enough items
+        if item_stack.quantity < quantity:
+            await interaction.followup.send(
+                embed=EmbedX.warning(
+                    f"You don't have enough to sell **{item.emoji or item.alt_emoji} {item.name} `x{quantity}`**.\n"
+                    f"You only have **`x{item_stack.quantity}`**."
+                )
+            )
+            return
+
+        # Perform transaction
+        sell_price = int(item.price * 0.75)
+        total_gain = sell_price * quantity
+        actor.gold += total_gain
+        item_stack.quantity -= quantity
+        if item_stack.quantity <= 0:
+            del actor.item_stacks[item.id]
+        db.save(actor)
+
+        # Send private response
+        await interaction.followup.send(
+            embed=EmbedX.success(
+                f"You sold **{item.emoji or item.alt_emoji} {item.name} `x{quantity}`** for **💰 {total_gain}** gold."
+            )
+        )
+
+        # Create & send response embed
+        embed = EmbedX.success(
+            emoji="💰",
+            title="Sale",
+            description=f"{member.mention} has sold an item.",
+        )
+        embed.add_field(
+            name="Item 🔻",
+            value=f"{item.emoji or item.alt_emoji} **{item.name} `x{intword(quantity)}`**",
+        )
+        embed.add_field(
+            name="Gold 🔼",
+            value=f"**💰 +{intcomma(total_gain)}**",
         )
         embed.set_author(name=member.display_name, icon_url=member.display_avatar)
         embed.set_thumbnail(url=item.icon_url)
@@ -416,6 +515,29 @@ class InventoryCog(Cog, description="Acquire and use items"):
                 item
                 for item in self.BUYABLE_ITEMS
                 if current.lower() in item.name.lower()
+            ][:25]
+        ]
+
+    async def actor_sellable_items_autocomplete(
+        self, interaction: Interaction, current: str
+    ) -> list[app_commands.Choice[str]]:
+        member = interaction.user
+        if not isinstance(member, Member):
+            return []
+        actor = self.bot.get_db(interaction.guild).find_one(
+            Actor, Actor.id == interaction.user.id
+        ) or self.bot.create_actor(member)
+        return [
+            app_commands.Choice(
+                name=f"{item_stack.item.alt_emoji} {item_stack.item.name} "
+                f"― 💰{intcomma(int(item_stack.item.price * 0.75))} each, x{item_stack.quantity} owned",
+                value=item_stack.item.id,
+            )
+            for item_stack in [
+                item_stack
+                for item_stack in actor.item_stacks.values()
+                if item_stack.item.is_buyable
+                and current.lower() in item_stack.item.name.lower()
             ][:25]
         ]
 
