@@ -423,7 +423,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
     ) -> tuple[str, ActFile | None]:
         """
         Create prompt with flexible input options.
-            - Text prompt structure: '{**preface**}\\n{**message.author.name**}:{file_action_desc}{**message.content**}\\n{**csv**}'
+            - Text prompt structure: '{**preface**}\\n{**message.author.mention**}:{file_action_desc}{**message.content**}\\n{**csv**}'
 
         Args:
             message: Message object (contains **message.author**, and **message.guild**).
@@ -455,7 +455,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         # Process file attachments if message is provided
         if message:
             # Add author
-            text += f"{message.author.name}:"
+            text += f"{message.author.mention}:"
 
             # Check for stickers first
             if message.stickers:
@@ -544,7 +544,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
             )
             if referenced_message.author != self.bot.user:
                 preface += (
-                    f"[Context: {message.author.name} was replying to {referenced_message.author.name} "
+                    f"[Context: {message.author.mention} was replying to {referenced_message.author.mention} "
                     f"who said: '{referenced_message.content}']"
                 )
             else:
