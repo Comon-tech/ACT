@@ -1,8 +1,11 @@
 import re
+from asyncio import sleep
 from random import randint
 
+import humanize
 from discord import (
     Attachment,
+    AuditLogAction,
     Embed,
     Guild,
     HTTPException,
@@ -122,7 +125,31 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
             member.guild.get_channel(log_room.channel_id) if log_room else None
         )
         if log_channel and isinstance(log_channel, TextChannel):
-            await log_channel.send(f"🔴 {member.mention} left.")
+            await sleep(1)  # Wait for audit log to update
+            action_taken = False
+            # Check for kick
+            async for entry in member.guild.audit_logs(
+                limit=5, action=AuditLogAction.kick
+            ):
+                if entry.target and entry.target.id == member.id:
+                    await log_channel.send(
+                        f"👢 {member.name} was kicked by {entry.user.mention} for reason: {entry.reason or '_No reason provided_'}"
+                    )
+                    action_taken = True
+                    break
+            # Check for ban if not kicked
+            if not action_taken:
+                async for entry in member.guild.audit_logs(
+                    limit=5, action=AuditLogAction.ban
+                ):
+                    if entry.target and entry.target.id == member.id:
+                        await log_channel.send(
+                            f"🔨 {member.name} was banned by {entry.user.mention} for reason: {entry.reason or '_No reason provided_'}"
+                        )
+                        action_taken = True
+                        break
+            if not action_taken:
+                await log_channel.send(f"🔴 {member.mention} left.")
 
         db = self.bot.get_db(member.guild)
         actor = db.find_one(Actor, Actor.id == member.id)
@@ -130,6 +157,50 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
             return
         actor.is_member = False
         db.save(actor)
+
+    # ----------------------------------------------------------------------------------------------------
+    # * On Member Update
+    # ----------------------------------------------------------------------------------------------------
+    @Cog.listener()
+    async def on_member_update(self, before: Member, after: Member):
+        log_room = self.load_room(id=FarmCog.__name__, guild=after.guild)
+        if not log_room:
+            return
+
+        log_channel = after.guild.get_channel(log_room.channel_id)
+        if not (log_channel and isinstance(log_channel, TextChannel)):
+            return
+
+        # Check for timeout added
+        if not before.is_timed_out() and after.is_timed_out() and after.timed_out_until:
+            entry = None
+            await sleep(1)  # Wait for audit log to update
+            async for e in after.guild.audit_logs(
+                limit=5, action=AuditLogAction.member_update
+            ):
+                if (
+                    e.target
+                    and e.target.id == after.id
+                    and e.changes.after.timed_out_until is not None
+                ):
+                    entry = e
+                    break
+
+            moderator = entry.user.mention if entry and entry.user else "Unknown"
+            reason = (
+                entry.reason or "_No reason provided_"
+                if entry
+                else "_No reason provided_"
+            )
+
+            time_left = humanize.naturaldelta(after.timed_out_until - utils.utcnow())
+            await log_channel.send(
+                f"🔇 {after.mention} timed out by {moderator} for **{time_left}** for reason: {reason}"
+            )
+
+        # Check for timeout removed
+        elif before.is_timed_out() and not after.is_timed_out():
+            await log_channel.send(f"🔊 {after.mention}'s timeout removed.")
 
     # ----------------------------------------------------------------------------------------------------
     # * On Message
