@@ -73,7 +73,7 @@ class ConsoleCog(Cog, description="Provide control and management interface"):
         await interaction.followup.send(
             embed=EmbedX.success(
                 title="Commands Synchronization",
-                description=f"{count[0]}/{count[1]} command(s) synchronized.",
+                description=f"{count[0]}/{count[1]} command(s) synchronized{" globally" if global_sync else f" to guild: {interaction.guild}"}.",
             ),
             ephemeral=True,
         )

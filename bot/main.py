@@ -2,13 +2,25 @@ import pathlib
 from typing import Any
 
 from colorama import Fore
-from discord import Guild, Interaction, Member, Message, Object, User, app_commands
+from discord import (
+    Guild,
+    Interaction,
+    Member,
+    Message,
+    Object,
+    TextChannel,
+    User,
+    VoiceChannel,
+    app_commands,
+)
+from discord.abc import Messageable
 from discord.ext.commands import Bot, Cog
 from odmantic import SyncEngine, query
 
 from bot.ui.embed import EmbedX
 from db.actor import Actor, DmActor
 from db.main import ActDb, DbRef
+from db.room import Room
 from utils.log import logger
 from utils.misc import import_classes, text_block
 
@@ -208,6 +220,15 @@ class ActBot(Bot):
     def create_dm_actor(self, user: User) -> DmActor:
         """Create dm-actor from given user."""
         return DmActor(id=user.id, name=user.name, display_name=user.display_name)
+
+    def create_room(self, id: str, channel: TextChannel | VoiceChannel) -> Room:
+        """Create Room from given discord channel."""
+        return Room(
+            id=id,
+            channel_id=channel.id,
+            channel_name=channel.name,
+            channel_is_voice=isinstance(channel, VoiceChannel),
+        )
 
     # ----------------------------------------------------------------------------------------------------
 
