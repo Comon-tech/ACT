@@ -136,9 +136,9 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
     # ----------------------------------------------------------------------------------------------------
     @Cog.listener()
     async def on_message(self, message: Message):
-        # Ignore DM & bot messages
+        # Ignore DM
         member = message.author
-        if not message.guild or not isinstance(member, Member) or member.bot:
+        if not message.guild or not isinstance(member, Member):
             return
 
         # Get or create actor
@@ -163,7 +163,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
         log_channel = (
             message.guild.get_channel(log_room.channel_id) if log_room else None
         )
-        if log_channel and isinstance(log_channel, TextChannel):
+        if not member.bot and log_channel and isinstance(log_channel, TextChannel):
             # embed = EmbedX.info(
             #     emoji="",
             #     title="",
