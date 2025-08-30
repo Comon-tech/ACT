@@ -514,10 +514,10 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
                 await self.get_channel_history_csv(channel)
             )
             text += f"\nCurrent channel:{channel_name}"
-            text += f"\nMembers with recent messages in current channel:\n{channel_members_csv}"
+            text += f"\nMembers w/ recent messages in current channel:\n{channel_members_csv}"
             text += f"\nLatest {self.MAX_CHANNEL_HISTORY} messages in current channel:{channel_messages_csv}\n"
         if guild:
-            text += f"\nMembers u talked with recently:\n{self.load_actors_csv(guild)}"
+            text += f"\nMembers u talked w/ recently:\n{self.load_actors_csv(guild)}"
 
         # Return prompt components as tuple
         return (text, file)
@@ -548,7 +548,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
                     f"who said: '{referenced_message.content}']"
                 )
             else:
-                preface += "[Context: You were replying to ur own previous message] "
+                preface += "[Context: U were replying to ur own previous message] "
         return f"\nReply to this member:\n{preface}" if message else ""
 
     # ----------------------------------------------------------------------------------------------------
