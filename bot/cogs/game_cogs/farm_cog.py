@@ -131,9 +131,9 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
             async for entry in member.guild.audit_logs(
                 limit=5, action=AuditLogAction.kick
             ):
-                if entry.target and entry.target.id == member.id:
+                if entry.target:
                     await log_channel.send(
-                        f"👢 {member.name} was kicked by {entry.user.mention} for reason: {entry.reason or '_No reason provided_'}"
+                        f"👢 {member.mention} kicked by {entry.user.mention} for reason: **{entry.reason or '_No reason provided_'}**"
                     )
                     action_taken = True
                     break
@@ -142,9 +142,9 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
                 async for entry in member.guild.audit_logs(
                     limit=5, action=AuditLogAction.ban
                 ):
-                    if entry.target and entry.target.id == member.id:
+                    if entry.target:
                         await log_channel.send(
-                            f"🔨 {member.name} was banned by {entry.user.mention} for reason: {entry.reason or '_No reason provided_'}"
+                            f"🔨 {member.mention} banned by {entry.user.mention} for reason: **{entry.reason or '_No reason provided_'}**"
                         )
                         action_taken = True
                         break
@@ -195,7 +195,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
 
             time_left = humanize.naturaldelta(after.timed_out_until - utils.utcnow())
             await log_channel.send(
-                f"🔇 {after.mention} timed out by {moderator} for **{time_left}** for reason: {reason}"
+                f"🔇 {after.mention} timed out by {moderator} for **{time_left}** for reason: **{reason}**"
             )
 
         # Check for timeout removed
