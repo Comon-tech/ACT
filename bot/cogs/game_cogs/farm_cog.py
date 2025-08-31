@@ -161,7 +161,13 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
             member.guild.get_channel(log_room.channel_id) if log_room else None
         )
         if log_channel and isinstance(log_channel, TextChannel):
-            await log_channel.send(f"🟢 {member.mention} joined.")
+            embed = EmbedX.success(
+                emoji="",
+                title="",
+                description=f"🟢 {member.mention} joined server.",
+            )
+            embed.set_author(name=member.name, icon_url=member.display_avatar.url)
+            await log_channel.send(embed=embed)
 
         db = self.bot.get_db(member.guild)
         actor = db.find_one(Actor, Actor.id == member.id)
@@ -187,9 +193,16 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
                 limit=5, action=AuditLogAction.kick
             ):
                 if entry.target and entry.target.id == member.id:
-                    await log_channel.send(
-                        f"👢 {member.mention} kicked by {entry.user.mention} for reason: **{entry.reason or '_No reason provided_'}**"
+                    embed = EmbedX.error(
+                        emoji="",
+                        title="",
+                        description=f"👢 {member.mention} kicked by {entry.user.mention}.",
                     )
+                    embed.set_author(
+                        name=member.name, icon_url=member.display_avatar.url
+                    )
+                    embed.set_footer(text=entry.reason or "No reason provided.")
+                    await log_channel.send(embed=embed)
                     action_taken = True
                     break
             # Check for ban if not kicked
@@ -198,13 +211,26 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
                     limit=5, action=AuditLogAction.ban
                 ):
                     if entry.target and entry.target.id == member.id:
-                        await log_channel.send(
-                            f"🔨 {member.mention} banned by {entry.user.mention} for reason: **{entry.reason or '_No reason provided_'}**"
+                        embed = EmbedX.error(
+                            emoji="",
+                            title="",
+                            description=f"🔨 {member.mention} banned by {entry.user.mention}.",
                         )
+                        embed.set_author(
+                            name=member.name, icon_url=member.display_avatar.url
+                        )
+                        embed.set_footer(text=entry.reason or "No reason provided.")
+                        await log_channel.send(embed=embed)
                         action_taken = True
                         break
             if not action_taken:
-                await log_channel.send(f"🔴 {member.mention} left.")
+                embed = EmbedX.error(
+                    emoji="",
+                    title="",
+                    description=f"🔴 {member.mention} left server.",
+                )
+                embed.set_author(name=member.name, icon_url=member.display_avatar.url)
+                await log_channel.send(embed=embed)
 
         db = self.bot.get_db(member.guild)
         actor = db.find_one(Actor, Actor.id == member.id)
@@ -243,19 +269,31 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
 
             moderator = entry.user.mention if entry and entry.user else "Unknown"
             reason = (
-                entry.reason or "_No reason provided_"
+                entry.reason or "No reason provided."
                 if entry
-                else "_No reason provided_"
+                else "No reason provided."
             )
 
             time_left = humanize.naturaldelta(after.timed_out_until - utils.utcnow())
-            await log_channel.send(
-                f"🔇 {after.mention} timed out by {moderator} for **{time_left}** for reason: **{reason}**"
+            embed = EmbedX.error(
+                emoji="",
+                title="",
+                description=f"🔇 {after.mention} timed out by {moderator} for **{time_left}**.",
             )
+            embed.set_author(name=after.name, icon_url=after.display_avatar.url)
+            embed.set_footer(text=reason)
+
+            await log_channel.send(embed=embed)
 
         # Check for timeout removed
         elif before.is_timed_out() and not after.is_timed_out():
-            await log_channel.send(f"🔊 {after.mention}'s timeout removed.")
+            embed = EmbedX.success(
+                emoji="",
+                title="",
+                description=f"🔊 {after.mention} timeout removed.",
+            )
+            embed.set_author(name=after.name, icon_url=after.display_avatar.url)
+            await log_channel.send(embed=embed)
 
     # ----------------------------------------------------------------------------------------------------
     # * On Message
