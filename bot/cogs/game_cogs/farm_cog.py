@@ -70,7 +70,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
             for user_id, total_xp in sorted(
                 user_gains.items(), key=lambda item: item[1], reverse=True
             ):
-                description_lines.append(f"<@{user_id}> earned **{total_xp}** xp.")
+                description_lines.append(f"<@{user_id}> +**{total_xp}** _xp_.")
 
             if not description_lines:
                 continue
