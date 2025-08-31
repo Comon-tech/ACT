@@ -226,7 +226,9 @@ class ConsoleCog(Cog, description="Provide control and management interface"):
                     embed=EmbedX.error("No channel to purge messages from."),
                     ephemeral=True,
                 )
-            if not isinstance(channel, TextChannel):
+            if not isinstance(channel, TextChannel) or not isinstance(
+                channel, VoiceChannel
+            ):
                 return await interaction.followup.send(
                     embed=EmbedX.error(
                         "This command can only be used in text channels."
