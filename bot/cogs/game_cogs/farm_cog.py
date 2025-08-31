@@ -131,7 +131,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
             async for entry in member.guild.audit_logs(
                 limit=5, action=AuditLogAction.kick
             ):
-                if entry.target:
+                if entry.target and entry.target.id == member.id:
                     await log_channel.send(
                         f"👢 {member.mention} kicked by {entry.user.mention} for reason: **{entry.reason or '_No reason provided_'}**"
                     )
@@ -142,7 +142,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
                 async for entry in member.guild.audit_logs(
                     limit=5, action=AuditLogAction.ban
                 ):
-                    if entry.target:
+                    if entry.target and entry.target.id == member.id:
                         await log_channel.send(
                             f"🔨 {member.mention} banned by {entry.user.mention} for reason: **{entry.reason or '_No reason provided_'}**"
                         )
