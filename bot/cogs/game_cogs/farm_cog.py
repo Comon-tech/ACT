@@ -20,6 +20,7 @@ from discord import (
     app_commands,
     utils,
 )
+from discord.ext import tasks
 from discord.ext.commands import Cog
 
 from bot.main import ActBot
@@ -35,6 +36,55 @@ from utils.xp import Experience
 class FarmCog(Cog, description="Allow players to gain stats and roles"):
     def __init__(self, bot: ActBot):
         self.bot = bot
+        self.xp_gain_log: dict[int, dict[int, int]] = {}
+        self.log_xp_gains.start()
+
+    def cog_unload(self):
+        self.log_xp_gains.cancel()
+
+    # ----------------------------------------------------------------------------------------------------
+    # * Log XP Gains
+    # ----------------------------------------------------------------------------------------------------
+    @tasks.loop(seconds=60.0)
+    async def log_xp_gains(self):
+        log_copy = self.xp_gain_log.copy()
+        self.xp_gain_log.clear()
+
+        for guild_id, user_gains in log_copy.items():
+            if not user_gains:
+                continue
+
+            guild = self.bot.get_guild(guild_id)
+            if not guild:
+                continue
+
+            log_room = self.load_room(id=FarmCog.__name__, guild=guild)
+            if not log_room:
+                continue
+
+            log_channel = guild.get_channel(log_room.channel_id)
+            if not (log_channel and isinstance(log_channel, TextChannel)):
+                continue
+
+            description_lines = []
+            for user_id, total_xp in sorted(
+                user_gains.items(), key=lambda item: item[1], reverse=True
+            ):
+                description_lines.append(f"⏫ <@{user_id}> earned **{total_xp}** xp.")
+
+            if not description_lines:
+                continue
+
+            try:
+                await log_channel.send("\n".join(description_lines))
+            except HTTPException as e:
+                print(
+                    f"Failed to send XP log to #{log_channel.name} in {guild.name}: {e}"
+                )
+
+    @log_xp_gains.before_loop
+    async def before_log_xp_gains(self):
+        await self.bot.wait_until_ready()
 
     # ----------------------------------------------------------------------------------------------------
     # * Set Farm Log
@@ -212,6 +262,10 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
         if not message.guild or not isinstance(member, Member):
             return
 
+        # Ignore bots
+        if member.bot:
+            return
+
         # Get or create actor
         db = self.bot.get_db(message.guild)
         actor = db.find_one(Actor, Actor.id == member.id) or self.bot.create_actor(
@@ -230,27 +284,14 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
         print(f"👤 @{member.name} earned {xp_reward} xp.")
 
         # Log xp gain to a "log" named channel
-        log_room = self.load_room(id=FarmCog.__name__, guild=message.guild)
-        log_channel = (
-            message.guild.get_channel(log_room.channel_id) if log_room else None
-        )
-        if not member.bot and log_channel and isinstance(log_channel, TextChannel):
-            # embed = EmbedX.info(
-            #     emoji="",
-            #     title="",
-            #     description=f"⏫ {member.mention} earned experience.",
-            # )
-            # embed.add_field(name="Experience 🔼", value=f"**⏫ +{xp_reward} **")
-            # embed.set_author(
-            #     name=member.display_name, icon_url=member.display_avatar.url
-            # )
-            # embed = EmbedX.info(
-            #     emoji="",
-            #     title="",
-            #     description=f"**⏫ +{xp_reward}** XP for {member.mention}.",
-            # )
-            # await log_channel.send(embed=embed)
-            await log_channel.send(f"{member.display_name} earned **{xp_reward}** xp.")
+        if xp_reward > 0:
+            guild_id = message.guild.id
+            user_id = member.id
+            if guild_id not in self.xp_gain_log:
+                self.xp_gain_log[guild_id] = {}
+            self.xp_gain_log[guild_id][user_id] = (
+                self.xp_gain_log[guild_id].get(user_id, 0) + xp_reward
+            )
 
         # Try level-up
         if actor.try_level_up():
