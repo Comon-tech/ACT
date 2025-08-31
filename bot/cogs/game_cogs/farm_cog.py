@@ -326,7 +326,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
         actor.xp += xp_reward
         print(f"👤 @{member.name} earned {xp_reward} xp.")
 
-        # Log xp gain to a "log" named channel
+        # Accumulate xp gain to log later
         if xp_reward > 0:
             guild_id = message.guild.id
             user_id = member.id

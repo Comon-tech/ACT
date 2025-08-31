@@ -13,7 +13,7 @@ class Experience:
     XP_PER_MESSAGE_BASE: int = 1
 
     # XP per "valid" word (meeting criteria below)
-    XP_PER_WORD: float = 0.5
+    XP_PER_WORD: float = 1
 
     # Maximum number of words to count for XP (prevents wall-of-text exploit)
     XP_WORD_COUNT_CAP: int = 500
