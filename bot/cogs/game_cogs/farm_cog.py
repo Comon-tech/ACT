@@ -45,7 +45,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
     # ----------------------------------------------------------------------------------------------------
     # * Log XP Gains
     # ----------------------------------------------------------------------------------------------------
-    @tasks.loop(seconds=300.0)  # 5 min
+    @tasks.loop(seconds=3600.0)  # 1 hr
     async def log_xp_gains(self):
         log_copy = self.xp_gain_log.copy()
         self.xp_gain_log.clear()
