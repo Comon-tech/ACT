@@ -455,7 +455,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         # Process file attachments if message is provided
         if message:
             # Add author
-            text += f"{message.author.mention}:"
+            text += f"{message.author.display_name} ({message.author.mention}):"
 
             # Check for stickers first
             if message.stickers:
