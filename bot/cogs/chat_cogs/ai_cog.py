@@ -544,7 +544,8 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
             )
             if referenced_message.author != self.bot.user:
                 preface += (
-                    f"[Context: {message.author.mention} was replying to {referenced_message.author.mention} "
+                    f"[Context: {message.author.display_name} ({message.author.mention}) was replying to "
+                    f"{referenced_message.author.display_name} ({referenced_message.author.mention}) "
                     f"who said: '{referenced_message.content}']"
                 )
             else:
