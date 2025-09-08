@@ -163,7 +163,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
         if log_channel and isinstance(log_channel, TextChannel):
             embed = EmbedX.success(
                 emoji="",
-                title="",
+                title=member.display_name,
                 description=f"🟢 {member.mention} joined server.",
             )
             embed.set_author(name=member.name, icon_url=member.display_avatar.url)
@@ -196,7 +196,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
                 if entry.target and entry.target.id == member.id:
                     embed = EmbedX.error(
                         emoji="",
-                        title="",
+                        title=member.display_name,
                         description=f"👢 {member.mention} kicked by {entry.user.mention}.",
                     )
                     embed.set_author(
@@ -215,7 +215,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
                     if entry.target and entry.target.id == member.id:
                         embed = EmbedX.error(
                             emoji="",
-                            title="",
+                            title=member.display_name,
                             description=f"🔨 {member.mention} banned by {entry.user.mention}.",
                         )
                         embed.set_author(
@@ -229,7 +229,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
             if not action_taken:
                 embed = EmbedX.error(
                     emoji="",
-                    title="",
+                    title=member.display_name,
                     description=f"🔴 {member.mention} left server.",
                 )
                 embed.set_author(name=member.name, icon_url=member.display_avatar.url)
@@ -287,7 +287,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
             )
             embed = EmbedX.error(
                 emoji="",
-                title="",
+                title=member_after.display_name,
                 description=f"🔇 {member_after.mention} timed out by {moderator} for **{time_left}**.",
             )
             embed.set_author(
@@ -302,7 +302,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
         elif member_before.is_timed_out() and not member_after.is_timed_out():
             embed = EmbedX.success(
                 emoji="",
-                title="",
+                title=member_after.display_name,
                 description=f"🔊 {member_after.mention} timeout removed.",
             )
             embed.set_author(
