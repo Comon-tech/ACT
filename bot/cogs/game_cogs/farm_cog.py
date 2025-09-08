@@ -167,6 +167,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
                 description=f"🟢 {member.mention} joined server.",
             )
             embed.set_author(name=member.name, icon_url=member.display_avatar.url)
+            embed.set_thumbnail(url=member.display_avatar)
             await log_channel.send(embed=embed)
 
         db = self.bot.get_db(member.guild)
@@ -201,6 +202,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
                     embed.set_author(
                         name=member.name, icon_url=member.display_avatar.url
                     )
+                    embed.set_thumbnail(url=member.display_avatar)
                     embed.set_footer(text=entry.reason or "No reason provided.")
                     await log_channel.send(embed=embed)
                     action_taken = True
@@ -219,6 +221,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
                         embed.set_author(
                             name=member.name, icon_url=member.display_avatar.url
                         )
+                        embed.set_thumbnail(url=member.display_avatar)
                         embed.set_footer(text=entry.reason or "No reason provided.")
                         await log_channel.send(embed=embed)
                         action_taken = True
@@ -230,6 +233,7 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
                     description=f"🔴 {member.mention} left server.",
                 )
                 embed.set_author(name=member.name, icon_url=member.display_avatar.url)
+                embed.set_thumbnail(url=member.display_avatar)
                 await log_channel.send(embed=embed)
 
         db = self.bot.get_db(member.guild)
@@ -243,25 +247,29 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
     # * On Member Update
     # ----------------------------------------------------------------------------------------------------
     @Cog.listener()
-    async def on_member_update(self, before: Member, after: Member):
-        log_room = self.load_room(id=FarmCog.__name__, guild=after.guild)
+    async def on_member_update(self, member_before: Member, member_after: Member):
+        log_room = self.load_room(id=FarmCog.__name__, guild=member_after.guild)
         if not log_room:
             return
 
-        log_channel = after.guild.get_channel(log_room.channel_id)
+        log_channel = member_after.guild.get_channel(log_room.channel_id)
         if not (log_channel and isinstance(log_channel, TextChannel)):
             return
 
         # Check for timeout added
-        if not before.is_timed_out() and after.is_timed_out() and after.timed_out_until:
+        if (
+            not member_before.is_timed_out()
+            and member_after.is_timed_out()
+            and member_after.timed_out_until
+        ):
             entry = None
             await sleep(1)  # Wait for audit log to update
-            async for e in after.guild.audit_logs(
+            async for e in member_after.guild.audit_logs(
                 limit=5, action=AuditLogAction.member_update
             ):
                 if (
                     e.target
-                    and e.target.id == after.id
+                    and e.target.id == member_after.id
                     and e.changes.after.timed_out_until is not None
                 ):
                     entry = e
@@ -274,25 +282,33 @@ class FarmCog(Cog, description="Allow players to gain stats and roles"):
                 else "No reason provided."
             )
 
-            time_left = humanize.naturaldelta(after.timed_out_until - utils.utcnow())
+            time_left = humanize.naturaldelta(
+                member_after.timed_out_until - utils.utcnow()
+            )
             embed = EmbedX.error(
                 emoji="",
                 title="",
-                description=f"🔇 {after.mention} timed out by {moderator} for **{time_left}**.",
+                description=f"🔇 {member_after.mention} timed out by {moderator} for **{time_left}**.",
             )
-            embed.set_author(name=after.name, icon_url=after.display_avatar.url)
+            embed.set_author(
+                name=member_after.name, icon_url=member_after.display_avatar.url
+            )
+            embed.set_thumbnail(url=member_after.display_avatar)
             embed.set_footer(text=reason)
 
             await log_channel.send(embed=embed)
 
         # Check for timeout removed
-        elif before.is_timed_out() and not after.is_timed_out():
+        elif member_before.is_timed_out() and not member_after.is_timed_out():
             embed = EmbedX.success(
                 emoji="",
                 title="",
-                description=f"🔊 {after.mention} timeout removed.",
+                description=f"🔊 {member_after.mention} timeout removed.",
             )
-            embed.set_author(name=after.name, icon_url=after.display_avatar.url)
+            embed.set_author(
+                name=member_after.name, icon_url=member_after.display_avatar.url
+            )
+            embed.set_thumbnail(url=member_after.display_avatar)
             await log_channel.send(embed=embed)
 
     # ----------------------------------------------------------------------------------------------------
