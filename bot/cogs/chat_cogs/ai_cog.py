@@ -56,6 +56,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
             instructions=self.persona.description,
         )
         log.info(f"AI persona @{self.persona.name} used.")
+        return  # 🔴 INITIATIVE OFF
         self.task_manager = ActTaskManager()
         self.task_manager.schedule("initiative", lambda _: self.schedule_initiative())
 
@@ -194,6 +195,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         # Ignore mentionless message or attempt auto-reply
         reply_delay = 0
         if self.bot.user not in message.mentions:
+            return  # 🔴 AUTO-REPLY OFF
             if random() > self.AUTO_REPLY_CHANCE:
                 return
             else:
