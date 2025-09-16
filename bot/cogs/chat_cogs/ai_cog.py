@@ -41,11 +41,16 @@ log = logger(__name__)
 class AiCog(Cog, description="Integrated generative AI chat bot"):
     MAX_ACTORS = 10  # last interactors
     MAX_CHANNEL_HISTORY = 300  # last messages/participants
+
     COOLDOWN_TIME = 60  # 1 min
     MAX_FILE_SIZE = 2097152  # 2 MB
     REPLY_DELAY_RANGE = (1, 5)  # 1 sec - 5 sec
+
+    AUTO_REPLY_ENABLED = False
     AUTO_REPLY_DELAY_RANGE = (5, 1800)  # 5 sec - 30 min
     AUTO_REPLY_CHANCE = 0.1  # 10 %
+
+    INITIATIVE_ENABLED = False
     INITIATIVE_DELAY_RANGE = (1800, 7200)  # 30 min - 2 hr
 
     def __init__(self, bot: ActBot):
@@ -56,9 +61,11 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
             instructions=self.persona.description,
         )
         log.info(f"AI persona @{self.persona.name} used.")
-        return  # 🔴 INITIATIVE OFF
         self.task_manager = ActTaskManager()
-        self.task_manager.schedule("initiative", lambda _: self.schedule_initiative())
+        if self.INITIATIVE_ENABLED:
+            self.task_manager.schedule(
+                "initiative", lambda _: self.schedule_initiative()
+            )
 
     def cog_unload(self):
         self.task_manager.cancel_all()
@@ -195,8 +202,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         # Ignore mentionless message or attempt auto-reply
         reply_delay = 0
         if self.bot.user not in message.mentions:
-            return  # 🔴 AUTO-REPLY OFF
-            if random() > self.AUTO_REPLY_CHANCE:
+            if not self.AUTO_REPLY_ENABLED or random() > self.AUTO_REPLY_CHANCE:
                 return
             else:
                 reply_delay = randint(
