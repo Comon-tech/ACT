@@ -23,7 +23,7 @@ jobs:
           command_timeout: "20m"
           script: |
             APP_DIR="/home/ubuntu/ACT"
-            REPO_URL="https://github.com/simple-works/ACT.git"
+            REPO_URL="https://github.com/Comon-tech/ACT.git"
             REMOTE="fork"
             BRANCH="main"
 
