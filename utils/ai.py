@@ -84,10 +84,19 @@ class ActAi(BaseModel):
         chat = self._chats.get(id)
         if not chat:
             if history:
-                history = [
-                    Content(**content) if not isinstance(content, Content) else content
-                    for content in history
-                ]  # Sanitize history to ensure correct dumping in dump_history()
+                # Filter history to only include valid roles (user, model)
+                valid_history = []
+                for content in history:
+                    # Get the role from dict or Content object
+                    role = content.get("role") if isinstance(content, dict) else getattr(content, "role", None)
+                    # Only include entries with valid roles
+                    if role in ("user", "model"):
+                        valid_history.append(
+                            Content(**content) if not isinstance(content, Content) else content
+                        )
+                    else:
+                        log.warning(f"Skipping history entry with invalid role: {role}")
+                history = valid_history
             chat = self._client.aio.chats.create(model=self.model_name, history=history)  # type: ignore
             self._chats[id] = chat
         self._current_chat_id = id
