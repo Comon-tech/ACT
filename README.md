@@ -53,6 +53,18 @@ ACT (Assisstant of Comon Tech) is an AI-powered [Discord](http://discord.com) bo
    >
    > 💡 Virtual environments and dependencies are automatically installed when you run any UV command, such as `uv run`, `uv sync`, or `uv lock`. [Learn more about UV projects](https://docs.astral.sh/uv/guides/projects)
 
+## 🏠 Home Server Deployment
+
+For deploying to a Raspberry Pi or other home server, see the [Deployment Guide](./deployment/DEPLOYMENT.md).
+
+Quick start:
+
+```bash
+cd ~/ACT
+chmod +x deployment/setup-pi.sh
+./deployment/setup-pi.sh
+```
+
 ## ✈️ Deployment
 
 1. Create and run a live **MongoDB** database using a service like [**MongoDB Atlas**](https://www.mongodb.com/cloud/atlas) and get the **connection string**.
@@ -81,7 +93,7 @@ ACT (Assisstant of Comon Tech) is an AI-powered [Discord](http://discord.com) bo
    DISCORD_BOT_TOKEN=PLACE_VALUE_HERE
    GEMINI_AI_API_KEY=PLACE_VALUE_HERE
    MONGO_DB_URI=mongodb://localhost:1717
-   APP_SERVER_URL=http://localhost:8000
+   APP_SERVER_URL=http://localhost:8001
    ```
 
    c. Run **application** for production:

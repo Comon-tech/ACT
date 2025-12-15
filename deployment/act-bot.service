@@ -1,0 +1,29 @@
+[Unit]
+Description=ACT Discord Bot
+After=network.target
+
+[Service]
+Type=simple
+User=comon
+Group=comon
+WorkingDirectory=/home/comon/ACT
+EnvironmentFile=/home/comon/ACT/.env
+
+# Use UV to run the application
+ExecStart=/home/comon/.local/bin/uv run python main.py --bot --db --api
+
+# Restart policy
+Restart=on-failure
+RestartSec=10s
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=act-bot
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

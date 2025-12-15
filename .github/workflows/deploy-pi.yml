@@ -1,0 +1,60 @@
+name: Deploy to Raspberry Pi
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    if: github.repository == 'Comon-tech/ACT'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Deploy to Raspberry Pi
+        uses: appleboy/ssh-action@v1.2.1
+        with:
+          host: ${{ secrets.PI_HOST }}
+          username: ${{ secrets.PI_USER }}
+          key: ${{ secrets.PI_SSH_KEY }}
+          command_timeout: "20m"
+          script: |
+            APP_DIR="/home/comon/ACT"
+            REPO_URL="https://github.com/Comon-tech/ACT.git"
+            REMOTE="origin"
+            BRANCH="main"
+
+            if [ ! -d "$APP_DIR" ]; then
+              echo "Directory $APP_DIR does not exist. Creating and cloning..."
+              mkdir -p "$APP_DIR"
+              cd "$APP_DIR"
+              git clone --depth 1 "$REPO_URL" .
+              git checkout "$BRANCH"
+            else
+              cd "$APP_DIR"
+              if [ ! -d ".git" ]; then
+                echo "No git repo found, Re-cloning..."
+                rm -rf *
+                git clone --depth 1 "$REPO_URL" .
+                git checkout "$BRANCH"
+              else
+                echo "Fetching and resetting..."
+                git fetch "$REMOTE" "$BRANCH"
+                git reset --hard "$REMOTE"/"$BRANCH"
+              fi
+            fi
+
+            echo "Restarting service..."
+            sudo systemctl restart act-bot.service
+            sleep 3
+            sudo systemctl status act-bot.service --no-pager
