@@ -29,6 +29,7 @@ jobs:
           key: ${{ secrets.PI_SSH_KEY }}
           command_timeout: "20m"
           script: |
+            set -e
             APP_DIR="/home/comon/ACT"
             REPO_URL="https://github.com/Comon-tech/ACT.git"
             REMOTE="origin"
