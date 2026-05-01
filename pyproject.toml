@@ -17,6 +17,7 @@ requires-python = ">=3.13"
 dependencies = [
     "alt-profanity-check>=1.6.1",
     "audioop-lts>=0.2.1",
+    "davey>=0.1.5",
     "discord-py>=2.4.0",
     "fastapi[standard]>=0.115.8",
     "filetype>=1.2.0",

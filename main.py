@@ -67,13 +67,14 @@ async def main():
         bot = None
         if bot_enabled:
             intents = Intents.default()
+            intents.guilds = True
             intents.members = True
             intents.message_content = True
-            intents.guilds = True
+            intents.voice_states = True
             bot = ActBot(
                 token=bot_token or "",
                 command_prefix="!",
-                intents=intents,
+                intents=intents, 
                 db=db,
                 api_keys={"gemini": ai_api_key or ""},
                 title=name,

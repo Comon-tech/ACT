@@ -169,12 +169,12 @@ class ConsoleCog(Cog, description="Provide control and management interface"):
                             "Not in a voice channel. Provide a channel to join."
                         ),
                         ephemeral=True,
-                    )
+                    ) 
         except Exception as e:
-            await interaction.followup.send(
+            await interaction.followup.send( 
                 embed=EmbedX.error(f"An error occurred: {e}"),
                 ephemeral=True,
-            )
+            ) 
 
     # ----------------------------------------------------------------------------------------------------
     # * Proxy
