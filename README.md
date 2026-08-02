@@ -55,7 +55,7 @@ ACT (Assisstant of Comon Tech) is an AI-powered [Discord](http://discord.com) bo
 
 ## 🏠 Home Server Deployment
 
-For deploying to a Raspberry Pi or other home server, see the [Deployment Guide](./deployment/DEPLOYMENT.md).
+For deploying to a homelab or other home server, see the [Deployment Guide](./deployment/DEPLOYMENT.md).
 
 Quick start:
 

@@ -40,7 +40,7 @@ log = logger(__name__)
 # ----------------------------------------------------------------------------------------------------
 class AiCog(Cog, description="Integrated generative AI chat bot"):
     MAX_ACTORS = 10  # last interactors
-    MAX_CHANNEL_HISTORY = 300  # last messages/participants
+    MAX_CHANNEL_HISTORY = 30  # last messages/participants
 
     COOLDOWN_TIME = 60  # 1 min
     MAX_FILE_SIZE = 2097152  # 2 MB
@@ -211,7 +211,8 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
                 log.info(
                     f"[{message.guild}][{message.channel}] Auto-reply chance attained."
                 )
-        reply_delay = randint(self.REPLY_DELAY_RANGE[0], self.REPLY_DELAY_RANGE[1])
+        else:
+            reply_delay = randint(self.REPLY_DELAY_RANGE[0], self.REPLY_DELAY_RANGE[1])
 
         # Create prompt
         text_prompt, file_prompt = await self.create_prompt(
@@ -290,7 +291,7 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
 
         # Run reply task
         self.task_manager.schedule(
-            id=f"reply_{message.guild.id if message.guild else message.author.id}",
+            id=f"reply_{message.id}",
             callback=respond,  # type: ignore
             delay=reply_delay,
         )
