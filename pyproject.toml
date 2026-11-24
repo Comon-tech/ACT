@@ -44,7 +44,9 @@ cache-dir = "./.uv_cache"
 #----------------------------------------------------------------------------------------------------
 [tool.taskipy.tasks]
 db = { cmd = "mongod --port 1717 --dbpath .mongodb ", help = "run mongodb server" }
-db-fix = { cmd = "mongod --repair --dbpath .mongodb", help = "repair mongodb dbs" }
+db-bg = { cmd = "mkdir -p .mongodb && mongod --port 1717 --dbpath .mongodb --fork --logpath .mongodb/mongod.log", help = "run mongodb server in background" }
+db-stop = { cmd = "mongod --shutdown --dbpath .mongodb", help = "stop background mongodb server" }
+db-fix ={ cmd = "mongod --repair --dbpath .mongodb", help = "repair mongodb dbs" }
 db-man = { cmd = "mongosh --port 1717", help = "run mongodb shell" }
 app = { cmd = "pymon main.py", help = "run app for development (hot reload)" }
 app-prod = { cmd = "python main.py", help = "run app for production" }
