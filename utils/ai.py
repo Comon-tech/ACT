@@ -2,7 +2,13 @@ from typing import Any
 
 from google.genai import Client
 from google.genai.chats import AsyncChat
-from google.genai.types import Content, GenerateContentConfig, Part
+from google.genai.types import (
+    Content,
+    GenerateContentConfig,
+    HttpOptions,
+    HttpRetryOptions,
+    Part,
+)
 from pydantic import BaseModel, Field, StringConstraints, field_validator
 from typing_extensions import Annotated
 
@@ -11,6 +17,14 @@ from utils.log import logger
 
 log = logger(__name__)
 NonEmptyStr = Annotated[str, StringConstraints(min_length=1, strip_whitespace=True)]
+
+# Retry transient server-side failures (e.g. 503 "model is experiencing high demand") with
+# exponential backoff (~1s, 2s, 4s + jitter). 429 is deliberately excluded: retrying a quota
+# error just burns more quota, so it's left to AiCog's cooldown.
+RETRY_OPTIONS = HttpRetryOptions(
+    attempts=4,  # including the first call
+    http_status_codes=[408, 500, 502, 503, 504],
+)
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -23,7 +37,7 @@ class ActAi(BaseModel):
 
     api_key: NonEmptyStr
     instructions: NonEmptyStr | list[NonEmptyStr] | None = None
-    model_name: str = Field(alias="model", default="gemma-4-31b-it")
+    model_name: str = Field(alias="model", default="gemini-3.5-flash-lite")
     response_char_limit: int = 2000  # Used to be 4000 hmm
 
     _client: Client | None = None
@@ -32,7 +46,10 @@ class ActAi(BaseModel):
     _current_chat_id: int = 0
 
     def model_post_init(self, context: Any):
-        self._client = Client(api_key=self.api_key)
+        self._client = Client(
+            api_key=self.api_key,
+            http_options=HttpOptions(retry_options=RETRY_OPTIONS),
+        )
         self._config = GenerateContentConfig(
             system_instruction=self.instructions, response_modalities=["TEXT"]  # type: ignore
         )
