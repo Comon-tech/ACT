@@ -47,3 +47,7 @@ Known trouble spots found while debugging:
 
 - PEP 8, Black formatter.
 - No test suite currently — `z_test/` holds exploratory Jupyter notebooks (`_ai.ipynb`, `_bot.ipynb`, `_db.ipynb`, `_rpg.ipynb`, `_utils.ipynb`), not automated tests.
+
+## Sibling project: `../act-dashboard`
+
+A web config dashboard (Next.js on Cloudflare Workers) lives at `../act-dashboard`, sharing this repo's MongoDB cluster/main "ACT" database and Discord Application, but deployed and developed independently. It writes per-guild settings to its own `guild_settings` collection in the main database, which `AiCog` reads via `db/guild_settings.py` (read-only model; `get_guild_settings()` caches each guild's settings for `SETTINGS_CACHE_TTL` = 60s, so dashboard edits can take up to a minute to apply). Missing doc, missing field, invalid value, or DB error all fall back to the class constants (`AUTO_REPLY_ENABLED`, `AUTO_REPLY_CHANCE`, `INITIATIVE_ENABLED`). Never `save()` a `GuildSettings` from the bot — ODMantic would strip the dashboard's other fields. Only the auto-reply and initiative settings are wired so far; new dashboard settings need a matching field and a cog check. See `../act-dashboard/AGENTS.md` for its side of the picture.

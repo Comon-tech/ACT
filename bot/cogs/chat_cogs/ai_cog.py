@@ -1,6 +1,7 @@
 from asyncio import CancelledError
 from datetime import UTC, datetime, timedelta
 from random import choice, randint, random
+from time import monotonic
 from typing import Any
 
 from discord import (
@@ -24,6 +25,7 @@ from odmantic import query
 from bot.main import ActBot
 from bot.ui.embed import EmbedX
 from db.actor import Actor, DmActor
+from db.guild_settings import GuildSettings
 from db.main import ActToml, DbRef
 from db.persona import Persona
 from utils.ai import ActAi
@@ -53,6 +55,8 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
     INITIATIVE_ENABLED = True
     INITIATIVE_DELAY_RANGE = (1800, 7200)  # 30 min - 2 hr
 
+    SETTINGS_CACHE_TTL = 60  # sec, how long dashboard-saved guild settings are reused
+
     def __init__(self, bot: ActBot):
         self.bot = bot
         self.persona = ActToml.load_dict(Persona)["activa"]
@@ -62,13 +66,55 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         )
         log.info(f"AI persona @{self.persona.name} used.")
         self.task_manager = ActTaskManager()
-        if self.INITIATIVE_ENABLED:
-            self.task_manager.schedule(
-                "initiative", lambda _: self.schedule_initiative()
-            )
+        self._settings_cache: dict[int, tuple[float, GuildSettings | None]] = {}
+        # Always scheduled: whether a guild actually takes initiative is decided per guild,
+        # when its turn comes, so dashboard changes apply without a restart.
+        self.task_manager.schedule("initiative", lambda _: self.schedule_initiative())
 
     def cog_unload(self):
         self.task_manager.cancel_all()
+
+    # ----------------------------------------------------------------------------------------------------
+    # * Guild settings
+    # ----------------------------------------------------------------------------------------------------
+    def get_guild_settings(self, guild: Guild | None) -> GuildSettings | None:
+        """Get dashboard-saved settings of given guild, or None if there are none (or on failure).
+
+        Cached for `SETTINGS_CACHE_TTL` since this runs on every message. Never raises: callers
+        fall back to the class-constant defaults when this returns None.
+        """
+        if not guild:
+            return None
+        cached = self._settings_cache.get(guild.id)
+        if cached and monotonic() - cached[0] < self.SETTINGS_CACHE_TTL:
+            return cached[1]
+        try:
+            settings = self.bot.get_db().find_one(
+                GuildSettings, GuildSettings.guild_id == str(guild.id)
+            )
+        except Exception as e:
+            log.error(f"[{guild}] Failed to load guild settings: {str(e)}")
+            settings = None
+        self._settings_cache[guild.id] = (monotonic(), settings)
+        return settings
+
+    def is_auto_reply_enabled(self, guild: Guild | None) -> bool:
+        settings = self.get_guild_settings(guild)
+        if settings and settings.auto_reply_enabled is not None:
+            return settings.auto_reply_enabled
+        return self.AUTO_REPLY_ENABLED
+
+    def get_auto_reply_chance(self, guild: Guild | None) -> float:
+        settings = self.get_guild_settings(guild)
+        if settings and settings.auto_reply_chance is not None:
+            return settings.auto_reply_chance
+        return self.AUTO_REPLY_CHANCE
+
+    def is_initiative_enabled(self, guild: Guild | None) -> bool:
+        settings = self.get_guild_settings(guild)
+        if settings and settings.initiative_enabled is not None:
+            return settings.initiative_enabled
+        return self.INITIATIVE_ENABLED
 
     # ----------------------------------------------------------------------------------------------------
     # * Reset
@@ -202,7 +248,10 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         # Ignore mentionless message or attempt auto-reply
         reply_delay = 0
         if self.bot.user not in message.mentions:
-            if not self.AUTO_REPLY_ENABLED or random() > self.AUTO_REPLY_CHANCE:
+            if (
+                not self.is_auto_reply_enabled(message.guild)
+                or random() > self.get_auto_reply_chance(message.guild)
+            ):
                 return
             else:
                 reply_delay = randint(
@@ -341,6 +390,10 @@ class AiCog(Cog, description="Integrated generative AI chat bot"):
         # Make sure the guild still exists and we're still in it
         if guild not in self.bot.guilds:
             log.warning(f"[{guild.name}] No longer in guild, stopping task.")
+            return
+
+        # Respect the guild's dashboard setting (or the default)
+        if not self.is_initiative_enabled(guild):
             return
 
         # Get all text channels the bot can send messages in & Choose a random text channel
